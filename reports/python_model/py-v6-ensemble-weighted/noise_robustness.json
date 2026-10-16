@@ -1,0 +1,156 @@
+{
+  "svm": {
+    "20 dB": {
+      "accuracy": 0.8196443691786621,
+      "f1_macro": 0.8419705147672814,
+      "critical_recall_min": 0.7333333333333333
+    },
+    "10 dB": {
+      "accuracy": 0.7595258255715496,
+      "f1_macro": 0.7737643138440073,
+      "critical_recall_min": 0.5333333333333333
+    },
+    "5 dB": {
+      "accuracy": 0.655376799322608,
+      "f1_macro": 0.6662440660743545,
+      "critical_recall_min": 0.3111111111111111
+    },
+    "0 dB": {
+      "accuracy": 0.45808636748518206,
+      "f1_macro": 0.46525710615512916,
+      "critical_recall_min": 0.13333333333333333
+    }
+  },
+  "random_forest": {
+    "20 dB": {
+      "accuracy": 0.8001693480101609,
+      "f1_macro": 0.8220218809457785,
+      "critical_recall_min": 0.5777777777777777
+    },
+    "10 dB": {
+      "accuracy": 0.720575783234547,
+      "f1_macro": 0.7347314775384127,
+      "critical_recall_min": 0.37777777777777777
+    },
+    "5 dB": {
+      "accuracy": 0.5656223539373413,
+      "f1_macro": 0.5646211749172788,
+      "critical_recall_min": 0.06666666666666667
+    },
+    "0 dB": {
+      "accuracy": 0.33784928027095684,
+      "f1_macro": 0.2922320554567907,
+      "critical_recall_min": 0.0
+    }
+  },
+  "hist_gradient_boosting": {
+    "20 dB": {
+      "accuracy": 0.8314987298899238,
+      "f1_macro": 0.8519653863381395,
+      "critical_recall_min": 0.7333333333333333
+    },
+    "10 dB": {
+      "accuracy": 0.7790008467400508,
+      "f1_macro": 0.796916606543929,
+      "critical_recall_min": 0.4888888888888889
+    },
+    "5 dB": {
+      "accuracy": 0.6342082980524979,
+      "f1_macro": 0.6637685623015888,
+      "critical_recall_min": 0.24444444444444444
+    },
+    "0 dB": {
+      "accuracy": 0.4005080440304826,
+      "f1_macro": 0.403872151252445,
+      "critical_recall_min": 0.08888888888888889
+    }
+  },
+  "mlp": {
+    "20 dB": {
+      "accuracy": 0.8103302286198137,
+      "f1_macro": 0.830453283958979,
+      "critical_recall_min": 0.7111111111111111
+    },
+    "10 dB": {
+      "accuracy": 0.7578323454699407,
+      "f1_macro": 0.7794271510296077,
+      "critical_recall_min": 0.69
+    },
+    "5 dB": {
+      "accuracy": 0.6519898391193903,
+      "f1_macro": 0.6737436375973508,
+      "critical_recall_min": 0.4888888888888889
+    },
+    "0 dB": {
+      "accuracy": 0.46486028789161726,
+      "f1_macro": 0.4803113917391957,
+      "critical_recall_min": 0.2
+    }
+  },
+  "xgboost": {
+    "20 dB": {
+      "accuracy": 0.817104149026249,
+      "f1_macro": 0.8378060059397304,
+      "critical_recall_min": 0.6444444444444445
+    },
+    "10 dB": {
+      "accuracy": 0.7578323454699407,
+      "f1_macro": 0.7790200471781631,
+      "critical_recall_min": 0.4666666666666667
+    },
+    "5 dB": {
+      "accuracy": 0.6147332768839966,
+      "f1_macro": 0.6393379889682385,
+      "critical_recall_min": 0.2222222222222222
+    },
+    "0 dB": {
+      "accuracy": 0.3827265029635902,
+      "f1_macro": 0.3865393389894917,
+      "critical_recall_min": 0.08888888888888889
+    }
+  },
+  "ensemble": {
+    "20 dB": {
+      "accuracy": 0.8475867908552075,
+      "f1_macro": 0.8662549429508833,
+      "critical_recall_min": 0.7555555555555555
+    },
+    "10 dB": {
+      "accuracy": 0.7967823878069432,
+      "f1_macro": 0.8134291156586154,
+      "critical_recall_min": 0.5555555555555556
+    },
+    "5 dB": {
+      "accuracy": 0.6672311600338696,
+      "f1_macro": 0.6980729257253422,
+      "critical_recall_min": 0.4444444444444444
+    },
+    "0 dB": {
+      "accuracy": 0.43014394580863674,
+      "f1_macro": 0.4418982319728272,
+      "critical_recall_min": 0.15555555555555556
+    }
+  },
+  "ensemble_weighted": {
+    "20 dB": {
+      "accuracy": 0.8475867908552075,
+      "f1_macro": 0.8667725006927064,
+      "critical_recall_min": 0.7555555555555555
+    },
+    "10 dB": {
+      "accuracy": 0.7976291278577476,
+      "f1_macro": 0.8156496316905556,
+      "critical_recall_min": 0.6
+    },
+    "5 dB": {
+      "accuracy": 0.6672311600338696,
+      "f1_macro": 0.6998395792956567,
+      "critical_recall_min": 0.4444444444444444
+    },
+    "0 dB": {
+      "accuracy": 0.4436917866215072,
+      "f1_macro": 0.46127024426934765,
+      "critical_recall_min": 0.15555555555555556
+    }
+  }
+}

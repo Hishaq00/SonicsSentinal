@@ -1,0 +1,36 @@
+{
+  "fingerprint": "2eb986d8fa70e873",
+  "preprocessing": {
+    "target_sr": 22050,
+    "trim_silence": true,
+    "trim_top_db": 40.0,
+    "noise_reduction": true,
+    "nr_max_db": 12.0,
+    "nr_min_dynamic_range_db": 12.0,
+    "normalize_peak": 0.95
+  },
+  "segment_seconds": 2.0,
+  "segment_hop_seconds": 1.0,
+  "feature_config": {
+    "sr": 22050,
+    "n_fft": 2048,
+    "hop_length": 512,
+    "n_mfcc": 20,
+    "n_mels": 64,
+    "mel_summary_bands": 32,
+    "fmin": 20.0,
+    "f0_min": 60.0,
+    "f0_max": 2000.0,
+    "segment_seconds": 2.0,
+    "version": "ssf-1.0"
+  },
+  "n_segments": 88239,
+  "n_features": 193,
+  "renderings": {
+    "live": 45651,
+    "upload": 42588
+  },
+  "live_rendering": true,
+  "live_max_windows": 6,
+  "errors": []
+}

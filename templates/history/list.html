@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, sev, agree, quality, status, cat, pct, when, record_link, empty, pager, source with context %}
+{% block title %}Event history{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Investigate</p>
+    <h1>Event history</h1>
+    <p class="lede">Every analysed recording and live window{% if not show_user %} you created{% endif %}. Live background-noise windows are hidden unless you include them.</p>
+  </div>
+  <div class="actions">
+    {% if can_export %}
+    {% set args = request.args.to_dict() %}
+    <a class="btn" href="{{ url_for('history.export', fmt='csv', **args) }}">{{ icon("download") }}CSV</a>
+    <a class="btn" href="{{ url_for('history.export', fmt='xlsx', **args) }}">{{ icon("download") }}Excel</a>
+    {% endif %}
+  </div>
+</div>
+
+<form class="panel mb-3" method="get" aria-label="Search and filter">
+  <div class="panel-body filters">
+    <div class="field"><label for="f-id">Audio ID</label><input id="f-id" name="audio_id" value="{{ f.audio_id }}" placeholder="SS-260924-0001"></div>
+    <div class="field"><label for="f-file">Filename</label><input id="f-file" name="filename" value="{{ f.filename }}" placeholder="contains..."></div>
+    <div class="field"><label for="f-cat">Sound category</label><select id="f-cat" name="category"><option value="">All</option>{% for c in classes %}<option{% if f.category == c %} selected{% endif %}>{{ c }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="f-from">From</label><input id="f-from" type="date" name="date_from" value="{{ f.date_from }}"></div>
+    <div class="field"><label for="f-to">To</label><input id="f-to" type="date" name="date_to" value="{{ f.date_to }}"></div>
+    <div class="field"><label for="f-cmin">Confidence &ge; %</label><input id="f-cmin" type="number" min="0" max="100" name="conf_min" value="{{ f.conf_min }}" style="min-width:90px;width:90px"></div>
+    <div class="field"><label for="f-cmax">Confidence &le; %</label><input id="f-cmax" type="number" min="0" max="100" name="conf_max" value="{{ f.conf_max }}" style="min-width:90px;width:90px"></div>
+    <div class="field"><label for="f-sev">Severity</label><select id="f-sev" name="severity"><option value="">All</option>{% for s in severities|reverse %}<option{% if f.severity == s %} selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="f-q">Quality</label><select id="f-q" name="quality"><option value="">All</option>{% for q in qualities|reverse %}<option{% if f.quality == q %} selected{% endif %}>{{ q }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="f-rev">Review status</label><select id="f-rev" name="review"><option value="">All</option>{% for v, l in [("pending", "Needs review"), ("reviewed", "Reviewed"), ("not_required", "Not required")] %}<option value="{{ v }}"{% if f.review == v %} selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="f-st">Event status</label><select id="f-st" name="status"><option value="">All</option>{% for s in statuses %}<option{% if f.status == s %} selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="f-agree">Agreement</label><select id="f-agree" name="consistency"><option value="">All</option>{% for s in consistencies %}<option{% if f.consistency == s %} selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="f-src">Source</label><select id="f-src" name="source"><option value="">All</option>{% for v, l in [("upload", "Uploads"), ("live", "Live microphone")] %}<option value="{{ v }}"{% if f.source == v %} selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+    {% if show_user %}<div class="field"><label for="f-user">User</label><input id="f-user" name="user" value="{{ f.user }}" placeholder="username"></div>{% endif %}
+    <label class="check" style="height:34px"><input type="checkbox" name="include_background" value="1"{% if f.include_background %} checked{% endif %}> Include live background noise</label>
+    <div class="row"><button class="btn btn-primary" type="submit">{{ icon("search") }}Search</button><a class="btn btn-ghost" href="{{ url_for('history.history') }}">Reset</a></div>
+  </div>
+</form>
+
+<section class="panel">
+  <div class="panel-body flush">
+    {% if records %}
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Audio ID</th><th>When</th><th>Source / file</th>{% if show_user %}<th>User</th>{% endif %}<th>Result</th><th class="num">Conf.</th><th>Python / GTM</th><th>Agreement</th><th>Severity</th><th>Quality</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for r in records %}
+      <tr>
+        <td class="nowrap">{{ record_link(r) }}</td>
+        <td class="nowrap small">{{ when(r.created_at) }}</td>
+        <td style="max-width:210px">{{ source(r.source) }} <span class="small truncate" title="{{ r.display_name }}">{{ r.display_name }}</span></td>
+        {% if show_user %}<td class="small">{{ r.user.username if r.user else "-" }}</td>{% endif %}
+        <td>{{ cat(r.effective_category) }}{% if r.reviewed_category and r.reviewed_category != r.final_category %}<div class="small muted">model: {{ r.final_category }}</div>{% endif %}</td>
+        <td class="num">{{ pct(r.final_confidence) }}</td>
+        <td class="small nowrap">{{ r.python_top or "-" }}<br><span class="muted">{{ r.gtm_top or ("pending" if r.gtm_status == "pending" else "-") }}</span></td>
+        <td>{{ agree(r.consistency) }}</td>
+        <td>{{ sev(r.effective_severity) }}</td>
+        <td>{{ quality(r.quality_label) }}</td>
+        <td>{{ status(r.status) }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {{ pager(pagination, 'history.history') }}
+    {% else %}
+    {{ empty("No events match these filters.", "search") }}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

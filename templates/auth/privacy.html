@@ -1,0 +1,4 @@
+{% extends "base.html" if current_user.is_authenticated else "auth/auth_base.html" %}
+{% block title %}Privacy{% endblock %}
+{% block content %}<div class="panel"><div class="panel-body">{% include "auth/_privacy_text.html" %}</div></div>{% endblock %}
+{% block card %}{% include "auth/_privacy_text.html" %}<p class="mt-3"><a href="{{ url_for('auth.login') }}">Back to sign in</a></p>{% endblock %}

@@ -1,0 +1,52 @@
+audio_id,actual,predicted,confidence,top3,correct
+DS-MCH-0007,Machinery Fault,Machinery Fault,0.7042,Machinery Fault 0.70; Background Noise 0.27; Drilling or Grinder Sound 0.01,True
+DS-MCH-0009,Machinery Fault,Machinery Fault,0.8923,Machinery Fault 0.89; Vehicle Horn 0.04; Background Noise 0.03,True
+DS-MCH-0011,Machinery Fault,Machinery Fault,0.8546,Machinery Fault 0.85; Background Noise 0.14; Drilling or Grinder Sound 0.00,True
+DS-GLS-0013,Glass Breaking,Glass Breaking,0.9868,Glass Breaking 0.99; Aggression 0.00; Fireworks 0.00,True
+DS-GLS-0025,Glass Breaking,Glass Breaking,0.9885,Glass Breaking 0.99; Gunshot 0.00; Aggression 0.00,True
+DS-GLS-0027,Glass Breaking,Glass Breaking,0.9983,Glass Breaking 1.00; Aggression 0.00; Background Noise 0.00,True
+DS-ALM-0002,Alarm or Siren,Alarm or Siren,0.4204,Alarm or Siren 0.42; Vehicle Horn 0.38; Animal Sound 0.13,True
+DS-ALM-0005,Alarm or Siren,Alarm or Siren,0.9971,Alarm or Siren 1.00; Panic Scream 0.00; Vehicle Horn 0.00,True
+DS-ALM-0010,Alarm or Siren,Alarm or Siren,0.7327,Alarm or Siren 0.73; Panic Scream 0.26; Animal Sound 0.00,True
+DS-HRN-0008,Vehicle Horn,Background Noise,0.5605,Background Noise 0.56; Vehicle Horn 0.22; Vehicle Backfire 0.17,False
+DS-HRN-0009,Vehicle Horn,Vehicle Horn,0.9802,Vehicle Horn 0.98; Animal Sound 0.01; Door Impact 0.00,True
+DS-HRN-0015,Vehicle Horn,Vehicle Horn,0.7887,Vehicle Horn 0.79; Panic Scream 0.13; Animal Sound 0.02,True
+DS-ANM-0010,Animal Sound,Animal Sound,0.9424,Animal Sound 0.94; Explosion 0.01; Person Asking for Help 0.01,True
+DS-ANM-0018,Animal Sound,Explosion,0.3735,Explosion 0.37; Animal Sound 0.37; Door Impact 0.15,False
+DS-ANM-0024,Animal Sound,Animal Sound,0.9758,Animal Sound 0.98; Background Noise 0.01; Vehicle Backfire 0.00,True
+DS-GUN-0015,Gunshot,Gunshot,0.9713,Gunshot 0.97; Background Noise 0.02; Explosion 0.00,True
+DS-GUN-0024,Gunshot,Gunshot,0.9906,Gunshot 0.99; Fireworks 0.01; Background Noise 0.00,True
+DS-GUN-0029,Gunshot,Gunshot,0.4709,Gunshot 0.47; Person Asking for Help 0.41; Explosion 0.07,True
+DS-SCR-0021,Panic Scream,Panic Scream,0.9512,Panic Scream 0.95; Alarm or Siren 0.04; Animal Sound 0.00,True
+DS-SCR-0029,Panic Scream,Panic Scream,0.9979,Panic Scream 1.00; Alarm or Siren 0.00; Animal Sound 0.00,True
+DS-SCR-0049,Panic Scream,Panic Scream,0.986,Panic Scream 0.99; Animal Sound 0.01; Background Noise 0.00,True
+DS-AGR-0008,Aggression,Aggression,0.4977,Aggression 0.50; Drilling or Grinder Sound 0.33; Animal Sound 0.07,True
+DS-AGR-0017,Aggression,Aggression,0.4977,Aggression 0.50; Person Asking for Help 0.42; Animal Sound 0.04,True
+DS-AGR-0020,Aggression,Aggression,0.9487,Aggression 0.95; Background Noise 0.02; Door Impact 0.01,True
+DS-HLP-0002,Person Asking for Help,Person Asking for Help,0.4868,Person Asking for Help 0.49; Background Noise 0.25; Gunshot 0.16,True
+DS-HLP-0003,Person Asking for Help,Person Asking for Help,0.9169,Person Asking for Help 0.92; Animal Sound 0.02; Background Noise 0.02,True
+DS-HLP-0004,Person Asking for Help,Explosion,0.2494,Explosion 0.25; Glass Breaking 0.25; Aggression 0.14,False
+DS-DRN-0004,Drone Sound,Drone Sound,0.9979,Drone Sound 1.00; Drilling or Grinder Sound 0.00; Background Noise 0.00,True
+DS-DRN-0025,Drone Sound,Drone Sound,0.9989,Drone Sound 1.00; Background Noise 0.00; Drilling or Grinder Sound 0.00,True
+DS-DRN-0026,Drone Sound,Drone Sound,0.9892,Drone Sound 0.99; Drilling or Grinder Sound 0.01; Background Noise 0.00,True
+DS-DRL-0046,Drilling or Grinder Sound,Drilling or Grinder Sound,0.8594,Drilling or Grinder Sound 0.86; Background Noise 0.07; Gunshot 0.03,True
+DS-DRL-0047,Drilling or Grinder Sound,Gunshot,0.4779,Gunshot 0.48; Drilling or Grinder Sound 0.29; Vehicle Backfire 0.07,False
+DS-DRL-0048,Drilling or Grinder Sound,Drilling or Grinder Sound,0.5507,Drilling or Grinder Sound 0.55; Gunshot 0.25; Background Noise 0.10,True
+DS-FWK-0002,Fireworks,Fireworks,0.9506,Fireworks 0.95; Gunshot 0.04; Glass Breaking 0.00,True
+DS-FWK-0003,Fireworks,Fireworks,0.7983,Fireworks 0.80; Gunshot 0.16; Background Noise 0.01,True
+DS-FWK-0011,Fireworks,Fireworks,0.9967,Fireworks 1.00; Gunshot 0.00; Explosion 0.00,True
+DS-BKF-0002,Vehicle Backfire,Vehicle Backfire,0.9286,Vehicle Backfire 0.93; Explosion 0.02; Gunshot 0.02,True
+DS-BKF-0009,Vehicle Backfire,Vehicle Backfire,0.9993,Vehicle Backfire 1.00; Gunshot 0.00; Background Noise 0.00,True
+DS-BKF-0010,Vehicle Backfire,Explosion,0.2341,Explosion 0.23; Door Impact 0.23; Glass Breaking 0.17,False
+DS-EXP-0007,Explosion,Explosion,0.5638,Explosion 0.56; Vehicle Horn 0.29; Glass Breaking 0.08,True
+DS-EXP-0011,Explosion,Explosion,0.643,Explosion 0.64; Fireworks 0.09; Vehicle Backfire 0.09,True
+DS-EXP-0019,Explosion,Explosion,0.5266,Explosion 0.53; Animal Sound 0.17; Person Asking for Help 0.10,True
+DS-DOR-0001,Door Impact,Background Noise,0.774,Background Noise 0.77; Door Impact 0.07; Machinery Fault 0.07,False
+DS-DOR-0027,Door Impact,Background Noise,0.7958,Background Noise 0.80; Machinery Fault 0.18; Explosion 0.02,False
+DS-DOR-0028,Door Impact,Background Noise,0.4397,Background Noise 0.44; Door Impact 0.11; Gunshot 0.11,False
+DS-GRF-0009,Graffiti Spray,Graffiti Spray,0.9668,Graffiti Spray 0.97; Glass Breaking 0.03; Gunshot 0.00,True
+DS-GRF-0010,Graffiti Spray,Graffiti Spray,0.8169,Graffiti Spray 0.82; Drilling or Grinder Sound 0.07; Gunshot 0.05,True
+DS-GRF-0013,Graffiti Spray,Graffiti Spray,0.9989,Graffiti Spray 1.00; Glass Breaking 0.00; Gunshot 0.00,True
+DS-BGN-0010,Background Noise,Person Asking for Help,0.5024,Person Asking for Help 0.50; Aggression 0.21; Background Noise 0.19,False
+DS-BGN-0012,Background Noise,Background Noise,0.9835,Background Noise 0.98; Vehicle Horn 0.01; Drilling or Grinder Sound 0.00,True
+DS-BGN-0019,Background Noise,Background Noise,0.707,Background Noise 0.71; Door Impact 0.20; Drilling or Grinder Sound 0.04,True

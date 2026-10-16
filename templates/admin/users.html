@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, when, empty with context %}
+{% block title %}Users & roles{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Administration</p>
+    <h1>Users &amp; roles</h1>
+    <p class="lede">Approve role requests, change roles, disable accounts, unlock accounts after failed sign-ins and reset passwords. Every change is written to the audit trail.</p>
+  </div>
+  <form class="row" method="get"><input type="search" name="q" value="{{ q }}" placeholder="Name, username, email, ID" style="width:240px"><button class="btn" type="submit">{{ icon("search") }}Search</button></form>
+</div>
+<section class="panel mb-3">
+  <div class="panel-body flush"><div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>User</th><th>User ID</th><th>Role</th><th>Status</th><th>Last sign-in</th><th class="right">Actions</th></tr></thead>
+      <tbody>
+      {% for u in users %}
+      {% set locked = u.locked_until and u.locked_until > now %}
+      <tr>
+        <td><b>{{ u.full_name }}</b><div class="small muted">{{ u.username }} &middot; {{ u.email }}{% if u.department %} &middot; {{ u.department }}{% endif %}</div>
+          {% if u.pref('requested_role') and u.pref('requested_role') != u.role %}<div class="small"><span class="tag">requests {{ roles.get(u.pref('requested_role'), u.pref('requested_role')) }}</span></div>{% endif %}</td>
+        <td class="mono small">{{ u.user_code }}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin.update_user', code=u.user_code) }}" class="row" style="gap:6px;flex-wrap:nowrap">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="role">
+            <select name="role" style="width:auto;height:28px" aria-label="Role for {{ u.username }}">{% for key, label in roles.items() %}<option value="{{ key }}"{% if u.role == key %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+            <button class="btn btn-sm" type="submit">Save</button>
+          </form>
+        </td>
+        <td>{% if not u.active_account %}<span class="chip alert-Dismissed"><span class="glyph"></span>Disabled</span>{% elif locked %}<span class="chip alert-Active"><span class="glyph"></span>Locked</span>{% else %}<span class="chip q-Good"><span class="qbars"><i></i><i></i><i></i><i></i></span>Active</span>{% endif %}</td>
+        <td class="small">{{ when(u.last_login_at) }}</td>
+        <td class="right">
+          <div class="row" style="justify-content:flex-end;gap:6px">
+            {% if u.pref('requested_role') and u.pref('requested_role') != u.role %}
+            <form method="post" action="{{ url_for('admin.update_user', code=u.user_code) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="role"><input type="hidden" name="role" value="{{ u.pref('requested_role') }}"><button class="btn btn-sm btn-primary" type="submit">Approve</button></form>
+            <form method="post" action="{{ url_for('admin.update_user', code=u.user_code) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="reject_role"><button class="btn btn-sm" type="submit">Reject</button></form>
+            {% endif %}
+            {% if locked %}<form method="post" action="{{ url_for('admin.update_user', code=u.user_code) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="unlock"><button class="btn btn-sm" type="submit">Unlock</button></form>{% endif %}
+            <form method="post" action="{{ url_for('admin.update_user', code=u.user_code) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="reset_password"><button class="btn btn-sm" type="submit" data-confirm="Reset the password of {{ u.username }}? A temporary password will be shown once.">Reset password</button></form>
+            {% if u.id != current_user.id %}<form method="post" action="{{ url_for('admin.update_user', code=u.user_code) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="toggle"><button class="btn btn-sm{% if u.active_account %} btn-danger{% endif %}" type="submit">{{ "Disable" if u.active_account else "Enable" }}</button></form>{% endif %}
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">{{ empty("No users match.", "users") }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div></div>
+</section>
+<section class="panel">
+  <div class="panel-head"><h2>Role permissions</h2><span class="meta">role-based access control</span></div>
+  <div class="panel-body flush"><div class="table-wrap">
+    <table class="table compact">
+      <thead><tr><th>Permission</th>{% for key, label in roles.items() %}<th class="center">{{ label }}</th>{% endfor %}</tr></thead>
+      <tbody>{% for p in matrix %}<tr><td>{{ p.label }}</td>{% for key in roles %}<td class="center">{% if key in p.roles %}<span class="ok" style="color:var(--good-text);font-weight:600">&#10003;</span>{% else %}<span class="muted">&ndash;</span>{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
+    </table>
+  </div></div>
+  <div class="panel-note">Alert actions are also limited by category: each alert rule lists the roles responsible for it (for example Machinery Fault &rarr; maintenance operators). Administrators can act on every alert.</div>
+</section>
+{% endblock %}

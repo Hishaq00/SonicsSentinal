@@ -1,0 +1,45 @@
+{#- Acknowledge / resolve / escalate / dismiss / reopen buttons for one alert.
+    Shared by the Alerts page and the security / maintenance consoles. -#}
+{% macro alert_actions(a, targets, can_act) -%}
+  {% if can_act(current_user, a) %}
+    {% if a.status in ("Active", "Escalated") %}
+    <form method="post" action="{{ url_for('alerts.action', code=a.alert_code) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="acknowledge"><button class="btn btn-sm btn-primary" type="submit">Acknowledge</button></form>
+    {% endif %}
+    {% if a.status in ("Acknowledged", "Escalated") %}
+    <form method="post" action="{{ url_for('alerts.action', code=a.alert_code) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="resolve"><button class="btn btn-sm" type="submit">Resolve</button></form>
+    {% endif %}
+    {% if a.status in ("Active", "Acknowledged") %}
+    <button class="btn btn-sm" type="button" data-open-dialog="esc-{{ a.id }}">Escalate</button>
+    {% endif %}
+    {% if a.status in ("Active", "Acknowledged", "Escalated") %}
+    <button class="btn btn-sm btn-danger" type="button" data-open-dialog="dis-{{ a.id }}">Dismiss</button>
+    {% endif %}
+    {% if a.status in ("Dismissed", "Resolved") %}
+    <form method="post" action="{{ url_for('alerts.action', code=a.alert_code) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="reopen"><button class="btn btn-sm" type="submit">Reopen</button></form>
+    {% endif %}
+    <dialog id="esc-{{ a.id }}">
+      <form method="post" action="{{ url_for('alerts.action', code=a.alert_code) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="escalate">
+        <div class="dlg-head"><h2>Escalate {{ a.alert_code }}</h2></div>
+        <div class="dlg-body stack" style="gap:12px">
+          <div class="field"><label>Escalate to</label><select name="escalate_to" required>{% for t in targets %}<option>{{ t }}</option>{% endfor %}</select></div>
+          <div class="field"><label>Note</label><textarea name="comment" placeholder="What did you see or hear?"></textarea></div>
+        </div>
+        <div class="dlg-foot"><button class="btn" type="button" data-close-dialog>Cancel</button><button class="btn btn-primary" type="submit">Escalate</button></div>
+      </form>
+    </dialog>
+    <dialog id="dis-{{ a.id }}">
+      <form method="post" action="{{ url_for('alerts.action', code=a.alert_code) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="dismiss">
+        <div class="dlg-head"><h2>Dismiss {{ a.alert_code }}</h2></div>
+        <div class="dlg-body stack" style="gap:12px">
+          <p class="mb-0">Dismissing marks the alert as a possible false alarm and sends the event to manual review.</p>
+          <div class="field"><label>Reason (required)</label><textarea name="comment" required placeholder="e.g. false alarm - a door slammed"></textarea></div>
+        </div>
+        <div class="dlg-foot"><button class="btn" type="button" data-close-dialog>Cancel</button><button class="btn btn-danger" type="submit">Dismiss alert</button></div>
+      </form>
+    </dialog>
+  {% else %}
+    <a class="btn btn-sm" href="{{ url_for('analysis.record_detail', audio_id=a.record.audio_id) }}">Open event</a>
+  {% endif %}
+{%- endmacro %}

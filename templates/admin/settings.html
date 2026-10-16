@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, when with context %}
+{% block title %}Settings{% endblock %}
+{% set SECTION_TITLES = {
+  "detection": ("Detection thresholds", "Minimum confidence for an automatic event, top-two margin, model-agreement tolerance and fusion."),
+  "segmentation": ("Segments and live windows", "Fixed-duration segmentation of uploads and the live microphone window."),
+  "preprocessing": ("Pre-processing", "Applied identically to training and prediction."),
+  "validation": ("Upload validation", "Limits for format, size, duration, sampling rate and channels."),
+  "quality": ("Audio-quality thresholds", "Silence, low signal, clipping and background-noise limits."),
+  "live": ("Live monitoring", "Repeated-detection period, alert cool-down and audio storage (privacy)."),
+  "retention": ("Data retention", "How long audio files and event records are kept."),
+  "security": ("Sign-in security", "Lock-out after repeated failed sign-ins."),
+  "monitoring": ("Anomaly monitoring", "When administrators receive system alerts."),
+} %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Administration</p>
+    <h1>Settings</h1>
+    <p class="lede">Runtime configuration. Changes apply to the next analysis and are recorded in the audit trail. Category-specific alert conditions are on the <a href="{{ url_for('admin.rules') }}">Alert rules</a> page.</p>
+  </div>
+</div>
+<form method="post" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% for section, fields in schema.items() %}
+  {% set title = SECTION_TITLES.get(section, (section|capitalize, "")) %}
+  <section class="panel" id="s-{{ section }}">
+    <div class="panel-head"><h2>{{ title[0] }}</h2><span class="meta">{{ title[1] }}</span></div>
+    <div class="panel-body form-grid">
+      {% for f in fields %}
+      {% set value = settings[section][f.key] %}
+      {% if f.type == "bool" %}
+      <div class="field"><span class="label">{{ f.label }}</span><label class="check" style="height:34px"><input type="checkbox" name="{{ section }}.{{ f.key }}" value="1"{% if value %} checked{% endif %}> Enabled</label>{% if f.help %}<span class="help">{{ f.help }}</span>{% endif %}</div>
+      {% elif f.choices %}
+      <div class="field"><label for="{{ section }}-{{ f.key }}">{{ f.label }}</label><select id="{{ section }}-{{ f.key }}" name="{{ section }}.{{ f.key }}">{% for c in f.choices %}<option{% if value == c %} selected{% endif %}>{{ c }}</option>{% endfor %}</select>{% if f.help %}<span class="help">{{ f.help }}</span>{% endif %}</div>
+      {% else %}
+      <div class="field"><label for="{{ section }}-{{ f.key }}">{{ f.label }}</label><input id="{{ section }}-{{ f.key }}" type="number" name="{{ section }}.{{ f.key }}" value="{{ value }}" step="{{ '1' if f.type == 'int' else 'any' }}"{% if f.min is not none %} min="{{ f.min }}"{% endif %}{% if f.max is not none %} max="{{ f.max }}"{% endif %}>{% if f.help %}<span class="help">{{ f.help }}</span>{% endif %}</div>
+      {% endif %}
+      {% endfor %}
+      {% if section == "validation" %}
+      <div class="field full"><span class="label">Allowed audio formats</span>
+        <div class="row">{% for fmt in supported %}<label class="check"><input type="checkbox" name="formats" value="{{ fmt }}"{% if fmt in settings.validation.allowed_formats %} checked{% endif %}> {{ fmt|upper }}</label>{% endfor %}</div>
+        <span class="help">Formats the decoder supports. To support a new format, add it to <code>audio_preprocessing/loader.py</code> (see README, "Surprise modifications").</span>
+        <input type="hidden" name="validation.allowed_formats" value="1">
+      </div>
+      {% endif %}
+    </div>
+    {% if section == "retention" %}
+    <div class="panel-foot"><span>Last clean-up: {% if retention_last %}{{ retention_last.at[:16].replace('T', ' ') }} UTC ({{ retention_last.records_deleted }} records, {{ retention_last.audio_deleted + retention_last.live_audio_deleted }} audio files){% else %}never{% endif %}. Runs automatically every 24 h.</span>
+      <button class="btn btn-sm" type="submit" form="retention-form" data-confirm="Delete data older than the retention periods now?">{{ icon("trash") }}Run clean-up now</button></div>
+    {% endif %}
+  </section>
+  {% endfor %}
+  <div class="row-between"><span class="muted small">Values outside the allowed range are rejected with a message.</span><button class="btn btn-primary btn-lg" type="submit">Save settings</button></div>
+</form>
+<form id="retention-form" method="post" action="{{ url_for('admin.run_retention') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"></form>
+{% endblock %}

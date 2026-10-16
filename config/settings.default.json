@@ -1,0 +1,82 @@
+{
+  "detection": {
+    "min_confidence": 0.6,
+    "top_two_margin": 0.15,
+    "max_confidence_difference": 0.25,
+    "unknown_threshold": 0.3,
+    "overlap_threshold": 0.25,
+    "fusion_weight_python": 0.72,
+    "fusion_weight_python_live": 0.72,
+    "live_smoothing_windows": 3,
+    "confidence_high": 0.8,
+    "confidence_medium": 0.6,
+    "low_confidence_spike_ratio": 0.5
+  },
+  "segmentation": {
+    "segment_seconds": 2.0,
+    "segment_hop_seconds": 1.0,
+    "live_window_seconds": 2.0,
+    "live_hop_seconds": 0.5
+  },
+  "preprocessing": {
+    "target_sample_rate": 22050,
+    "trim_silence": true,
+    "trim_top_db": 40,
+    "noise_reduction": true,
+    "noise_reduction_max_db": 12,
+    "noise_reduction_min_dynamic_range_db": 12,
+    "normalize_peak": 0.95
+  },
+  "validation": {
+    "allowed_formats": [
+      "wav",
+      "mp3",
+      "flac",
+      "ogg",
+      "m4a"
+    ],
+    "max_file_mb": 25,
+    "min_duration_seconds": 0.5,
+    "max_duration_seconds": 600,
+    "min_sample_rate": 8000,
+    "max_sample_rate": 192000,
+    "max_channels": 8,
+    "max_batch_files": 50
+  },
+  "quality": {
+    "silence_dbfs": -55,
+    "live_silence_dbfs": -60,
+    "low_signal_dbfs": -40,
+    "clipping_warning_ratio": 0.001,
+    "clipping_severe_ratio": 0.01,
+    "noise_floor_limit_dbfs": -25
+  },
+  "live": {
+    "store_audio": "events",
+    "repeat_window_seconds": 10,
+    "alert_cooldown_seconds": 15
+  },
+  "retention": {
+    "audio_days": 30,
+    "records_days": 365,
+    "live_audio_days": 7
+  },
+  "gtm": {
+    "enabled": true,
+    "source": "local",
+    "url": "",
+    "version_label": ""
+  },
+  "security": {
+    "max_failed_logins": 5,
+    "lockout_minutes": 15
+  },
+  "monitoring": {
+    "failed_upload_limit": 5,
+    "failed_upload_window_minutes": 10,
+    "critical_alert_limit": 10,
+    "critical_alert_window_minutes": 10,
+    "low_confidence_window_minutes": 30,
+    "low_confidence_min_predictions": 20
+  }
+}

@@ -1,0 +1,86 @@
+{% macro icon(name, cls="") -%}
+<svg class="icon {{ cls }}" aria-hidden="true"><use href="#i-{{ name }}"/></svg>
+{%- endmacro %}
+
+{% macro sev(severity) -%}
+{%- if severity -%}
+<span class="chip sev-{{ severity }}" title="Severity: {{ severity }}"><span class="glyph"></span>{{ severity }}</span>
+{%- else -%}<span class="muted">-</span>{%- endif -%}
+{%- endmacro %}
+
+{% macro quality(label) -%}
+{%- if label -%}
+<span class="chip q-{{ label }}" title="Audio quality: {{ label }}"><span class="qbars"><i></i><i></i><i></i><i></i></span>{{ label }}</span>
+{%- else -%}<span class="muted">-</span>{%- endif -%}
+{%- endmacro %}
+
+{% set AGREE_SYM = {"Acceptable Match": "=", "Weak Match": "≈", "Model Disagreement": "≠", "Uncertain Result": "?", "Single-Model Result": "1"} %}
+{% macro agree(status) -%}
+{%- if status -%}
+<span class="chip agree agree-{{ status|replace(' ', '-') }}" title="Model agreement: {{ status }}"><span class="sym">{{ AGREE_SYM.get(status, "?") }}</span>{{ status }}</span>
+{%- else -%}<span class="muted">-</span>{%- endif -%}
+{%- endmacro %}
+
+{% macro status(value) -%}
+{%- if value -%}
+<span class="chip status status-{{ value|replace(' ', '-') }}"><span class="glyph"></span>{{ value }}</span>
+{%- endif -%}
+{%- endmacro %}
+
+{% macro alert_state(value) -%}
+<span class="chip alert-{{ value }}"><span class="glyph"></span>{{ value }}</span>
+{%- endmacro %}
+
+{% macro cat(name, large=False) -%}
+{%- if name -%}
+<span class="cat{% if large %} cat-lg{% endif %}">{% if class_parents.get(name) %}<span class="parent">{{ class_parents[name] }} / </span>{% endif %}{{ name }}{% if class_codes.get(name) %} <span class="code">{{ class_codes[name] }}</span>{% endif %}</span>
+{%- else -%}<span class="muted">Pending</span>{%- endif -%}
+{%- endmacro %}
+
+{% macro pct(x, digits=0) -%}
+{%- if x is none -%}-{%- else -%}{{ "%.*f"|format(digits, x * 100) }}%{%- endif -%}
+{%- endmacro %}
+
+{% macro bar(value, kind="", thick=False) -%}
+<div class="bar {{ kind }}{% if thick %} thick{% endif %}" role="img" aria-label="{{ pct(value, 1) }}"><span style="width: {{ ((value or 0) * 100)|round(1) }}%"></span></div>
+{%- endmacro %}
+
+{% macro when(dt, rel=True) -%}
+{%- if dt -%}<time class="js-time{% if rel %} rel{% endif %}" datetime="{{ dt|iso }}" title="{{ dt|dt }}">{{ dt|dt }}</time>{%- else -%}-{%- endif -%}
+{%- endmacro %}
+
+{% macro source(value) -%}
+{%- if value == "live" -%}<span class="tag">Live</span>{%- elif value == "batch" -%}<span class="tag">Batch</span>{%- elif value == "evaluation" -%}<span class="tag">Test</span>{%- else -%}<span class="tag">Upload</span>{%- endif -%}
+{%- endmacro %}
+
+{% macro empty(text, name="info") -%}
+<div class="empty">{{ icon(name) }}<div>{{ text }}</div></div>
+{%- endmacro %}
+
+{% macro pager(pagination, endpoint) -%}
+{% if pagination.pages > 1 %}
+<div class="pager">
+  <span>Page {{ pagination.page }} of {{ pagination.pages }} &middot; {{ pagination.total }} records</span>
+  <span class="pages">
+    {% set args = request.args.to_dict() %}
+    {% if pagination.has_prev %}{% set _ = args.update({"page": pagination.prev_num}) %}<a class="btn btn-sm" href="{{ url_for(endpoint, **args) }}">Previous</a>{% endif %}
+    {% if pagination.has_next %}{% set _ = args.update({"page": pagination.next_num}) %}<a class="btn btn-sm" href="{{ url_for(endpoint, **args) }}">Next</a>{% endif %}
+  </span>
+</div>
+{% elif pagination.total %}
+<div class="pager"><span>{{ pagination.total }} record{{ "s" if pagination.total != 1 }}</span><span></span></div>
+{% endif %}
+{%- endmacro %}
+
+{% macro record_link(r) -%}
+<a class="id" href="{{ url_for('analysis.record_detail', audio_id=r.audio_id) }}">{{ r.audio_id }}</a>
+{%- endmacro %}
+
+{% macro brand_mark(cls="brand-mark") -%}
+{#- The "listening lens": a ring with an impulse waveform across it and a record light. -#}
+<svg class="{{ cls }}" viewBox="0 0 32 32" aria-hidden="true">
+  <circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2.2"/>
+  <path d="M5 16h5l1.6-4.4 2.6 9.8 2.4-13.6 2.5 15.4 2.1-9.4 1.3 2.2H27" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/>
+  <circle cx="25.6" cy="6.4" r="3" fill="var(--signal, #ff5a1f)" stroke="var(--brand-bg, var(--paper, #0c0d0b))" stroke-width="1.6"/>
+</svg>
+{%- endmacro %}

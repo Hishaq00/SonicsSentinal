@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, when with context %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Account</p>
+    <h1>{{ current_user.full_name }}</h1>
+    <p class="lede">User ID <span class="mono">{{ current_user.user_code }}</span> &middot; {{ current_user.role_label }} &middot; member since {{ when(current_user.created_at, rel=False) }}</p>
+  </div>
+</div>
+<div class="grid grid-main">
+  <form class="panel" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="panel-head"><h2>Profile information</h2></div>
+    <div class="panel-body form-grid">
+      <div class="field"><label for="full_name">Full name</label><input id="full_name" name="full_name" value="{{ current_user.full_name }}" required></div>
+      <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" value="{{ current_user.email }}" required></div>
+      <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" value="{{ current_user.phone or '' }}"></div>
+      <div class="field"><label for="job_title">Job title</label><input id="job_title" name="job_title" value="{{ current_user.job_title or '' }}"></div>
+      <div class="field"><label for="organization">Organisation</label><input id="organization" name="organization" value="{{ current_user.organization or '' }}"></div>
+      <div class="field"><label for="department">Department</label><input id="department" name="department" value="{{ current_user.department or '' }}"></div>
+      <div class="field">
+        <label for="theme">Colour theme</label>
+        <select id="theme" name="theme">
+          {% for v, l in [("system", "Follow my device"), ("light", "Light"), ("dark", "Dark")] %}<option value="{{ v }}"{% if current_user.pref('theme', 'system') == v %} selected{% endif %}>{{ l }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <span class="label">Alert sound</span>
+        <label class="check" style="height:34px"><input type="checkbox" name="alert_sound" value="1"{% if current_user.pref('alert_sound') %} checked{% endif %}> Play a short tone when a new alert arrives</label>
+      </div>
+    </div>
+    <div class="panel-foot"><span>Username <span class="mono">{{ current_user.username }}</span> cannot be changed.</span><button class="btn btn-primary" type="submit">Save profile</button></div>
+  </form>
+  <div class="stack">
+    <form class="panel" method="post" action="{{ url_for('auth.change_password') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="panel-head"><h2>Change password</h2></div>
+      <div class="panel-body stack" style="gap:12px">
+        <div class="field"><label for="cp">Current password</label><input id="cp" name="current_password" type="password" required autocomplete="current-password"></div>
+        <div class="field"><label for="np">New password</label><input id="np" name="new_password" type="password" required minlength="8" autocomplete="new-password"><span class="help">8+ characters with a letter and a number.</span></div>
+        <div class="field"><label for="np2">Confirm new password</label><input id="np2" name="confirm_password" type="password" required minlength="8" autocomplete="new-password"></div>
+      </div>
+      <div class="panel-foot"><span></span><button class="btn" type="submit">Update password</button></div>
+    </form>
+    <div class="panel">
+      <div class="panel-head"><h2>Account details</h2></div>
+      <div class="panel-body">
+        <dl class="kv">
+          <dt>Role</dt><dd>{{ current_user.role_label }}{% if current_user.pref('requested_role') and current_user.pref('requested_role') != current_user.role %} <span class="tag">requested: {{ current_user.pref('requested_role') }}</span>{% endif %}</dd>
+          <dt>Last sign-in</dt><dd>{{ when(current_user.last_login_at) }}</dd>
+          <dt>Microphone notice</dt><dd>{% if current_user.mic_consent_at %}Accepted {{ when(current_user.mic_consent_at) }}{% else %}Not yet accepted{% endif %}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{#- The dashboard's ear: a microphone the visitor switches on to see the waves.
+    Purely local - it draws the input, it does not classify or store anything.
+    The full pipeline lives on the live monitor page. -#}
+{% from "partials/macros.html" import icon with context %}
+<section class="panel console-panel sonar" id="sonar" data-state="idle" aria-labelledby="sonar-h">
+  <div class="panel-head">
+    <h2 id="sonar-h">{{ icon("wave") }}Acoustic input</h2>
+    <div class="sonar-controls">
+      <span class="sonar-state" role="status" aria-live="polite"><i aria-hidden="true"></i><span data-sonar-label>Idle</span></span>
+      <button class="btn btn-sm" type="button" data-sonar-start>{{ icon("mic") }}Listen</button>
+      <button class="btn btn-sm btn-danger hidden" type="button" data-sonar-stop>{{ icon("stop") }}Stop</button>
+      {% if can('live_monitor') %}<a class="btn btn-sm btn-ghost" href="{{ url_for('live.monitor') }}">Full monitor {{ icon("chevron-right") }}</a>{% endif %}
+    </div>
+  </div>
+
+  <div class="sonar-stage" id="sonar-stage">
+    <span class="sonar-tag"><span>input</span><b id="sonar-tag-state">standby</b></span>
+    <span class="sonar-peak" id="sonar-peak">peak -- dBFS</span>
+    <canvas class="sonar-spectrum" id="sonar-spectrum" aria-hidden="true"></canvas>
+    <canvas id="sonar-wave" role="img" aria-label="Live waveform of the microphone input"></canvas>
+    <div class="sonar-hit" aria-hidden="true"></div>
+    <div class="sonar-idle">
+      {{ icon("mic") }}
+      <b>Hear the room</b>
+      <span>Switch the microphone on and the waves follow any sound or voice in real time.</span>
+      <button class="lpx-btn solid" type="button" data-sonar-start>{{ icon("play") }}<span>Start listening</span></button>
+    </div>
+  </div>
+
+  <div class="sonar-foot">
+    <div>
+      <div class="l">Input level</div>
+      <div class="v" id="sonar-db">-</div>
+      <div class="sonar-level" id="sonar-level" role="img" aria-label="Input level"></div>
+    </div>
+    <div><div class="l">Sounds detected</div><div class="v" id="sonar-hits">0</div></div>
+    <div><div class="l">Dominant band</div><div class="v sm" id="sonar-band">-</div></div>
+    <div><div class="l">Detection threshold</div><div class="v sm">-42 dBFS</div></div>
+  </div>
+
+  <div class="panel-note" id="sonar-note">Audio stays in this browser: nothing is uploaded and nothing is stored. Use the live monitor to classify sound against the alert rules.</div>
+</section>

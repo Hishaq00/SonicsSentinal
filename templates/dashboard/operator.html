@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, sev, agree, alert_state, cat, pct, when, record_link, empty, source with context %}
+{% from "partials/alert_actions.html" import alert_actions with context %}
+{% set maint = current_user.role == "maintenance" %}
+{% block title %}{{ "Maintenance console" if maint else "Security console" }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/console.css') }}?v={{ app_version }}">{% endblock %}
+{% block content %}
+<section class="console" id="console" data-live="off">
+  <div class="console-grain" aria-hidden="true"></div>
+  <div class="console-flare" aria-hidden="true"></div>
+  <div class="console-crop" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <canvas class="console-spectrum" id="console-spectrum" aria-hidden="true"></canvas>
+  <canvas class="console-wave" id="console-wave" aria-hidden="true"></canvas>
+  <div class="console-body">
+    <div class="console-id">
+      <span class="console-dot" aria-hidden="true"></span><span>{{ current_user.role_label }}</span>
+      <span class="console-sep" aria-hidden="true"></span><span>live desk</span>
+    </div>
+    <h1 class="console-title">{{ "Maintenance console" if maint else "Security console" }}</h1>
+    <p class="console-lede">{% if maint %}Machinery faults, alarms and other equipment sounds your team is responsible for. Acknowledge an alert when someone is on the way, resolve it after the inspection.{% else %}Gunshots, glass breaking, screams, aggression, calls for help and alarms your team is responsible for. Acknowledge an alert when you are responding; dismiss false alarms with a reason so a reviewer can check them.{% endif %}</p>
+    <div class="console-actions">
+      <span class="console-listen">
+        <span class="rec" aria-hidden="true"></span>
+        <button class="lpx-btn solid" type="button" data-sonar-start>{{ icon("mic") }}<span>Listen live</span></button>
+        <button class="lpx-btn is-on hidden" type="button" data-sonar-stop>{{ icon("stop") }}<span>Stop listening</span></button>
+      </span>
+      <a class="lpx-btn ghost" href="{{ url_for('alerts.list_alerts') }}">{{ icon("bell") }}<span>All alerts</span></a><a class="lpx-btn" href="{{ url_for('live.monitor') }}">{{ icon("mic") }}<span>Live monitor</span></a>
+    </div>
+    <p class="console-hint">The trace follows any sound or voice the microphone hears. Audio stays in this browser.</p>
+  </div>
+  <dl class="console-readout"><div><dt>Open</dt><dd class="num">{{ d.open_total }}</dd></div><div><dt>Critical</dt><dd class="num hot">{{ d.critical_open }}</dd></div><div><dt>Unack.</dt><dd class="num">{{ d.unacknowledged }}</dd></div></dl>
+</section>
+
+<section class="gauges" id="gauges">
+  <article class="gauge"><span class="gauge-label">Open alerts</span><span class="gauge-value">{{ d.open_total }}</span><span class="gauge-meta">{{ d.unacknowledged }} not acknowledged</span><span class="gauge-rule"><i></i></span></article>
+  <article class="gauge"><span class="gauge-label">Critical open</span><span class="gauge-value">{{ d.critical_open }}</span><span class="gauge-meta">{{ d.escalated_open }} escalated</span><span class="gauge-rule"><i></i></span></article>
+  <article class="gauge"><span class="gauge-label">Detections, 24 h</span><span class="gauge-value">{{ d.events_24h }}</span><span class="gauge-meta">in your categories</span><span class="gauge-rule"><i></i></span></article>
+  <article class="gauge"><span class="gauge-label">Median response</span><span class="gauge-value">{{ d.median_response_s|secs if d.median_response_s is not none else "-" }}</span><span class="gauge-meta">first action, {{ d.alerts_30d }} alerts in 30 days</span><span class="gauge-rule"><i></i></span></article>
+  <article class="gauge"><span class="gauge-label">Your actions today</span><span class="gauge-value">{{ d.my_actions_today }}</span><span class="gauge-meta">acknowledge, resolve, escalate...</span><span class="gauge-rule"><i></i></span></article>
+</section>
+
+{% include "partials/sonar.html" %}
+
+<section class="panel mb-3">
+  <div class="panel-head"><h2>Last 24 hours</h2><span class="meta">critical and high alerts in your categories</span></div>
+  <div class="panel-body">
+    {% if d.timeline %}
+    <div class="strip24" role="list" aria-label="Critical and high alerts in the last 24 hours">
+      {% for t in d.timeline %}
+        <a class="mark sev-{{ t.severity }}" role="listitem" data-ts="{{ t.created_at|iso }}" href="{{ url_for('analysis.record_detail', audio_id=t.audio_id) }}" title="{{ t.severity }}: {{ t.category }} ({{ t.code }})"></a>
+      {% endfor %}
+    </div>
+    <div class="strip24-axis"><span>24 h ago</span><span>18 h</span><span>12 h</span><span>6 h</span><span>now</span></div>
+    {% else %}
+    {{ empty("No critical or high alerts in your categories in the last 24 hours.", "shield") }}
+    {% endif %}
+  </div>
+</section>
+
+<div class="grid grid-main mb-3">
+  <section class="panel">
+    <div class="panel-head"><h2>Needs action</h2><span class="meta">open alerts, most severe first</span></div>
+    {% if d.open_alerts %}
+    {% for a in d.open_alerts %}
+    <article class="alert-card sev-{{ a.severity }}" id="{{ a.alert_code }}">
+      <span class="stripe"></span>
+      <div style="min-width:0">
+        <div class="head">{{ cat(a.category) }} {{ sev(a.severity) }} {{ alert_state(a.status) }}{% if a.auto_escalated %}<span class="tag">auto-escalated</span>{% endif %}{% if a.occurrences > 1 %}<span class="tag">{{ a.occurrences }} detections</span>{% endif %}</div>
+        <p class="msg">{{ a.message }}</p>
+        <div class="meta"><span class="mono">{{ a.alert_code }}</span><span>{{ when(a.created_at) }}</span>{{ source(a.source) }}<span>event {{ record_link(a.record) }}</span>{% if a.escalated_to %}<span>Escalated to: {{ a.escalated_to }}</span>{% endif %}</div>
+        {% if a.recommended_action %}<p class="small mt-1 mb-0"><b>Recommended action:</b> {{ a.recommended_action }}</p>{% endif %}
+      </div>
+      <div class="actions">{{ alert_actions(a, targets, can_act) }}</div>
+    </article>
+    {% endfor %}
+    {% if d.open_total > d.open_alerts|length %}<div class="panel-foot"><span>{{ d.open_total - d.open_alerts|length }} more open</span><a href="{{ url_for('alerts.list_alerts') }}">All alerts</a></div>{% endif %}
+    {% else %}
+    <div class="panel-body">{{ empty("No open alerts in your categories. All clear.", "bell") }}</div>
+    {% endif %}
+  </section>
+
+  <section class="panel chart-card" id="trend-card">
+    <div class="panel-head"><h2>{{ "Fault and alarm trend" if maint else "Critical-event trend" }}</h2><div class="row"><span class="meta">{{ d.trend.days|length }} days</span><button class="btn btn-sm" type="button" data-table-toggle aria-pressed="false">Table</button></div></div>
+    <div class="chart-box tall"><canvas id="trend-chart" role="img" aria-label="Detections per day in your alerting categories"></canvas></div>
+    <div class="table-view"></div>
+    <div class="legend"></div>
+  </section>
+</div>
+
+<section class="panel mb-3">
+  <div class="panel-head"><h2>Your categories</h2><span class="meta">assigned to {{ current_user.role_label|lower }} in the alert rules</span></div>
+  <div class="panel-body flush">
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Category</th><th>Severity</th><th>Alert rule</th><th class="num">24 h</th><th class="num">7 days</th><th class="num">Open alerts</th><th>Last heard</th><th>Recommended action</th></tr></thead>
+      <tbody>
+      {% for c in d.categories %}
+      <tr>
+        <td>{{ cat(c.category) }}{% if not c.priority %}<div class="small muted">record only</div>{% endif %}</td>
+        <td>{{ sev(c.rule.severity) }}</td>
+        <td class="small">{% if c.rule.alert_enabled %}&ge; {{ pct(c.rule.min_confidence) }} conf.{% if c.rule.required_consecutive_detections > 1 %}, {{ c.rule.required_consecutive_detections }}&times; in a row{% endif %}{% if c.rule.require_model_agreement %}, models agree{% endif %}{% else %}<span class="muted">no alert</span>{% endif %}</td>
+        <td class="num">{{ c.events_24h }}</td>
+        <td class="num">{{ c.events_7d }}</td>
+        <td class="num">{{ c.open_alerts }}</td>
+        <td class="small nowrap">{{ when(c.last_seen) }}</td>
+        <td class="small" style="max-width:320px">{{ c.rule.recommended_action }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+  </div>
+  {% if can('admin') %}<div class="panel-foot"><span>Change thresholds and responsibilities on the Alert rules page.</span><a href="{{ url_for('admin.rules') }}">Alert rules</a></div>{% else %}<div class="panel-note">An administrator sets these thresholds and which role is responsible for each category.</div>{% endif %}
+</section>
+
+<div class="grid grid-2">
+  <section class="panel">
+    <div class="panel-head"><h2>Recent detections</h2><a class="btn btn-sm btn-ghost" href="{{ url_for('history.history') }}">Event history {{ icon("chevron-right") }}</a></div>
+    <div class="panel-body flush">
+      {% if d.recent %}
+      <div class="table-wrap"><table class="table compact">
+        <thead><tr><th>Event</th><th>Sound</th><th class="num">Conf.</th><th>Agreement</th></tr></thead>
+        <tbody>
+        {% for r in d.recent %}
+        <tr><td class="nowrap">{{ record_link(r) }}<div class="small muted">{{ source(r.source) }} {{ when(r.created_at) }}</div></td><td>{{ cat(r.effective_category) }}</td><td class="num">{{ pct(r.final_confidence) }}</td><td>{{ agree(r.consistency) }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+      {% else %}{{ empty("No detections in your alerting categories yet.", "wave") }}{% endif %}
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Your recent actions</h2></div>
+    <div class="panel-body flush">
+      {% if d.my_actions %}
+      <table class="table compact"><tbody>
+        {% for x in d.my_actions %}
+        <tr><td class="small nowrap">{{ when(x.created_at) }}</td><td class="small"><b>{{ x.action }}</b> <a class="mono" href="{{ url_for('alerts.list_alerts', tab='all') }}#{{ x.alert.alert_code }}">{{ x.alert.alert_code }}</a> {{ x.alert.category }}{% if x.escalate_to %} to {{ x.escalate_to }}{% endif %}{% if x.comment %}<div class="muted">&ldquo;{{ x.comment }}&rdquo;</div>{% endif %}</td></tr>
+        {% endfor %}
+      </tbody></table>
+      {% else %}{{ empty("You have not acted on any alerts yet.", "bell") }}{% endif %}
+    </div>
+  </section>
+</div>
+<script type="application/json" id="role-dash-data">{{ {"trend": d.trend, "priority": d.priority_names}|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/console.js') }}?v={{ app_version }}"></script>
+<script src="{{ url_for('static', filename='js/console-sonar.js') }}?v={{ app_version }}"></script>
+<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}?v={{ app_version }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}?v={{ app_version }}"></script>
+<script src="{{ url_for('static', filename='js/role-dashboard.js') }}?v={{ app_version }}"></script>
+{% endblock %}

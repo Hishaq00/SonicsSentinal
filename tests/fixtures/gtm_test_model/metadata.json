@@ -1,0 +1,18 @@
+{
+  "tfjsSpeechCommandsVersion": "0.4.0",
+  "modelName": "integration-test-fixture-NOT-GTM",
+  "timeStamp": "2026-09-24T19:15:50Z",
+  "wordLabels": [
+    "Machinery Fault",
+    "Glass Breaking",
+    "Alarm or Siren",
+    "Vehicle Horn",
+    "Animal Sound",
+    "Gunshot",
+    "Panic Scream",
+    "Aggression",
+    "Person Asking for Help",
+    "Background Noise"
+  ],
+  "note": "Random weights. Format-compatible test fixture only; not a Teachable Machine model."
+}

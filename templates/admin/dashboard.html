@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, pct, when, empty, sev, cat with context %}
+{% block title %}Acoustic console{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/console.css') }}?v={{ app_version }}">{% endblock %}
+{% block content %}
+
+{# ---------- instrument header: live spectrum + readouts ---------- #}
+<section class="console" id="console" data-live="off">
+  <div class="console-grain" aria-hidden="true"></div>
+  <div class="console-flare" aria-hidden="true"></div>
+  <div class="console-crop" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <canvas class="console-spectrum" id="console-spectrum" aria-hidden="true"></canvas>
+  <canvas class="console-wave" id="console-wave" aria-hidden="true"></canvas>
+  <div class="console-body">
+    <div class="console-id">
+      <span class="console-dot" aria-hidden="true"></span>
+      <span>Acoustic console</span>
+      <span class="console-sep" aria-hidden="true"></span>
+      <span>{{ kpis.days }}-day window</span>
+    </div>
+    <h1 class="console-title">System overview</h1>
+    <p class="console-lede">Every window of audio the two models have judged, the alerts they raised and
+      the health of the instruments behind them.</p>
+    <div class="console-actions">
+      <span class="console-listen">
+        <span class="rec" aria-hidden="true"></span>
+        <button class="lpx-btn solid" type="button" data-sonar-start>{{ icon("mic") }}<span>Listen live</span></button>
+        <button class="lpx-btn is-on hidden" type="button" data-sonar-stop>{{ icon("stop") }}<span>Stop listening</span></button>
+      </span>
+      <a class="lpx-btn" href="{{ url_for('admin.evaluation') }}">{{ icon("scale") }}<span>Model comparison</span></a>
+      <a class="lpx-btn ghost" href="{{ url_for('history.export', fmt='xlsx') }}">{{ icon("download") }}<span>Export events</span></a>
+    </div>
+    <p class="console-hint">The trace follows any sound or voice the microphone hears. Audio stays in this browser.</p>
+  </div>
+  <dl class="console-readout">
+    <div><dt>Events</dt><dd class="num" data-count="{{ kpis.events }}">{{ kpis.events }}</dd></div>
+    <div><dt>Critical</dt><dd class="num hot" data-count="{{ kpis.critical_alerts }}">{{ kpis.critical_alerts }}</dd></div>
+    <div><dt>Live now</dt><dd class="num" data-count="{{ active_sessions }}">{{ active_sessions }}</dd></div>
+    <div><dt>Mean conf.</dt><dd class="num">{{ pct(kpis.avg_confidence) if kpis.avg_confidence is not none else "--" }}</dd></div>
+  </dl>
+</section>
+
+{# ---------- gauges ---------- #}
+<section class="gauges" id="gauges">
+  {% set tiles = [
+    ("Total windows", kpis.total, kpis.days ~ "-day total", "", 1),
+    ("Open alerts", kpis.active_alerts, kpis.critical_alerts ~ " critical", "hot" if kpis.active_alerts else "", 1),
+    ("Model disagreement", (pct(kpis.disagreement_rate) if kpis.disagreement_rate is not none else "--"),
+     kpis.disagreements ~ " of " ~ kpis.compared ~ " compared", "", kpis.disagreement_rate or 0),
+    ("Awaiting review", kpis.pending_review, "manual queue", "warn" if kpis.pending_review else "", 1),
+    ("Poor quality", kpis.poor_quality, "unusable or poor audio", "", 1),
+    ("Pending GTM", pending_gtm, "browser jobs", "", 1),
+  ] %}
+  {% for label, value, meta, tone, _ in tiles %}
+  <article class="gauge {{ tone }}">
+    <span class="gauge-label">{{ label }}</span>
+    <span class="gauge-value">{{ value }}</span>
+    <span class="gauge-meta">{{ meta }}</span>
+    <span class="gauge-rule" aria-hidden="true"><i></i></span>
+  </article>
+  {% endfor %}
+</section>
+
+{% include "partials/sonar.html" %}
+
+{# ---------- 24 h recorder trace ---------- #}
+<section class="panel console-panel mb-3" id="trace-panel">
+  <div class="panel-head">
+    <h2>Recorder trace {{ icon("wave") }}</h2>
+    <span class="meta mono">last 24 hours &middot; from {{ hourly.start.replace('T', ' ') }} UTC</span>
+  </div>
+  <div class="trace-wrap">
+    <svg class="trace" id="hour-trace" viewBox="0 0 1000 190" preserveAspectRatio="none" role="img"
+         aria-label="Events per hour over the last 24 hours"></svg>
+    <div class="trace-axis mono" id="hour-axis"></div>
+  </div>
+  <div class="trace-key mono">
+    <span><i class="k-ev"></i>events</span><span><i class="k-cr"></i>critical / high</span><span><i class="k-bg"></i>background</span>
+  </div>
+</section>
+
+<div class="console-grid mb-3">
+  {# ---------- polar category pattern ---------- #}
+  <section class="panel console-panel" id="polar-panel">
+    <div class="panel-head"><h2>Category pattern</h2><span class="meta mono">{{ kpis.days }} days</span></div>
+    <div class="polar-wrap">
+      <svg class="polar" id="cat-polar" viewBox="0 0 420 420" role="img" aria-label="Detections per category"></svg>
+      <ol class="polar-legend mono" id="cat-legend"></ol>
+    </div>
+  </section>
+
+  {# ---------- real audio traces ---------- #}
+  <section class="panel console-panel" id="traces-panel">
+    <div class="panel-head">
+      <h2>Latest audio analysed</h2>
+      <a class="btn btn-sm btn-ghost" href="{{ url_for('history.history') }}">All {{ icon("chevron-right") }}</a>
+    </div>
+    <div class="panel-body flush">
+      {% if traces %}
+      <ul class="trace-list" id="trace-list">
+        {% for t in traces %}
+        <li class="trace-item" data-peaks="{{ t.peaks|tojson }}" data-color="{{ class_colors.get(t.category, '#8a8578') }}">
+          <a class="trace-link" href="{{ url_for('analysis.record_detail', audio_id=t.audio_id) }}">
+            <canvas class="trace-mini" aria-hidden="true"></canvas>
+            <span class="trace-meta">
+              <span class="trace-cat">{{ cat(t.category) }}</span>
+              <span class="trace-sub mono">{{ t.audio_id }} &middot; {{ "%.1f"|format(t.duration or 0) }} s &middot; {{ pct(t.confidence) }}</span>
+            </span>
+            {{ sev(t.severity) }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}{{ empty("No analysed recordings yet. Upload audio or start the live monitor.", "wave") }}{% endif %}
+    </div>
+  </section>
+</div>
+
+<div class="console-grid mb-3">
+  {# ---------- model instruments ---------- #}
+  <section class="panel console-panel">
+    <div class="panel-head"><h2>Instruments</h2><a class="btn btn-sm btn-ghost" href="{{ url_for('admin.models') }}">Models {{ icon("chevron-right") }}</a></div>
+    <div class="panel-body">
+      <div class="instrument">
+        <span class="instrument-tag python">Python model</span>
+        {% if python_ready %}
+        <span class="instrument-name mono">{{ python_card.version }}</span>
+        <span class="instrument-note">{{ python_card.algorithm_label }}</span>
+        <div class="instrument-bars">
+          {% set acc = python_card.metrics.test.recording.accuracy %}
+          {% set f1 = python_card.metrics.test.recording.f1_macro %}
+          <span class="ibar" style="--v: {{ (acc * 100)|round(1) }}%"><i></i><b class="mono">{{ pct(acc, 1) }}</b><em>test accuracy</em></span>
+          <span class="ibar" style="--v: {{ (f1 * 100)|round(1) }}%"><i></i><b class="mono">{{ "%.3f"|format(f1) }}</b><em>macro F1</em></span>
+        </div>
+        {% else %}<span class="instrument-name muted">not trained</span>{% endif %}
+      </div>
+      <div class="instrument">
+        <span class="instrument-tag gtm">Teachable Machine</span>
+        {% if gtm.enabled %}
+        <span class="instrument-name mono">{{ gtm_versions[0].version if gtm_versions else gtm.source }}</span>
+        <span class="instrument-note">runs in the browser on every window</span>
+        {% else %}<span class="instrument-name muted">not configured</span>{% endif %}
+      </div>
+      <dl class="kv tight">
+        <dt>Users</dt><dd class="num">{{ users }}</dd>
+        <dt>Audio storage</dt><dd class="num">{{ storage_bytes|bytes }}</dd>
+        <dt>Database</dt><dd class="num">{{ db_size|bytes if db_size else "external" }}</dd>
+        <dt>Retention last run</dt>
+        <dd>{% if retention_last %}{{ retention_last.at[:16].replace('T', ' ') }} UTC{% else %}never{% endif %}</dd>
+      </dl>
+    </div>
+  </section>
+
+  {# ---------- agreement + confidence ---------- #}
+  <section class="panel console-panel">
+    <div class="panel-head"><h2>Model agreement</h2><span class="meta mono">{{ kpis.compared }} compared</span></div>
+    <div class="panel-body">
+      <div class="agree-bar" id="agree-bar" role="img" aria-label="Model agreement breakdown"></div>
+      <ul class="agree-key mono" id="agree-key"></ul>
+      <h3 class="sub-head">Confidence of the final result</h3>
+      <div class="hist" id="conf-hist" role="img" aria-label="Distribution of final confidence"></div>
+      <div class="hist-axis mono"><span>0</span><span>0.5</span><span>1.0</span></div>
+      {% if pairs %}
+      <h3 class="sub-head">Most confused pairs</h3>
+      <ul class="pairs mono">
+        {% for p in pairs[:5] %}
+        <li><span>{{ p.python }} <i>vs</i> {{ p.gtm }}</span><b>{{ p.count }}</b></li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  </section>
+</div>
+
+{# ---------- system alerts + audit ---------- #}
+<div class="console-grid">
+  <section class="panel console-panel">
+    <div class="panel-head"><h2>System alerts</h2><a class="btn btn-sm btn-ghost" href="{{ url_for('admin.system_alerts') }}">All {{ icon("chevron-right") }}</a></div>
+    <div class="panel-body flush">
+      {% if system_alerts %}
+      <table class="table compact"><tbody>
+        {% for a in system_alerts %}
+        <tr><td>{{ sev(a.severity) }}</td>
+          <td><div class="small"><b>{{ a.kind.replace('_', ' ')|capitalize }}</b>{% if a.count > 1 %} &times;{{ a.count }}{% endif %}</div>
+            <div class="small muted">{{ a.message }}</div></td></tr>
+        {% endfor %}
+      </tbody></table>
+      {% else %}{{ empty("No open system alerts.", "shield") }}{% endif %}
+    </div>
+  </section>
+  <section class="panel console-panel">
+    <div class="panel-head"><h2>Recent activity</h2><a class="btn btn-sm btn-ghost" href="{{ url_for('admin.audit_trail') }}">Audit log {{ icon("chevron-right") }}</a></div>
+    <div class="panel-body flush">
+      {% if pending_roles %}
+      <div class="notice">{{ pending_roles|length }} user(s) requested a different role.
+        <a href="{{ url_for('admin.users') }}">Review</a></div>
+      {% endif %}
+      <table class="table compact"><tbody>
+        {% for a in recent_audit %}
+        <tr><td class="mono small nowrap">{{ a.created_at.strftime('%d %b %H:%M') }}</td>
+          <td class="mono small">{{ a.action }}</td>
+          <td class="small muted">{{ a.entity_type }} {{ a.entity_id or '' }}</td></tr>
+        {% endfor %}
+      </tbody></table>
+    </div>
+  </section>
+</div>
+
+<script type="application/json" id="console-data">{{ {
+  "hourly": hourly,
+  "categories": categories,
+  "colors": class_colors,
+  "consistency": consistency,
+  "confidence": confidence,
+  "quality": quality
+}|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/console.js') }}?v={{ app_version }}"></script>
+<script src="{{ url_for('static', filename='js/console-sonar.js') }}?v={{ app_version }}"></script>
+{% endblock %}

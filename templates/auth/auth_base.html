@@ -1,0 +1,46 @@
+{% from "partials/macros.html" import brand_mark with context %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Sign in{% endblock %} &middot; SonicSentinel AI</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}?v={{ app_version }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}?v={{ app_version }}"></script>
+</head>
+<body>
+<div class="auth">
+  <section class="auth-brand" aria-label="About SonicSentinel AI">
+    <div class="auth-field" id="auth-field" aria-hidden="true"></div>
+    <a class="brand" href="{{ url_for('main.index') }}" data-auth-in>
+      {{ brand_mark() }}
+      <span class="brand-name">SonicSentinel AI<small>Acoustic event monitoring</small></span>
+    </a>
+    <div class="pitch">
+      <h1 data-auth-title>Hear the events<br><em>that need attention.</em></h1>
+      <p data-auth-in>SonicSentinel listens to uploaded recordings and live microphones, classifies ten kinds of sound with two independently trained models, and raises an alert only when the evidence holds up.</p>
+      <ul class="features" data-auth-in>
+        <li>Python model + Teachable Machine</li>
+        <li>Live microphone windows</li>
+        <li>Rule-based critical alerts</li>
+        <li>Manual review with audit trail</li>
+      </ul>
+      <div class="auth-readout" data-auth-in><span>Hearing <b data-auth-event>background noise</b></span><span>simulated scene</span></div>
+      <p class="fine" data-auth-in>Competition prototype for controlled and ethical testing. Not a certified emergency-response or law-enforcement system.</p>
+    </div>
+  </section>
+  <section class="auth-form">
+    <div class="auth-card" data-auth-card>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}<div class="flash flash-{{ category }} mb-2">{{ message }}</div>{% endfor %}
+      {% endwith %}
+      {% block card %}{% endblock %}
+    </div>
+  </section>
+</div>
+<script src="{{ url_for('static', filename='js/auth.js') }}?v={{ app_version }}"></script>
+<script src="{{ url_for('static', filename='vendor/gsap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/SplitText.min.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/auth-fx.js') }}?v={{ app_version }}"></script>
+</body>
+</html>

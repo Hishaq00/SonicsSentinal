@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, sev, agree, status, cat, pct, when, record_link, empty, source with context %}
+{% block title %}Timeline{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Investigate</p>
+    <h1>Event timeline</h1>
+    <p class="lede">Detected sound events in chronological order (background noise hidden). {{ total }} event{{ "s" if total != 1 }} in the last {{ days }} day{{ "s" if days != 1 }}.</p>
+  </div>
+</div>
+<form class="filters mb-3" method="get">
+  <div class="field"><label for="days">Period</label>
+    <select id="days" name="days">{% for d, l in [(1, "Last 24 hours"), (7, "Last 7 days"), (30, "Last 30 days"), (90, "Last 90 days")] %}<option value="{{ d }}"{% if days == d %} selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div class="field"><label for="category">Category</label>
+    <select id="category" name="category"><option value="">All categories</option>{% for c in classes if c != "Background Noise" %}<option{% if category == c %} selected{% endif %}>{{ c }}</option>{% endfor %}</select></div>
+  <div class="field"><label for="severity">Severity</label>
+    <select id="severity" name="severity"><option value="">Any severity</option>{% for s in severities|reverse %}<option{% if severity == s %} selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+  <button class="btn" type="submit">{{ icon("filter") }}Apply</button>
+</form>
+<div class="panel"><div class="panel-body">
+{% if grouped %}
+  {% for day, records in grouped.items() %}
+  <section class="tl-day">
+    <h3>{{ day }}</h3>
+    <ol class="tl">
+      {% for r in records %}
+      <li class="sev-{{ r.effective_severity }}">
+        <div class="line">
+          <span class="when">{{ r.created_at.strftime("%H:%M:%S") }}</span>
+          {{ cat(r.effective_category) }} {{ sev(r.effective_severity) }} {{ agree(r.consistency) }}
+          <span class="muted small">{{ pct(r.final_confidence) }}</span>
+          {% if r.alert_status == "Alert Generated" %}<span class="chip alert-Active"><span class="glyph"></span>Alert</span>{% endif %}
+          {% if r.needs_review %}<span class="chip status status-Manual-Review"><span class="glyph"></span>Needs review</span>{% endif %}
+        </div>
+        <div class="small muted mt-1">{{ record_link(r) }} &middot; {{ source(r.source) }} &middot; {{ r.display_name }}{% if r.reviewed_category and r.reviewed_category != r.final_category %} &middot; model said {{ r.final_category }}, reviewer corrected{% endif %}</div>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+  {% endfor %}
+{% else %}
+  {{ empty("No events in this period.", "clock") }}
+{% endif %}
+</div></div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, when, empty, pct with context %}
+{% block title %}Comparison {{ run.run_code }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Model comparison &middot; <span class="mono">{{ run.run_code }}</span></p>
+    <h1>Model prediction &amp; confidence comparison report</h1>
+    <p class="lede">{{ run.total }} unseen test recordings ({{ run.per_class }} per class) &middot; started {{ when(run.created_at) }} &middot; Python model <span class="mono">{{ run.python_version }}</span>{% if summary and summary.gtm_version %} &middot; GTM <span class="mono">{{ summary.gtm_version }}</span>{% endif %}</p>
+  </div>
+  {% if run.completed %}
+  <div class="actions">
+    <a class="btn" href="{{ url_for('admin.evaluation_report', code=run.run_code, fmt='csv') }}">{{ icon("download") }}CSV</a>
+    <a class="btn" href="{{ url_for('admin.evaluation_report', code=run.run_code, fmt='xlsx') }}">{{ icon("download") }}Excel</a>
+    <a class="btn" href="{{ url_for('admin.evaluation_report', code=run.run_code, fmt='html') }}">{{ icon("download") }}HTML report</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if run.status != "completed" %}
+<section class="panel mb-3" id="runner">
+  <div class="panel-head"><h2>Run</h2><span class="meta" id="run-status">{{ run.completed }} of {{ run.total }} analysed</span></div>
+  <div class="panel-body stack" style="gap:12px">
+    <div class="progress"><span id="run-bar" style="width:{{ (run.completed / (run.total or 1) * 100)|round(1) }}%"></span></div>
+    {% if not gtm.enabled %}<div class="callout warn">The GTM model is not configured, so only the Python model will be evaluated. <a href="{{ url_for('admin.models') }}">Configure GTM</a> first for a real comparison.</div>{% endif %}
+    <div class="row"><button class="btn btn-primary" type="button" id="run-btn">{{ icon("play") }}{{ "Resume" if run.completed else "Start" }}</button><button class="btn hidden" type="button" id="stop-btn">{{ icon("pause") }}Pause</button><span class="small muted" id="run-log"></span></div>
+  </div>
+</section>
+{% endif %}
+
+{% if summary and summary.n %}
+{% include "admin/_evaluation_summary.html" %}
+{% endif %}
+
+{% if rows %}
+<section class="panel">
+  <div class="panel-head"><h2>Recordings</h2><span class="meta">every column (incl. all class confidences) is in the CSV / Excel export</span></div>
+  <div class="panel-body flush"><div class="table-wrap" style="max-height:620px">
+    <table class="table compact">
+      <thead><tr><th>Audio ID</th><th>Actual</th><th>Python</th><th class="num">conf.</th><th>GTM</th><th class="num">conf.</th><th>Match</th><th class="num">&Delta; conf.</th><th class="num">Margin P/G</th><th>Quality</th><th>Final</th><th>Alert / review</th><th>Correct</th><th>Explanation</th></tr></thead>
+      <tbody>
+      {% set ix = {} %}{% for h in head %}{% set _ = ix.update({h: loop.index0}) %}{% endfor %}
+      {% for r in rows %}
+      <tr>
+        <td class="mono small"><a href="{{ url_for('analysis.record_detail', audio_id=r[ix.audio_id]) }}">{{ r[ix.audio_id] }}</a><div class="muted">{{ r[ix.dataset_audio_id] }}</div></td>
+        <td class="small">{{ r[ix.actual_class] }}</td>
+        <td class="small">{{ r[ix.python_predicted_class] }}</td>
+        <td class="num small">{{ "%.2f"|format(r[ix['python_' ~ r[ix.python_predicted_class]]] or 0) if r[ix.python_predicted_class] else "-" }}</td>
+        <td class="small">{{ r[ix.gtm_predicted_class] or "-" }}</td>
+        <td class="num small">{{ "%.2f"|format(r[ix['gtm_' ~ r[ix.gtm_predicted_class]]] or 0) if r[ix.gtm_predicted_class] else "-" }}</td>
+        <td class="small">{{ "yes" if r[ix.class_match] else ("no" if r[ix.class_match] is not none else "-") }}</td>
+        <td class="num small">{{ "%.3f"|format(r[ix.top_class_confidence_difference]) if r[ix.top_class_confidence_difference] is not none else "-" }}</td>
+        <td class="num small">{{ "%.2f"|format(r[ix.python_top_two_margin] or 0) }} / {{ "%.2f"|format(r[ix.gtm_top_two_margin]) if r[ix.gtm_top_two_margin] is not none else "-" }}</td>
+        <td class="small">{{ r[ix.audio_quality] }}</td>
+        <td class="small">{{ r[ix.final_decision] }}</td>
+        <td class="small">{{ r[ix.alert_status] }}{% if r[ix.manual_review] %}<br><span class="tag">review</span>{% endif %}</td>
+        <td class="small">{% if r[ix.final_correct] %}<span style="color:var(--good-text);font-weight:600">&#10003;</span>{% else %}<span style="color:var(--critical-text);font-weight:600">&#10007;</span>{% endif %}</td>
+        <td class="small" style="min-width:260px">{{ r[ix.explanation_of_disagreement] }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div></div>
+</section>
+{% elif run.status == "completed" %}
+{{ empty("This run has no results.", "scale") }}
+{% endif %}
+<script type="application/json" id="eval-config">{{ {
+  "nextUrl": url_for('admin.evaluation_next', code=run.run_code),
+  "finishUrl": url_for('admin.evaluation_finish', code=run.run_code),
+  "total": run.total,
+  "completed": run.completed,
+  "gtm": gtm
+}|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+{% if run.status != "completed" %}
+<script src="{{ url_for('static', filename='vendor/tf.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/gtm.js') }}?v={{ app_version }}"></script>
+<script src="{{ url_for('static', filename='js/evaluation.js') }}?v={{ app_version }}"></script>
+{% endif %}
+{% endblock %}

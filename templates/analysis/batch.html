@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, sev, quality, agree, status, cat, pct, when, record_link, empty with context %}
+{% block title %}Batch {{ batch.batch_code }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Batch upload &middot; <span class="mono">{{ batch.batch_code }}</span></p>
+    <h1>Batch summary</h1>
+    <p class="lede">{{ batch.file_count }} file{{ "s" if batch.file_count != 1 }} submitted {{ when(batch.created_at) }} by {{ batch.user.full_name }} &middot; {{ batch.processed }} analysed, {{ batch.failed }} rejected.</p>
+  </div>
+  <div class="actions"><a class="btn" href="{{ url_for('analysis.analyze') }}">{{ icon("upload") }}New upload</a></div>
+</div>
+<section class="kpis mb-3">
+  {% for name, n in counts.items()|sort(attribute='1', reverse=True) %}
+  <div class="kpi"><div class="label">{{ name }}</div><div class="value">{{ n }}</div></div>
+  {% endfor %}
+  <div class="kpi"><div class="label">Alerts raised</div><div class="value">{{ records|selectattr('alert_status', 'equalto', 'Alert Generated')|list|length }}</div></div>
+  <div class="kpi"><div class="label">Need review</div><div class="value">{{ records|selectattr('needs_review')|list|length }}</div></div>
+</section>
+<section class="panel">
+  <div class="panel-head"><h2>Recordings</h2></div>
+  <div class="panel-body flush">
+    {% if records %}
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Audio ID</th><th>File</th><th>Result</th><th class="num">Confidence</th><th>Python</th><th>GTM</th><th>Agreement</th><th>Severity</th><th>Quality</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for r in records %}
+      <tr>
+        <td>{{ record_link(r) }}</td>
+        <td class="truncate" style="max-width:200px" title="{{ r.original_filename }}">{{ r.original_filename }}</td>
+        <td>{{ cat(r.effective_category) }}</td>
+        <td class="num">{{ pct(r.final_confidence) }}</td>
+        <td class="small">{{ r.python_top or "-" }}</td>
+        <td class="small">{{ r.gtm_top or ("pending" if r.gtm_status == "pending" else "-") }}</td>
+        <td>{{ agree(r.consistency) }}</td>
+        <td>{{ sev(r.effective_severity) }}</td>
+        <td>{{ quality(r.quality_label) }}</td>
+        <td>{{ status(r.status) }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}{{ empty("No recordings in this batch were accepted.") }}{% endif %}
+  </div>
+</section>
+{% endblock %}

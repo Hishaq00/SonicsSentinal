@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, when, empty, pager with context %}
+{% block title %}Audit trail{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Administration</p>
+    <h1>Audit trail</h1>
+    <p class="lede">Sign-ins, uploads, microphone sessions, predictions, alerts, reviews, overrides, exports and model or settings changes, with user, time and IP address.</p>
+  </div>
+  <div class="actions">{% set args = request.args.to_dict() %}{% set _ = args.update({"format": "csv"}) %}<a class="btn" href="{{ url_for('admin.audit_trail', **args) }}">{{ icon("download") }}Export CSV</a></div>
+</div>
+<form class="filters mb-3" method="get">
+  <div class="field"><label for="a-action">Action</label><select id="a-action" name="action"><option value="">All actions</option>{% for key, label in actions.items() %}<option value="{{ key }}"{% if action == key %} selected{% endif %}>{{ label }} ({{ counts.get(key, 0) }})</option>{% endfor %}</select></div>
+  <div class="field"><label for="a-user">User</label><input id="a-user" name="user" value="{{ username }}" placeholder="username"></div>
+  <div class="field"><label for="a-from">From</label><input id="a-from" type="date" name="date_from" value="{{ request.args.get('date_from', '') }}"></div>
+  <div class="field"><label for="a-to">To</label><input id="a-to" type="date" name="date_to" value="{{ request.args.get('date_to', '') }}"></div>
+  <button class="btn" type="submit">{{ icon("filter") }}Filter</button>
+</form>
+<section class="panel">
+  <div class="panel-body flush">
+    {% if logs %}
+    <div class="table-wrap"><table class="table compact">
+      <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Target</th><th>Details</th><th>IP</th></tr></thead>
+      <tbody>
+      {% for a in logs %}
+      <tr>
+        <td class="nowrap small">{{ when(a.created_at, rel=False) }}</td>
+        <td class="small">{{ a.username or "system" }}</td>
+        <td class="small nowrap"><b>{{ actions.get(a.action, a.action) }}</b><div class="mono muted" style="font-size:10.5px">{{ a.action }}</div></td>
+        <td class="small">{{ a.target_type or "" }} <span class="mono">{{ a.target_id or "" }}</span></td>
+        <td class="small mono" style="max-width:420px;word-break:break-word">{% for k, v in (a.details or {}).items() if k != 'subject' %}<span class="muted">{{ k }}=</span>{{ v if v is string else v|tojson }}{{ "; " if not loop.last }}{% endfor %}</td>
+        <td class="small mono">{{ a.ip_address or "" }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {{ pager(pagination, 'admin.audit_trail') }}
+    {% else %}{{ empty("No audit entries match.", "file") }}{% endif %}
+  </div>
+</section>
+{% endblock %}

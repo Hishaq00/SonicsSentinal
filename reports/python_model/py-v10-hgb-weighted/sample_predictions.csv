@@ -1,0 +1,112 @@
+audio_id,actual,predicted,confidence,top3,correct
+DS-MCH-0007,Machinery Fault,Machinery Fault,0.579,Machinery Fault 0.58; Background Noise 0.31; Drilling or Grinder Sound 0.02,True
+DS-MCH-0009,Machinery Fault,Machinery Fault,0.9476,Machinery Fault 0.95; Helicopter 0.01; Background Noise 0.01,True
+DS-MCH-0011,Machinery Fault,Machinery Fault,0.9531,Machinery Fault 0.95; Background Noise 0.04; Rain or Water 0.00,True
+DS-GLS-0013,Glass Breaking,Glass Breaking,0.9991,Glass Breaking 1.00; Fireworks 0.00; Aggression 0.00,True
+DS-GLS-0025,Glass Breaking,Glass Breaking,0.9644,Glass Breaking 0.96; Human Body Sound 0.01; Bird 0.00,True
+DS-GLS-0027,Glass Breaking,Glass Breaking,0.9949,Glass Breaking 0.99; Human Body Sound 0.00; Household Appliance 0.00,True
+DS-ALM-0002,Alarm or Siren,Bird,0.2045,Bird 0.20; Vehicle Horn 0.19; Alarm or Siren 0.15,False
+DS-ALM-0005,Alarm or Siren,Alarm or Siren,0.9938,Alarm or Siren 0.99; Bird 0.00; Panic Scream 0.00,True
+DS-ALM-0010,Alarm or Siren,Alarm or Siren,0.7966,Alarm or Siren 0.80; Panic Scream 0.12; Crying Baby 0.04,True
+DS-HRN-0008,Vehicle Horn,Person Asking for Help,0.3398,Person Asking for Help 0.34; Human Body Sound 0.12; Human Speech 0.11,False
+DS-HRN-0009,Vehicle Horn,Vehicle Horn,0.9964,Vehicle Horn 1.00; Farm Animal 0.00; Cat 0.00,True
+DS-HRN-0015,Vehicle Horn,Vehicle Horn,0.376,Vehicle Horn 0.38; Cat 0.28; Farm Animal 0.12,True
+DS-DOG-0006,Dog Bark,Dog Bark,0.9506,Dog Bark 0.95; Bird 0.03; Insect or Frog 0.01,True
+DS-DOG-0007,Dog Bark,Dog Bark,0.8538,Dog Bark 0.85; Bird 0.08; Laughter or Applause 0.03,True
+DS-DOG-0008,Dog Bark,Dog Bark,0.9758,Dog Bark 0.98; Bird 0.01; Laughter or Applause 0.00,True
+DS-CAT-0013,Cat,Bird,0.3751,Bird 0.38; Cat 0.28; Glass Breaking 0.11,False
+DS-CAT-0014,Cat,Cat,0.6292,Cat 0.63; Background Noise 0.17; Bird 0.07,True
+DS-CAT-0018,Cat,Cat,0.42,Cat 0.42; Bird 0.10; Explosion 0.08,True
+DS-BRD-0015,Bird,Bird,0.3404,Bird 0.34; Human Body Sound 0.13; Dog Bark 0.12,True
+DS-BRD-0016,Bird,Bird,0.5282,Bird 0.53; Human Body Sound 0.12; Glass Breaking 0.06,True
+DS-BRD-0020,Bird,Background Noise,0.3449,Background Noise 0.34; Bird 0.25; Alarm or Siren 0.19,False
+DS-FRM-0022,Farm Animal,Farm Animal,0.6753,Farm Animal 0.68; Alarm or Siren 0.22; Background Noise 0.03,True
+DS-FRM-0028,Farm Animal,Church Bell,0.6109,Church Bell 0.61; Farm Animal 0.23; Drilling or Grinder Sound 0.03,False
+DS-FRM-0038,Farm Animal,Train or Aircraft,0.2921,Train or Aircraft 0.29; Farm Animal 0.27; Human Body Sound 0.15,False
+DS-WLD-0008,Wild Animal,Panic Scream,0.2923,Panic Scream 0.29; Wild Animal 0.24; Cat 0.18,False
+DS-WLD-0011,Wild Animal,Wild Animal,0.997,Wild Animal 1.00; Alarm or Siren 0.00; Bird 0.00,True
+DS-WLD-0014,Wild Animal,Wild Animal,0.9342,Wild Animal 0.93; Farm Animal 0.04; Thunderstorm 0.01,True
+DS-BUG-0008,Insect or Frog,Footsteps,0.4087,Footsteps 0.41; Insect or Frog 0.10; Rain or Water 0.07,False
+DS-BUG-0013,Insect or Frog,Insect or Frog,0.9516,Insect or Frog 0.95; Keyboard or Mouse 0.01; Human Body Sound 0.01,True
+DS-BUG-0017,Insect or Frog,Insect or Frog,0.3506,Insect or Frog 0.35; Drilling or Grinder Sound 0.31; Background Noise 0.16,True
+DS-GUN-0015,Gunshot,Gunshot,0.9445,Gunshot 0.94; Household Appliance 0.02; Fireworks 0.01,True
+DS-GUN-0024,Gunshot,Gunshot,0.9972,Gunshot 1.00; Fireworks 0.00; Household Appliance 0.00,True
+DS-GUN-0029,Gunshot,Explosion,0.6063,Explosion 0.61; Person Asking for Help 0.25; Gunshot 0.06,False
+DS-SCR-0021,Panic Scream,Panic Scream,0.9955,Panic Scream 1.00; Bird 0.00; Alarm or Siren 0.00,True
+DS-SCR-0029,Panic Scream,Panic Scream,0.9988,Panic Scream 1.00; Bird 0.00; Explosion 0.00,True
+DS-SCR-0049,Panic Scream,Panic Scream,0.9815,Panic Scream 0.98; Bird 0.00; Crying Baby 0.00,True
+DS-AGR-0008,Aggression,Aggression,0.6797,Aggression 0.68; Laughter or Applause 0.06; Insect or Frog 0.04,True
+DS-AGR-0017,Aggression,Aggression,0.3757,Aggression 0.38; Person Asking for Help 0.34; Human Speech 0.09,True
+DS-AGR-0020,Aggression,Aggression,0.6493,Aggression 0.65; Insect or Frog 0.08; Wind 0.06,True
+DS-HLP-0002,Person Asking for Help,Person Asking for Help,0.3242,Person Asking for Help 0.32; Human Body Sound 0.26; Household Appliance 0.08,True
+DS-HLP-0003,Person Asking for Help,Person Asking for Help,0.8233,Person Asking for Help 0.82; Human Speech 0.10; Glass Breaking 0.01,True
+DS-HLP-0004,Person Asking for Help,Crying Baby,0.2673,Crying Baby 0.27; Aggression 0.13; Door Impact 0.07,False
+DS-DRN-0004,Drone Sound,Drone Sound,0.9996,Drone Sound 1.00; Drilling or Grinder Sound 0.00; Household Appliance 0.00,True
+DS-DRN-0025,Drone Sound,Drone Sound,0.9995,Drone Sound 1.00; Machinery Fault 0.00; Insect or Frog 0.00,True
+DS-DRN-0026,Drone Sound,Drone Sound,0.9689,Drone Sound 0.97; Drilling or Grinder Sound 0.00; Rain or Water 0.00,True
+DS-DRL-0046,Drilling or Grinder Sound,Rain or Water,0.5304,Rain or Water 0.53; Drilling or Grinder Sound 0.22; Train or Aircraft 0.05,False
+DS-DRL-0047,Drilling or Grinder Sound,Rain or Water,0.3488,Rain or Water 0.35; Drilling or Grinder Sound 0.29; Train or Aircraft 0.07,False
+DS-DRL-0048,Drilling or Grinder Sound,Rain or Water,0.6656,Rain or Water 0.67; Drilling or Grinder Sound 0.12; Background Noise 0.05,False
+DS-FWK-0002,Fireworks,Gunshot,0.7679,Gunshot 0.77; Fireworks 0.23; Keyboard or Mouse 0.00,False
+DS-FWK-0003,Fireworks,Fireworks,0.8535,Fireworks 0.85; Keyboard or Mouse 0.04; Fire Crackling 0.02,True
+DS-FWK-0011,Fireworks,Fireworks,0.9876,Fireworks 0.99; Human Body Sound 0.00; Explosion 0.00,True
+DS-BKF-0002,Vehicle Backfire,Vehicle Backfire,0.1906,Vehicle Backfire 0.19; Footsteps 0.17; Laughter or Applause 0.09,True
+DS-BKF-0009,Vehicle Backfire,Vehicle Backfire,0.9984,Vehicle Backfire 1.00; Background Noise 0.00; Explosion 0.00,True
+DS-BKF-0010,Vehicle Backfire,Door Impact,0.2519,Door Impact 0.25; Fireworks 0.17; Explosion 0.13,False
+DS-EXP-0007,Explosion,Explosion,0.3478,Explosion 0.35; Bird 0.25; Alarm or Siren 0.09,True
+DS-EXP-0011,Explosion,Explosion,0.6877,Explosion 0.69; Fireworks 0.05; Laughter or Applause 0.04,True
+DS-EXP-0019,Explosion,Explosion,0.5711,Explosion 0.57; Insect or Frog 0.08; Fire Crackling 0.06,True
+DS-DOR-0001,Door Impact,Background Noise,0.2777,Background Noise 0.28; Wind 0.24; Door Impact 0.09,False
+DS-DOR-0027,Door Impact,Background Noise,0.8627,Background Noise 0.86; Machinery Fault 0.11; Explosion 0.01,False
+DS-DOR-0028,Door Impact,Rain or Water,0.2912,Rain or Water 0.29; Cat 0.19; Background Noise 0.11,False
+DS-GRF-0009,Graffiti Spray,Graffiti Spray,0.9489,Graffiti Spray 0.95; Bird 0.01; Fireworks 0.01,True
+DS-GRF-0010,Graffiti Spray,Graffiti Spray,0.4666,Graffiti Spray 0.47; Human Body Sound 0.16; Bird 0.16,True
+DS-GRF-0013,Graffiti Spray,Graffiti Spray,0.9982,Graffiti Spray 1.00; Glass Breaking 0.00; Fireworks 0.00,True
+DS-HSP-0001,Human Speech,Human Speech,0.3504,Human Speech 0.35; Person Asking for Help 0.25; Aggression 0.11,True
+DS-HSP-0003,Human Speech,Door Impact,0.577,Door Impact 0.58; Human Speech 0.12; Aggression 0.04,False
+DS-HSP-0014,Human Speech,Background Noise,0.4216,Background Noise 0.42; Human Speech 0.13; Explosion 0.10,False
+DS-BBY-0007,Crying Baby,Crying Baby,0.6186,Crying Baby 0.62; Cat 0.15; Bird 0.12,True
+DS-BBY-0008,Crying Baby,Crying Baby,0.9287,Crying Baby 0.93; Bird 0.02; Background Noise 0.02,True
+DS-BBY-0011,Crying Baby,Crying Baby,0.5858,Crying Baby 0.59; Bird 0.15; Laughter or Applause 0.08,True
+DS-HBS-0003,Human Body Sound,Human Body Sound,0.3353,Human Body Sound 0.34; Door Impact 0.15; Footsteps 0.12,True
+DS-HBS-0008,Human Body Sound,Human Body Sound,0.7016,Human Body Sound 0.70; Person Asking for Help 0.09; Household Appliance 0.06,True
+DS-HBS-0017,Human Body Sound,Human Body Sound,0.5189,Human Body Sound 0.52; Keyboard or Mouse 0.10; Rain or Water 0.09,True
+DS-LAF-0004,Laughter or Applause,Laughter or Applause,0.5186,Laughter or Applause 0.52; Rain or Water 0.19; Household Appliance 0.08,True
+DS-LAF-0010,Laughter or Applause,Train or Aircraft,0.5069,Train or Aircraft 0.51; Farm Animal 0.12; Laughter or Applause 0.12,False
+DS-LAF-0020,Laughter or Applause,Laughter or Applause,0.7995,Laughter or Applause 0.80; Human Body Sound 0.05; Keyboard or Mouse 0.04,True
+DS-FTS-0013,Footsteps,Footsteps,0.9546,Footsteps 0.95; Human Body Sound 0.01; Fireworks 0.01,True
+DS-FTS-0023,Footsteps,Footsteps,0.2902,Footsteps 0.29; Human Body Sound 0.22; Fire Crackling 0.21,True
+DS-FTS-0029,Footsteps,Door Impact,0.675,Door Impact 0.67; Human Body Sound 0.15; Explosion 0.04,False
+DS-KBD-0006,Keyboard or Mouse,Background Noise,0.9571,Background Noise 0.96; Rain or Water 0.02; Keyboard or Mouse 0.01,False
+DS-KBD-0023,Keyboard or Mouse,Keyboard or Mouse,0.9287,Keyboard or Mouse 0.93; Insect or Frog 0.01; Explosion 0.01,True
+DS-KBD-0031,Keyboard or Mouse,Background Noise,0.6552,Background Noise 0.66; Human Speech 0.20; Explosion 0.04,False
+DS-APL-0004,Household Appliance,Household Appliance,0.4119,Household Appliance 0.41; Drilling or Grinder Sound 0.39; Background Noise 0.08,True
+DS-APL-0005,Household Appliance,Drilling or Grinder Sound,0.2449,Drilling or Grinder Sound 0.24; Household Appliance 0.17; Background Noise 0.16,False
+DS-APL-0006,Household Appliance,Household Appliance,0.4729,Household Appliance 0.47; Drilling or Grinder Sound 0.29; Background Noise 0.07,True
+DS-RNW-0008,Rain or Water,Rain or Water,0.7847,Rain or Water 0.78; Background Noise 0.06; Farm Animal 0.05,True
+DS-RNW-0014,Rain or Water,Rain or Water,0.7813,Rain or Water 0.78; Door Impact 0.05; Cat 0.03,True
+DS-RNW-0015,Rain or Water,Background Noise,0.2586,Background Noise 0.26; Door Impact 0.15; Dog Bark 0.14,False
+DS-WND-0002,Wind,Wind,0.9655,Wind 0.97; Background Noise 0.01; Helicopter 0.01,True
+DS-WND-0009,Wind,Thunderstorm,0.5945,Thunderstorm 0.59; Wind 0.36; Helicopter 0.01,False
+DS-WND-0010,Wind,Wind,0.993,Wind 0.99; Train or Aircraft 0.00; Background Noise 0.00,True
+DS-THD-0003,Thunderstorm,Thunderstorm,0.8838,Thunderstorm 0.88; Explosion 0.04; Insect or Frog 0.01,True
+DS-THD-0014,Thunderstorm,Thunderstorm,0.9935,Thunderstorm 0.99; Explosion 0.00; Insect or Frog 0.00,True
+DS-THD-0015,Thunderstorm,Thunderstorm,0.9453,Thunderstorm 0.95; Door Impact 0.01; Explosion 0.01,True
+DS-FIR-0001,Fire Crackling,Fire Crackling,0.739,Fire Crackling 0.74; Keyboard or Mouse 0.15; Human Body Sound 0.03,True
+DS-FIR-0002,Fire Crackling,Keyboard or Mouse,0.756,Keyboard or Mouse 0.76; Human Body Sound 0.07; Footsteps 0.07,False
+DS-FIR-0007,Fire Crackling,Fire Crackling,0.993,Fire Crackling 0.99; Rain or Water 0.00; Background Noise 0.00,True
+DS-BEL-0002,Church Bell,Church Bell,0.6536,Church Bell 0.65; Alarm or Siren 0.09; Bird 0.09,True
+DS-BEL-0008,Church Bell,Background Noise,0.4556,Background Noise 0.46; Church Bell 0.34; Farm Animal 0.13,False
+DS-BEL-0023,Church Bell,Church Bell,0.992,Church Bell 0.99; Vehicle Horn 0.00; Farm Animal 0.00,True
+DS-HEL-0009,Helicopter,Train or Aircraft,0.1466,Train or Aircraft 0.15; Human Body Sound 0.14; Background Noise 0.13,False
+DS-HEL-0010,Helicopter,Train or Aircraft,0.3007,Train or Aircraft 0.30; Wind 0.13; Rain or Water 0.13,False
+DS-HEL-0011,Helicopter,Train or Aircraft,0.4919,Train or Aircraft 0.49; Rain or Water 0.14; Background Noise 0.09,False
+DS-TRA-0001,Train or Aircraft,Drilling or Grinder Sound,0.251,Drilling or Grinder Sound 0.25; Human Body Sound 0.21; Train or Aircraft 0.12,False
+DS-TRA-0002,Train or Aircraft,Wind,0.3259,Wind 0.33; Train or Aircraft 0.18; Thunderstorm 0.13,False
+DS-TRA-0017,Train or Aircraft,Helicopter,0.7421,Helicopter 0.74; Alarm or Siren 0.11; Train or Aircraft 0.06,False
+DS-ENG-0016,Engine Running,Keyboard or Mouse,0.7365,Keyboard or Mouse 0.74; Fireworks 0.05; Human Body Sound 0.05,False
+DS-ENG-0032,Engine Running,Keyboard or Mouse,0.7012,Keyboard or Mouse 0.70; Fire Crackling 0.18; Background Noise 0.04,False
+DS-ENG-0033,Engine Running,Engine Running,0.4634,Engine Running 0.46; Household Appliance 0.13; Background Noise 0.12,True
+DS-BGN-0019,Background Noise,Door Impact,0.3925,Door Impact 0.39; Drone Sound 0.14; Background Noise 0.09,False
+DS-BGN-0020,Background Noise,Background Noise,0.9513,Background Noise 0.95; Helicopter 0.01; Engine Running 0.01,True
+DS-BGN-0024,Background Noise,Background Noise,0.9117,Background Noise 0.91; Explosion 0.03; Wind 0.01,True

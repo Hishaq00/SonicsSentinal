@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, sev, agree, alert_state, cat, pct, when, record_link, empty, pager, source with context %}
+{% from "partials/alert_actions.html" import alert_actions with context %}
+{% block title %}Alerts{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Monitor</p>
+    <h1>Alerts</h1>
+    <p class="lede">Critical events that passed the alert rules. {% if can('act_on_alerts') %}You can act on alerts for the categories your role is responsible for.{% else %}Operators acknowledge, escalate and dismiss alerts.{% endif %}</p>
+  </div>
+</div>
+<nav class="tabs" aria-label="Alert status">
+  {% for key, label in [("active", "Active"), ("acknowledged", "Acknowledged"), ("closed", "Resolved & dismissed"), ("all", "All")] %}
+  <a class="tab{% if tab == key %} active{% endif %}" href="{{ url_for('alerts.list_alerts', tab=key, category=category or None, severity=severity or None) }}">{{ label }} <span class="badge{% if key == 'active' and counts[key] %} hot{% endif %}">{{ counts[key] }}</span></a>
+  {% endfor %}
+</nav>
+<form class="filters mb-3" method="get">
+  <input type="hidden" name="tab" value="{{ tab }}">
+  <div class="field"><label for="category">Category</label><select id="category" name="category"><option value="">All</option>{% for c in classes %}<option{% if c == category %} selected{% endif %}>{{ c }}</option>{% endfor %}</select></div>
+  <div class="field"><label for="severity">Severity</label><select id="severity" name="severity"><option value="">All</option>{% for s in severities|reverse %}<option{% if s == severity %} selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+  <button class="btn" type="submit">{{ icon("filter") }}Filter</button>
+</form>
+<section class="panel">
+  {% if alerts %}
+  {% for a in alerts %}
+  <article class="alert-card sev-{{ a.severity }}" id="{{ a.alert_code }}">
+    <span class="stripe"></span>
+    <div style="min-width:0">
+      <div class="head">{{ cat(a.category) }} {{ sev(a.severity) }} {{ alert_state(a.status) }}{% if a.auto_escalated %}<span class="tag">auto-escalated</span>{% endif %}{% if a.occurrences > 1 %}<span class="tag">{{ a.occurrences }} detections</span>{% endif %}</div>
+      <p class="msg">{{ a.message }}</p>
+      <div class="meta">
+        <span class="mono">{{ a.alert_code }}</span><span>{{ when(a.created_at) }}</span>{{ source(a.source) }}
+        <span>event {{ record_link(a.record) }}</span>
+        {% if a.consistency %}<span>{{ a.consistency }}</span>{% endif %}
+        {% if a.escalated_to %}<span>Escalated to: {{ a.escalated_to }}</span>{% endif %}
+        {% if a.response_seconds is not none %}<span>first response after {{ a.response_seconds|secs }}</span>{% endif %}
+      </div>
+      <details>
+        <summary>Recommended action, rule check and history</summary>
+        <p class="mt-1 mb-2">{{ a.recommended_action }}</p>
+        {% if a.conditions %}
+        <ul class="conditions mb-2">{% for name, c in a.conditions.items() %}<li><span class="{{ 'ok' if c.passed else 'no' }}">{{ "✓" if c.passed else "✗" }}</span><span>{{ name.replace('_', ' ')|capitalize }} <span class="req">({{ c.required }})</span></span><span class="num small">{{ c.actual }}</span></li>{% endfor %}</ul>
+        {% endif %}
+        {% if a.actions %}<ul class="history-list">{% for x in a.actions %}<li>{{ when(x.created_at) }} &middot; <b>{{ x.user.username if x.user else "system" }}</b> {{ x.action }}{% if x.escalate_to %} to {{ x.escalate_to }}{% endif %}{% if x.comment %}: &ldquo;{{ x.comment }}&rdquo;{% endif %}</li>{% endfor %}</ul>{% else %}<p class="small muted mb-0">No actions yet.</p>{% endif %}
+      </details>
+    </div>
+    <div class="actions">
+      {{ alert_actions(a, targets, can_act) }}
+    </div>
+  </article>
+  {% endfor %}
+  {{ pager(pagination, 'alerts.list_alerts') }}
+  {% else %}
+  {{ empty("No alerts here." if tab != "active" else "No active alerts. All clear.", "bell") }}
+  {% endif %}
+</section>
+{% endblock %}

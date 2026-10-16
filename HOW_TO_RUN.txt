@@ -1,0 +1,118 @@
+SonicSentinel AI - How to run
+=============================
+
+What you need
+-------------
+- Windows 10/11, Linux or macOS
+- Python 3.14 (tested with 3.14.7)
+- Chrome, Edge or Firefox (the GTM model runs inside the browser)
+- Optional: Node.js (only used by some automated tests)
+
+
+1. First-time setup (only once)
+-------------------------------
+Open a terminal in the "SonicSentinel AI" folder (the folder that contains run.py).
+
+Windows (PowerShell or Command Prompt):
+    python -m venv .venv
+    .venv\Scripts\python.exe -m pip install -r requirements.txt
+    copy .env.example .env
+
+Linux / macOS:
+    python3 -m venv .venv
+    .venv/bin/python -m pip install -r requirements.txt
+    cp .env.example .env
+
+Open .env and set SECRET_KEY to a long random string. Everything else can stay as it is.
+
+
+2. Start the app
+----------------
+Windows:        .venv\Scripts\python.exe run.py
+Linux / macOS:  .venv/bin/python run.py
+
+Wait until the terminal shows:
+    SonicSentinel AI running on http://127.0.0.1:5000  (Ctrl+C to stop)
+
+Then open  http://127.0.0.1:5000  in your browser.
+
+- Stop the app: press Ctrl+C in that terminal.
+- Use another port: set PORT=5001 in .env (default is 5000).
+- The first start creates the database (database/sonicsentinel.db) and the demo accounts.
+
+
+3. Log in
+---------
+Demo accounts (created on first start because SEED_DEMO_USERS=1 in .env):
+
+    Username      Password         Role
+    admin         Admin@2026       Administrator (everything)
+    evaluator     Evaluate@2026    Evaluation runs
+    reviewer      Review@2026      Manual review queue
+    security      Secure@2026      Live monitoring and alerts
+    maintenance   Maintain@2026    Machinery fault alerts
+    user          User@2026        Normal user (own uploads)
+
+
+4. Try it
+---------
+Analyze a file:
+    Menu "Analyze audio" (/analyze) -> drop a file from the sample_audio folder -> Analyze.
+    The Python model answers first. The GTM model then runs in your browser (TensorFlow.js)
+    on the same audio segments, and the final decision combines both models.
+    Keep the tab open until the GTM result has arrived.
+
+Live microphone:
+    Menu "Live monitor" (/live) -> Start monitoring -> allow the microphone.
+    Browsers only allow the microphone on http://127.0.0.1 / http://localhost or on HTTPS.
+
+Results:
+    Timeline, Event history, Alerts and Review queue. Admin -> Models shows both models and
+    checks that the GTM class names match the Python model.
+
+
+5. Run the tests (optional)
+---------------------------
+All tests:       .venv\Scripts\python.exe -m pytest tests -q
+GTM tests only:  .venv\Scripts\python.exe -m pytest tests/test_gtm.py -v
+(The GTM browser-comparison tests need Node.js; without it they are skipped.)
+
+
+6. Retrain the models (optional - needs the audio_dataset folder)
+------------------------------------------------------------------
+Python model:
+    .venv\Scripts\python.exe -m feature_extraction.build_features
+    .venv\Scripts\python.exe -m python_models.train
+
+GTM model (Teachable Machine audio network, same data and splits as the Python model):
+    .venv\Scripts\python.exe -m pip install -r requirements-gtm.txt    (installs PyTorch, once)
+    .venv\Scripts\python.exe -m scripts.train_gtm_model                (about 30-60 minutes on a laptop CPU)
+If training gets interrupted, continue it from the last finished epoch:
+    .venv\Scripts\python.exe -m scripts.train_gtm_model --resume
+
+Model comparison report (reports/model_prediction_and_confidence_comparison_*):
+    .venv\Scripts\python.exe -m scripts.generate_100_comparison_report
+
+The app picks up new model files by itself: reload the page in the browser, no restart needed.
+
+On Linux / macOS write .venv/bin/python instead of .venv\Scripts\python.exe.
+
+
+7. Production server (optional)
+-------------------------------
+Windows:  .venv\Scripts\waitress-serve.exe --host 0.0.0.0 --port 8000 wsgi:app
+Linux:    .venv/bin/gunicorn --workers 2 --threads 4 --timeout 120 --bind 0.0.0.0:8000 wsgi:app
+Docker:   docker build -t sonicsentinel .
+          docker run -p 8000:8000 -e SECRET_KEY=change-me -v sonic-data:/data sonicsentinel
+Serve it over HTTPS in production and set SESSION_COOKIE_SECURE=1 in .env.
+
+
+Troubleshooting
+---------------
+- "Address already in use": another program is using port 5000. Change PORT in .env.
+- PowerShell refuses to run "activate": you do not need it. Use the .venv\Scripts\python.exe
+  commands shown above.
+- GTM result says "unavailable" or "failed": open Admin -> Models. GTM must be enabled, the files
+  must be in gtm_model/model/, and the label check must say the class names match.
+- Microphone does not start: open the site as http://127.0.0.1:5000 (not the computer's IP
+  address) or serve it over HTTPS.

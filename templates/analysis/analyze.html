@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, sev, quality, agree, status, cat, pct, when, record_link, empty with context %}
+{% block title %}Analyze audio{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Monitor</p>
+    <h1>Analyze audio</h1>
+    <p class="lede">Upload recordings to classify them. Each file is validated, pre-processed, cut into {{ segmentation.segment_seconds|round(1) }} s segments and analysed independently by the Python model and the Teachable Machine model; the two results are then compared.</p>
+  </div>
+  <div class="actions">
+    <span class="chip {{ 'agree-Acceptable-Match' if python_ready else 'agree-Model-Disagreement' }}"><span class="sym">{{ "=" if python_ready else "!" }}</span>Python model {{ python_version if python_ready else "not trained" }}</span>
+    <span class="chip {{ 'agree-Acceptable-Match' if gtm.enabled else 'agree-Single-Model-Result' }}"><span class="sym">{{ "=" if gtm.enabled else "1" }}</span>{{ "GTM model configured" if gtm.enabled else "GTM model not configured" }}</span>
+  </div>
+</div>
+
+{% if not python_ready %}
+<div class="callout bad mb-3"><b>The Python model has not been trained yet.</b> An administrator must run <code>python -m python_models.train</code> (see README) before audio can be analysed.</div>
+{% endif %}
+{% if not gtm.enabled %}
+<div class="callout warn mb-3">The Google Teachable Machine model is not configured, so results will be <b>single-model</b> (Python only) and critical alerts that require model agreement will be routed to manual review. {% if can('admin') %}<a href="{{ url_for('admin.models') }}">Configure GTM</a>.{% endif %}</div>
+{% endif %}
+
+<div class="grid grid-main">
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Recordings</h2>
+        {% if can_batch %}<span class="meta">Batch upload: up to {{ validation.max_batch_files }} files at once</span>{% endif %}
+      </div>
+      <div class="panel-body">
+        <label class="dropzone" id="dropzone" for="file-input">
+          {{ icon("upload", "icon-lg") }}
+          <span class="big">Drop audio files here or choose files</span>
+          <span class="formats">{{ validation.allowed_formats|map("upper")|join(" · ") }} &middot; up to {{ validation.max_file_mb|round|int }} MB &middot; {{ validation.min_duration_seconds }}&ndash;{{ validation.max_duration_seconds|int }} s</span>
+          <input id="file-input" type="file" class="sr-only" accept="{% for f in validation.allowed_formats %}.{{ f }}{{ ',' if not loop.last }}{% endfor %}" {% if can_batch %}multiple{% endif %}>
+        </label>
+      </div>
+      <ul class="file-list" id="file-list" aria-live="polite"></ul>
+      <div class="panel-foot">
+        <span id="queue-summary">No files selected.</span>
+        <div class="row">
+          <button class="btn" type="button" id="clear-btn" disabled>Clear</button>
+          <button class="btn btn-primary" type="button" id="analyze-btn" disabled>{{ icon("wave") }}Analyze</button>
+        </div>
+      </div>
+    </section>
+    <div id="batch-link" class="callout hidden"></div>
+  </div>
+
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2>What happens to a file</h2></div>
+      <div class="panel-body">
+        <ol class="steps-list">
+          <li><span><b>Validation</b> &mdash; format, size, duration, sampling rate, channels, integrity and presence of sound. Silent, damaged or unsupported files are rejected with the reason.</span></li>
+          <li><span><b>Pre-processing</b> &mdash; mono, resampling to {{ 22050 }} Hz, noise reduction, silence trimming, normalisation, {{ segmentation.segment_seconds|round(1) }} s segments.</span></li>
+          <li><span><b>Python model</b> &mdash; 193 acoustic features per segment (MFCC, mel spectrogram, chroma, energy, spectral shape, onsets, pitch).</span></li>
+          <li><span><b>Teachable Machine</b> &mdash; runs in your browser on the same segments, without seeing the Python result.</span></li>
+          <li><span><b>Decision</b> &mdash; comparison, audio quality, alert rules and manual-review routing.</span></li>
+        </ol>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>Your recent uploads</h2></div>
+      <div class="panel-body flush">
+        {% if recent %}
+        <table class="table compact"><tbody>
+        {% for r in recent %}
+          <tr><td>{{ record_link(r) }}<div class="small muted truncate" style="max-width:190px">{{ r.original_filename }}</div></td><td>{{ cat(r.effective_category) }}</td><td class="num">{{ pct(r.final_confidence) }}</td></tr>
+        {% endfor %}
+        </tbody></table>
+        {% else %}{{ empty("Nothing uploaded yet.", "upload") }}{% endif %}
+      </div>
+    </section>
+  </div>
+</div>
+<script type="application/json" id="analyze-config">{{ {
+  "uploadUrl": url_for('analysis.upload'),
+  "batchUrl": url_for('analysis.create_batch'),
+  "canBatch": can_batch,
+  "maxMb": validation.max_file_mb,
+  "maxFiles": validation.max_batch_files,
+  "formats": validation.allowed_formats,
+  "gtm": gtm,
+  "classCodes": class_codes
+}|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/tf.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/gtm.js') }}?v={{ app_version }}"></script>
+<script src="{{ url_for('static', filename='js/analyze.js') }}?v={{ app_version }}"></script>
+{% endblock %}

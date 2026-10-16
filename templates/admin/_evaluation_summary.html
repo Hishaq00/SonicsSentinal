@@ -1,0 +1,45 @@
+{# Shared by the evaluation page and its printable export. Expects: summary, classes #}
+{% set s = summary %}
+<p class="mb-3" style="max-width:90ch">{{ s.text }}</p>
+<div class="kpis mb-3">
+  <div class="kpi"><div class="label">Python accuracy</div><div class="value">{{ "%.1f"|format((s.python.accuracy or 0) * 100) }}%</div><div class="meta">macro F1 {{ "%.3f"|format(s.python.f1_macro) }}</div></div>
+  <div class="kpi"><div class="label">GTM accuracy</div><div class="value">{{ "%.1f"|format((s.gtm.accuracy or 0) * 100) if s.gtm.accuracy is not none else "-" }}{{ "%" if s.gtm.accuracy is not none }}</div><div class="meta">macro F1 {{ "%.3f"|format(s.gtm.f1_macro) }} &middot; {{ s.n_with_gtm }} rec.</div></div>
+  <div class="kpi"><div class="label">Final decision accuracy</div><div class="value">{{ "%.1f"|format((s.final.accuracy or 0) * 100) }}%</div><div class="meta">{{ s.final.unknown }} marked unknown</div></div>
+  <div class="kpi"><div class="label">Model agreement</div><div class="value">{{ "%.1f"|format((s.agreement_rate or 0) * 100) if s.agreement_rate is not none else "-" }}{{ "%" if s.agreement_rate is not none }}</div><div class="meta">mean conf. diff {{ "%.3f"|format(s.mean_confidence_difference) if s.mean_confidence_difference is not none else "-" }}</div></div>
+  <div class="kpi"><div class="label">Both correct / only Python / only GTM / both wrong</div><div class="value" style="font-size:20px">{{ s.both_correct }} / {{ s.only_python_correct }} / {{ s.only_gtm_correct }} / {{ s.both_wrong }}</div></div>
+</div>
+<div class="grid grid-2 mb-3">
+  <section class="panel">
+    <div class="panel-head"><h2>Per class</h2></div>
+    <div class="panel-body flush"><table class="table compact">
+      <thead><tr><th>Class</th><th class="num">n</th><th class="num">Python</th><th class="num">GTM</th><th class="num">Final</th><th class="num">Agree</th><th class="num">Mean |&Delta;conf|</th></tr></thead>
+      <tbody>{% for p in s.per_class %}<tr><td>{{ p["class"] }}</td><td class="num">{{ p.n }}</td>
+        <td class="num">{{ "%.0f"|format(p.python_accuracy * 100) ~ "%" if p.python_accuracy is not none else "-" }}</td>
+        <td class="num">{{ "%.0f"|format(p.gtm_accuracy * 100) ~ "%" if p.gtm_accuracy is not none else "-" }}</td>
+        <td class="num">{{ "%.0f"|format(p.final_accuracy * 100) ~ "%" if p.final_accuracy is not none else "-" }}</td>
+        <td class="num">{{ "%.0f"|format(p.agreement * 100) ~ "%" if p.agreement is not none else "-" }}</td>
+        <td class="num">{{ "%.3f"|format(p.mean_confidence_difference) if p.mean_confidence_difference is not none else "-" }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Critical-class recall</h2></div>
+    <div class="panel-body flush"><table class="table compact">
+      <thead><tr><th>Class</th><th class="num">Python</th><th class="num">GTM</th></tr></thead>
+      <tbody>{% for c, v in s.python.critical_recall.items() %}<tr><td>{{ c }}</td><td class="num">{{ "%.0f"|format(v * 100) }}%</td><td class="num">{{ "%.0f"|format(s.gtm.critical_recall.get(c, 0) * 100) ~ "%" if s.gtm.critical_recall else "-" }}</td></tr>{% endfor %}</tbody>
+    </table>
+    <div class="table-caption">Consistency: {% for k, v in s.consistency.items() %}{{ k }} {{ v }}{{ ", " if not loop.last }}{% endfor %}. Manual review: {{ s.manual_review }}. {% if s.top_confusions %}Most frequent disagreements: {% for pair, n in s.top_confusions %}{{ pair }} ({{ n }}){{ ", " if not loop.last }}{% endfor %}.{% endif %}</div></div>
+  </section>
+</div>
+<div class="grid grid-2 mb-3">
+  {% for title, cm in [("Python model confusion matrix", s.python.confusion_matrix), ("GTM model confusion matrix", s.gtm.confusion_matrix)] if cm %}
+  <section class="panel">
+    <div class="panel-head"><h2>{{ title }}</h2><span class="meta">rows = actual, columns = predicted</span></div>
+    <div class="panel-body table-wrap">
+      <table class="matrix">
+        <tr><th></th>{% for c in s.labels %}<th title="{{ c }}">{{ class_codes.get(c, c[:3]) }}</th>{% endfor %}</tr>
+        {% for row in cm %}{% set i = loop.index0 %}<tr><th class="rowh">{{ s.labels[i] }}</th>{% for v in row %}<td class="{{ 'diag' if loop.index0 == i }}" style="{% if v %}background: color-mix(in srgb, var(--{{ 'data' if loop.index0 == i else 'critical' }}) {{ [8 + v * 4, 60]|min }}%, var(--surface)){% endif %}">{{ v or "" }}</td>{% endfor %}</tr>{% endfor %}
+      </table>
+    </div>
+  </section>
+  {% endfor %}
+</div>

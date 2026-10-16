@@ -1,0 +1,517 @@
+{
+  "version": 6,
+  "updated_at": "2026-09-28T14:37:29Z",
+  "updated_by": "system (back to the SRS category list)",
+  "notes": "Configurable critical-event rules. Edited from Admin > Rules & Settings or by hand. Every save keeps the previous file in alert_rules/history/.",
+  "rules": [
+    {
+      "critical": true,
+      "alert_enabled": true,
+      "alert_type": "security",
+      "severity": "Critical",
+      "min_confidence": 0.7,
+      "min_top_two_margin": 0.2,
+      "required_consecutive_detections": 2,
+      "repeat_window_seconds": 10,
+      "require_model_agreement": true,
+      "min_audio_quality": "Acceptable",
+      "manual_review_condition": "on_uncertain_or_unconfirmed",
+      "recommended_action": "Notify on-site security immediately, check nearby cameras and call emergency services if the shot is confirmed. Keep people away from the area.",
+      "responsible_roles": [
+        "security"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "repeated",
+        "min_repeats": 3,
+        "within_seconds": 30,
+        "min_confidence": 0.8,
+        "severity": "Critical",
+        "generate_alert": true,
+        "notify": "Security lead and emergency services"
+      },
+      "category": "Gunshot"
+    },
+    {
+      "critical": true,
+      "alert_enabled": true,
+      "alert_type": "safety",
+      "severity": "Critical",
+      "min_confidence": 0.7,
+      "min_top_two_margin": 0.15,
+      "required_consecutive_detections": 1,
+      "repeat_window_seconds": 10,
+      "require_model_agreement": false,
+      "min_audio_quality": "Poor",
+      "manual_review_condition": "on_uncertain_or_unconfirmed",
+      "recommended_action": "Send the nearest guard to the location, check on the person's safety and escalate to emergency services if needed.",
+      "responsible_roles": [
+        "security"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "repeated",
+        "min_repeats": 3,
+        "within_seconds": 30,
+        "min_confidence": 0.75,
+        "severity": "Critical",
+        "generate_alert": true,
+        "notify": "Security lead"
+      },
+      "category": "Panic Scream"
+    },
+    {
+      "critical": true,
+      "alert_enabled": true,
+      "alert_type": "safety",
+      "severity": "Critical",
+      "min_confidence": 0.7,
+      "min_top_two_margin": 0.15,
+      "required_consecutive_detections": 1,
+      "repeat_window_seconds": 10,
+      "require_model_agreement": false,
+      "min_audio_quality": "Poor",
+      "manual_review_condition": "on_uncertain_or_unconfirmed",
+      "recommended_action": "Someone may be calling for help. Dispatch staff to the location immediately and contact emergency services if required.",
+      "responsible_roles": [
+        "security"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "repeated",
+        "min_repeats": 2,
+        "within_seconds": 20,
+        "min_confidence": 0.75,
+        "severity": "Critical",
+        "generate_alert": true,
+        "notify": "Security lead and emergency services"
+      },
+      "category": "Person Asking for Help"
+    },
+    {
+      "critical": true,
+      "alert_enabled": true,
+      "alert_type": "security",
+      "severity": "High",
+      "min_confidence": 0.65,
+      "min_top_two_margin": 0.15,
+      "required_consecutive_detections": 1,
+      "repeat_window_seconds": 15,
+      "require_model_agreement": false,
+      "min_audio_quality": "Poor",
+      "manual_review_condition": "on_uncertain_or_unconfirmed",
+      "recommended_action": "Possible verbal or physical conflict. Send security to de-escalate and monitor nearby cameras.",
+      "responsible_roles": [
+        "security"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "repeated",
+        "min_repeats": 3,
+        "within_seconds": 30,
+        "min_confidence": 0.8,
+        "severity": "Critical",
+        "generate_alert": true,
+        "notify": "Security lead"
+      },
+      "category": "Aggression"
+    },
+    {
+      "critical": true,
+      "alert_enabled": true,
+      "alert_type": "security",
+      "severity": "High",
+      "min_confidence": 0.7,
+      "min_top_two_margin": 0.15,
+      "required_consecutive_detections": 1,
+      "repeat_window_seconds": 10,
+      "require_model_agreement": false,
+      "min_audio_quality": "Acceptable",
+      "manual_review_condition": "on_uncertain_or_unconfirmed",
+      "recommended_action": "Possible break-in or vandalism. Check doors, windows and cameras in the area and send a guard to inspect.",
+      "responsible_roles": [
+        "security"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "repeated",
+        "min_repeats": 3,
+        "within_seconds": 30,
+        "min_confidence": 0.8,
+        "severity": "Critical",
+        "generate_alert": true,
+        "notify": "Security lead"
+      },
+      "category": "Glass Breaking"
+    },
+    {
+      "critical": true,
+      "alert_enabled": true,
+      "alert_type": "attention",
+      "severity": "High",
+      "min_confidence": 0.6,
+      "min_top_two_margin": 0.1,
+      "required_consecutive_detections": 2,
+      "repeat_window_seconds": 10,
+      "require_model_agreement": false,
+      "min_audio_quality": "Poor",
+      "manual_review_condition": "on_uncertain",
+      "recommended_action": "An alarm or siren is sounding. Check the fire or intrusion panel and follow the site evacuation procedure if needed.",
+      "responsible_roles": [
+        "security",
+        "maintenance"
+      ],
+      "escalation": {
+        "enabled": false,
+        "condition": "repeated",
+        "min_repeats": 5,
+        "within_seconds": 60,
+        "min_confidence": 0.8,
+        "severity": "Critical",
+        "generate_alert": true,
+        "notify": "Facility manager"
+      },
+      "category": "Alarm or Siren"
+    },
+    {
+      "critical": true,
+      "alert_enabled": true,
+      "alert_type": "maintenance",
+      "severity": "High",
+      "min_confidence": 0.6,
+      "min_top_two_margin": 0.1,
+      "required_consecutive_detections": 2,
+      "repeat_window_seconds": 20,
+      "require_model_agreement": false,
+      "min_audio_quality": "Poor",
+      "manual_review_condition": "on_uncertain",
+      "recommended_action": "Schedule an inspection of the machine: check bearings, belts, mounts and lubrication. Stop the machine if the abnormal noise continues.",
+      "responsible_roles": [
+        "maintenance"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "repeated",
+        "min_repeats": 6,
+        "within_seconds": 60,
+        "min_confidence": 0.8,
+        "severity": "Critical",
+        "generate_alert": true,
+        "notify": "Maintenance lead"
+      },
+      "category": "Machinery Fault"
+    },
+    {
+      "critical": false,
+      "alert_enabled": false,
+      "alert_type": "traffic",
+      "severity": "Low",
+      "min_confidence": 0.6,
+      "min_top_two_margin": 0.1,
+      "required_consecutive_detections": 1,
+      "repeat_window_seconds": 30,
+      "require_model_agreement": false,
+      "min_audio_quality": "Poor",
+      "manual_review_condition": "on_uncertain",
+      "recommended_action": "Logged as a traffic sound event. No action needed unless horns continue near a restricted area.",
+      "responsible_roles": [
+        "security"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "repeated",
+        "min_repeats": 3,
+        "within_seconds": 30,
+        "min_confidence": 0.6,
+        "severity": "Medium",
+        "generate_alert": false,
+        "notify": ""
+      },
+      "category": "Vehicle Horn"
+    },
+    {
+      "critical": false,
+      "alert_enabled": false,
+      "alert_type": "environment",
+      "severity": "Low",
+      "min_confidence": 0.6,
+      "min_top_two_margin": 0.1,
+      "required_consecutive_detections": 1,
+      "repeat_window_seconds": 30,
+      "require_model_agreement": false,
+      "min_audio_quality": "Poor",
+      "manual_review_condition": "on_uncertain",
+      "recommended_action": "Logged as an environmental event. Check the context if animals are not expected in this area.",
+      "responsible_roles": [
+        "security",
+        "maintenance"
+      ],
+      "escalation": {
+        "enabled": false,
+        "condition": "repeated",
+        "min_repeats": 5,
+        "within_seconds": 60,
+        "min_confidence": 0.7,
+        "severity": "Medium",
+        "generate_alert": false,
+        "notify": ""
+      },
+      "category": "Animal Sound"
+    },
+    {
+      "critical": false,
+      "alert_enabled": false,
+      "alert_type": "environment",
+      "severity": "Informational",
+      "min_confidence": 0.5,
+      "min_top_two_margin": 0.1,
+      "required_consecutive_detections": 1,
+      "repeat_window_seconds": 30,
+      "require_model_agreement": false,
+      "min_audio_quality": "Unusable",
+      "manual_review_condition": "never",
+      "recommended_action": "No action needed.",
+      "responsible_roles": [
+        "maintenance"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "noise_level",
+        "min_repeats": 1,
+        "within_seconds": 30,
+        "min_confidence": 0.5,
+        "severity": "Medium",
+        "generate_alert": true,
+        "notify": "Facility manager"
+      },
+      "category": "Background Noise"
+    },
+    {
+      "critical": true,
+      "alert_enabled": true,
+      "alert_type": "safety",
+      "severity": "Critical",
+      "min_confidence": 0.7,
+      "min_top_two_margin": 0.2,
+      "required_consecutive_detections": 1,
+      "repeat_window_seconds": 10,
+      "require_model_agreement": true,
+      "min_audio_quality": "Acceptable",
+      "manual_review_condition": "on_uncertain_or_unconfirmed",
+      "recommended_action": "Treat as a possible explosion: alert security and emergency services, evacuate the area, check for fire and injuries and do not approach until it is safe.",
+      "responsible_roles": [
+        "security",
+        "maintenance"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "repeated",
+        "min_repeats": 2,
+        "within_seconds": 60,
+        "min_confidence": 0.8,
+        "severity": "Critical",
+        "generate_alert": true,
+        "notify": "Emergency services and site manager"
+      },
+      "category": "Explosion"
+    },
+    {
+      "critical": false,
+      "alert_enabled": true,
+      "alert_type": "safety",
+      "severity": "Medium",
+      "min_confidence": 0.65,
+      "min_top_two_margin": 0.15,
+      "required_consecutive_detections": 1,
+      "repeat_window_seconds": 20,
+      "require_model_agreement": false,
+      "min_audio_quality": "Poor",
+      "manual_review_condition": "on_uncertain",
+      "recommended_action": "Fireworks detected. Check that they are permitted and away from people and flammable material, and confirm on camera that it was not gunfire.",
+      "responsible_roles": [
+        "security"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "repeated",
+        "min_repeats": 4,
+        "within_seconds": 60,
+        "min_confidence": 0.8,
+        "severity": "High",
+        "generate_alert": true,
+        "notify": "Security supervisor"
+      },
+      "category": "Fireworks"
+    },
+    {
+      "critical": false,
+      "alert_enabled": false,
+      "alert_type": "traffic",
+      "severity": "Low",
+      "min_confidence": 0.6,
+      "min_top_two_margin": 0.1,
+      "required_consecutive_detections": 1,
+      "repeat_window_seconds": 10,
+      "require_model_agreement": false,
+      "min_audio_quality": "Poor",
+      "manual_review_condition": "on_uncertain",
+      "recommended_action": "Vehicle backfire, not a gunshot. No action needed unless it repeats close to the site.",
+      "responsible_roles": [
+        "security"
+      ],
+      "escalation": {
+        "enabled": false,
+        "condition": "repeated",
+        "min_repeats": 4,
+        "within_seconds": 60,
+        "min_confidence": 0.8,
+        "severity": "Medium",
+        "generate_alert": false,
+        "notify": ""
+      },
+      "category": "Vehicle Backfire"
+    },
+    {
+      "critical": false,
+      "alert_enabled": true,
+      "alert_type": "security",
+      "severity": "Medium",
+      "min_confidence": 0.65,
+      "min_top_two_margin": 0.15,
+      "required_consecutive_detections": 2,
+      "repeat_window_seconds": 20,
+      "require_model_agreement": false,
+      "min_audio_quality": "Poor",
+      "manual_review_condition": "on_uncertain",
+      "recommended_action": "A drone is flying nearby. Check whether it is authorised, locate it and note its direction, and restrict access to sensitive areas if it is not.",
+      "responsible_roles": [
+        "security"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "repeated",
+        "min_repeats": 6,
+        "within_seconds": 60,
+        "min_confidence": 0.8,
+        "severity": "High",
+        "generate_alert": true,
+        "notify": "Security supervisor"
+      },
+      "category": "Drone Sound"
+    },
+    {
+      "critical": false,
+      "alert_enabled": false,
+      "alert_type": "maintenance",
+      "severity": "Low",
+      "min_confidence": 0.6,
+      "min_top_two_margin": 0.1,
+      "required_consecutive_detections": 2,
+      "repeat_window_seconds": 30,
+      "require_model_agreement": false,
+      "min_audio_quality": "Poor",
+      "manual_review_condition": "on_uncertain",
+      "recommended_action": "A power tool is in use. Check that the work is scheduled and authorised; outside working hours treat it as a possible break-in.",
+      "responsible_roles": [
+        "maintenance",
+        "security"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "repeated",
+        "min_repeats": 10,
+        "within_seconds": 120,
+        "min_confidence": 0.8,
+        "severity": "Medium",
+        "generate_alert": true,
+        "notify": "Security"
+      },
+      "category": "Drilling or Grinder Sound"
+    },
+    {
+      "critical": false,
+      "alert_enabled": true,
+      "alert_type": "security",
+      "severity": "Medium",
+      "min_confidence": 0.65,
+      "min_top_two_margin": 0.15,
+      "required_consecutive_detections": 1,
+      "repeat_window_seconds": 20,
+      "require_model_agreement": false,
+      "min_audio_quality": "Poor",
+      "manual_review_condition": "on_uncertain",
+      "recommended_action": "A door was slammed, kicked or banged on. Check the door and nearby cameras for forced entry and send someone if the banging continues.",
+      "responsible_roles": [
+        "security"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "repeated",
+        "min_repeats": 3,
+        "within_seconds": 30,
+        "min_confidence": 0.75,
+        "severity": "High",
+        "generate_alert": true,
+        "notify": "Security lead: possible forced entry"
+      },
+      "category": "Door Impact"
+    },
+    {
+      "critical": false,
+      "alert_enabled": true,
+      "alert_type": "security",
+      "severity": "Medium",
+      "min_confidence": 0.65,
+      "min_top_two_margin": 0.15,
+      "required_consecutive_detections": 2,
+      "repeat_window_seconds": 30,
+      "require_model_agreement": false,
+      "min_audio_quality": "Poor",
+      "manual_review_condition": "on_uncertain",
+      "recommended_action": "Possible vandalism with spray paint. Check cameras covering walls and vehicles and send a patrol.",
+      "responsible_roles": [
+        "security"
+      ],
+      "escalation": {
+        "enabled": true,
+        "condition": "repeated",
+        "min_repeats": 4,
+        "within_seconds": 60,
+        "min_confidence": 0.8,
+        "severity": "High",
+        "generate_alert": true,
+        "notify": "Security supervisor"
+      },
+      "category": "Graffiti Spray"
+    },
+    {
+      "critical": false,
+      "alert_enabled": false,
+      "alert_type": "review",
+      "severity": "Low",
+      "min_confidence": 0.0,
+      "min_top_two_margin": 0.0,
+      "required_consecutive_detections": 1,
+      "repeat_window_seconds": 30,
+      "require_model_agreement": false,
+      "min_audio_quality": "Unusable",
+      "manual_review_condition": "always",
+      "recommended_action": "The sound could not be classified reliably. Listen to the segment and label it manually.",
+      "responsible_roles": [
+        "security",
+        "maintenance"
+      ],
+      "escalation": {
+        "enabled": false,
+        "condition": "repeated",
+        "min_repeats": 5,
+        "within_seconds": 60,
+        "min_confidence": 0.0,
+        "severity": "Medium",
+        "generate_alert": false,
+        "notify": ""
+      },
+      "category": "Unknown Sound"
+    }
+  ]
+}

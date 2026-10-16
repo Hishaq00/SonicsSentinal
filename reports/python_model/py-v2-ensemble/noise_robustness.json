@@ -1,0 +1,134 @@
+{
+  "svm": {
+    "20 dB": {
+      "accuracy": 0.8933333333333333,
+      "f1_macro": 0.8936248389223393,
+      "critical_recall_min": 0.7555555555555555
+    },
+    "10 dB": {
+      "accuracy": 0.8311111111111111,
+      "f1_macro": 0.8308624140524801,
+      "critical_recall_min": 0.6444444444444445
+    },
+    "5 dB": {
+      "accuracy": 0.7111111111111111,
+      "f1_macro": 0.7115104550559497,
+      "critical_recall_min": 0.4444444444444444
+    },
+    "0 dB": {
+      "accuracy": 0.48444444444444446,
+      "f1_macro": 0.4868177887146629,
+      "critical_recall_min": 0.2222222222222222
+    }
+  },
+  "random_forest": {
+    "20 dB": {
+      "accuracy": 0.88,
+      "f1_macro": 0.8803472426817299,
+      "critical_recall_min": 0.8
+    },
+    "10 dB": {
+      "accuracy": 0.8066666666666666,
+      "f1_macro": 0.8055062610758693,
+      "critical_recall_min": 0.7111111111111111
+    },
+    "5 dB": {
+      "accuracy": 0.6377777777777778,
+      "f1_macro": 0.6301714646033981,
+      "critical_recall_min": 0.4222222222222222
+    },
+    "0 dB": {
+      "accuracy": 0.3288888888888889,
+      "f1_macro": 0.29330443536108064,
+      "critical_recall_min": 0.08888888888888889
+    }
+  },
+  "hist_gradient_boosting": {
+    "20 dB": {
+      "accuracy": 0.9155555555555556,
+      "f1_macro": 0.9157523453297486,
+      "critical_recall_min": 0.8
+    },
+    "10 dB": {
+      "accuracy": 0.8577777777777778,
+      "f1_macro": 0.8578177931021148,
+      "critical_recall_min": 0.6888888888888889
+    },
+    "5 dB": {
+      "accuracy": 0.7377777777777778,
+      "f1_macro": 0.7410684254058344,
+      "critical_recall_min": 0.5111111111111111
+    },
+    "0 dB": {
+      "accuracy": 0.4288888888888889,
+      "f1_macro": 0.4271811811500603,
+      "critical_recall_min": 0.17777777777777778
+    }
+  },
+  "mlp": {
+    "20 dB": {
+      "accuracy": 0.9288888888888889,
+      "f1_macro": 0.9291231565444507,
+      "critical_recall_min": 0.8222222222222222
+    },
+    "10 dB": {
+      "accuracy": 0.8555555555555555,
+      "f1_macro": 0.8555819148536049,
+      "critical_recall_min": 0.7555555555555555
+    },
+    "5 dB": {
+      "accuracy": 0.7222222222222222,
+      "f1_macro": 0.7204330994133149,
+      "critical_recall_min": 0.6222222222222222
+    },
+    "0 dB": {
+      "accuracy": 0.5088888888888888,
+      "f1_macro": 0.509613546847447,
+      "critical_recall_min": 0.26666666666666666
+    }
+  },
+  "xgboost": {
+    "20 dB": {
+      "accuracy": 0.9133333333333333,
+      "f1_macro": 0.9147011095826455,
+      "critical_recall_min": 0.8444444444444444
+    },
+    "10 dB": {
+      "accuracy": 0.86,
+      "f1_macro": 0.8585646405612671,
+      "critical_recall_min": 0.7111111111111111
+    },
+    "5 dB": {
+      "accuracy": 0.74,
+      "f1_macro": 0.7416793943623887,
+      "critical_recall_min": 0.5333333333333333
+    },
+    "0 dB": {
+      "accuracy": 0.40444444444444444,
+      "f1_macro": 0.40550404060900924,
+      "critical_recall_min": 0.13333333333333333
+    }
+  },
+  "ensemble": {
+    "20 dB": {
+      "accuracy": 0.9222222222222223,
+      "f1_macro": 0.9231197454245816,
+      "critical_recall_min": 0.8444444444444444
+    },
+    "10 dB": {
+      "accuracy": 0.8666666666666667,
+      "f1_macro": 0.866150102532572,
+      "critical_recall_min": 0.7333333333333333
+    },
+    "5 dB": {
+      "accuracy": 0.7533333333333333,
+      "f1_macro": 0.7555393756844835,
+      "critical_recall_min": 0.5777777777777777
+    },
+    "0 dB": {
+      "accuracy": 0.48,
+      "f1_macro": 0.4876703648725716,
+      "critical_recall_min": 0.24444444444444444
+    }
+  }
+}

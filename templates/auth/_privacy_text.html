@@ -1,0 +1,41 @@
+<div class="prose">
+  <p class="eyebrow">Privacy notice</p>
+  <h1 style="margin:4px 0 12px">Audio, microphones and your data</h1>
+  <p>SonicSentinel AI analyses sound to detect events such as alarms, breaking glass or calls for help. Sound can contain voices, so we handle it carefully.</p>
+
+  <h2>The microphone is never used secretly</h2>
+  <ul>
+    <li>Live monitoring starts only when you press <b>Start monitoring</b> and your browser has granted microphone permission.</li>
+    <li>While it runs, a red <b>Microphone on</b> indicator is shown on every page and the browser shows its own recording indicator.</li>
+    <li>You can pause or stop at any time. Closing the tab stops the microphone.</li>
+    <li>Before the first session you are asked to confirm you have read this notice.</li>
+  </ul>
+
+  <h2>What is stored</h2>
+  <ul>
+    <li><b>Uploaded files</b>: the original file, a pre-processed copy, a waveform and a spectrogram image, the predictions of both models and the final decision.</li>
+    <li><b>Live windows</b>: every prediction is stored. The audio itself is stored
+      {% if settings.live.store_audio == "all" %}for every window{% elif settings.live.store_audio == "none" %}never (predictions only){% else %}only for windows in which an event was detected{% endif %}
+      (administrator setting).</li>
+    <li><b>Audit trail</b>: sign-ins, uploads, microphone sessions, predictions, alerts, reviews, overrides and exports, with time and IP address.</li>
+  </ul>
+
+  <h2>How long data is kept</h2>
+  <ul>
+    <li>Uploaded audio: {{ settings.retention.audio_days }} days.</li>
+    <li>Live audio: {{ settings.retention.live_audio_days }} days.</li>
+    <li>Event records (predictions, alerts, reviews): {{ settings.retention.records_days }} days.</li>
+  </ul>
+  <p>After these periods the data is deleted automatically. Administrators can change the periods.</p>
+
+  <h2>Who can see it</h2>
+  <p>Normal users see their own recordings. Reviewers, security and maintenance operators see events they are responsible for. Administrators manage the system. Audio files are stored outside the public web folder and are only served to signed-in users with permission.</p>
+
+  <h2>Ethical use</h2>
+  <ul>
+    <li>Only monitor places where you are allowed to, and tell people that sound monitoring is in use.</li>
+    <li>Do not use the system to identify or profile individuals.</li>
+    <li>Speech samples in the training data were recorded voluntarily, synthesised, or taken from licensed sources.</li>
+    <li>This is a competition prototype. It is <b>not</b> a certified emergency-response or law-enforcement system; in an emergency call your local emergency number.</li>
+  </ul>
+</div>

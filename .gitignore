@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+
+# Local configuration and secrets
+.env
+
+# Runtime data (created by the application)
+database/*.db
+database/*.db-wal
+database/*.db-shm
+data/storage/
+
+# Large generated artefacts - publish the dataset separately (see audio_dataset/README.md)
+audio_dataset/incoming/
+audio_dataset/_tts_cache/
+audio_dataset/augmented/
+audio_dataset/train/
+audio_dataset/validation/
+audio_dataset/test/
+data/features/features.csv
+data/features/gtm/
+data/features/cnn/
+gtm_model/training_samples/
+gtm_model/base_model/
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+
+# Deployment archives (scripts/make_deploy_zip.py)
+dist/

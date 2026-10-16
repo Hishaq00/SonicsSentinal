@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, sev, agree, status, cat, pct, when, empty with context %}
+{% block title %}Live monitor{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/console.css') }}?v={{ app_version }}">{% endblock %}
+{% block content %}
+<section class="console" id="console" data-live="off">
+  <div class="console-grain" aria-hidden="true"></div>
+  <div class="console-flare" aria-hidden="true"></div>
+  <div class="console-crop" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="console-body">
+    <div class="console-id">
+      <span class="console-dot" aria-hidden="true"></span><span>Monitor</span>
+      <span class="console-sep" aria-hidden="true"></span><span>two models, one window at a time</span>
+    </div>
+    <h1 class="console-title">Live <em>microphone</em> monitoring</h1>
+    <p class="console-lede">The microphone is analysed in {{ segmentation.live_window_seconds|round(1) }} s windows, one every {{ segmentation.live_hop_seconds|round(1) }} s. Each window is classified by the Teachable Machine model (in this browser) and the Python model (on the server), compared, and checked against the alert rules.</p>
+    <p class="console-hint">Start below. The waveform, spectrogram and 3D spectrum follow the input as soon as the microphone opens.</p>
+  </div>
+  <dl class="console-readout">
+    <div><dt>Window</dt><dd class="num">{{ segmentation.live_window_seconds|round(1) }}<small>s</small></dd></div>
+    <div><dt>Every</dt><dd class="num">{{ segmentation.live_hop_seconds|round(1) }}<small>s</small></dd></div>
+    <div><dt>Models</dt><dd class="num">{{ 2 if gtm.enabled else 1 }}</dd></div>
+    <div><dt>Stored</dt><dd class="num word">{% if live.store_audio == "events" %}events{% elif live.store_audio == "all" %}all{% else %}none{% endif %}</dd></div>
+  </dl>
+</section>
+
+{% if not python_ready %}
+<div class="callout bad mb-3"><b>The Python model is not trained yet.</b> Live monitoring needs it. Ask an administrator to run the training step.</div>
+{% endif %}
+
+<div class="live-bar mb-3">
+  <span class="mic-state" id="mic-state" data-state="unknown" role="status" aria-live="polite"><span class="mic-dot"></span><span id="mic-label">Checking microphone&hellip;</span></span>
+  <span class="divider-v"></span>
+  <label class="field" style="flex-direction:row;align-items:center;gap:6px"><span class="label">Microphone</span>
+    <select id="mic-device" style="width:auto;max-width:220px"><option value="">Default input</option></select></label>
+  <label class="field" style="flex-direction:row;align-items:center;gap:6px"><span class="label">Window</span>
+    <select id="win" style="width:auto">{% for v in [1.0, 1.5, 2.0, 2.5, 3.0] %}<option value="{{ v }}"{% if (segmentation.live_window_seconds|float) == v %} selected{% endif %}>{{ v }} s</option>{% endfor %}</select></label>
+  <label class="field" style="flex-direction:row;align-items:center;gap:6px"><span class="label">Every</span>
+    <select id="hop" style="width:auto">{% for v in [0.5, 1.0, 1.5, 2.0, 3.0] %}<option value="{{ v }}"{% if (segmentation.live_hop_seconds|float) == v %} selected{% endif %}>{{ v }} s</option>{% endfor %}</select></label>
+  <label class="field" style="flex-direction:row;align-items:center;gap:6px"><span class="label">Location</span>
+    <input id="location" type="text" placeholder="e.g. Gate 2" style="width:140px"></label>
+  <span class="spacer" style="flex:1"></span>
+  <button class="btn btn-record" type="button" id="start-btn"{% if not python_ready %} disabled{% endif %}>{{ icon("mic") }}Start monitoring</button>
+  <button class="btn hidden" type="button" id="pause-btn">{{ icon("pause") }}Pause</button>
+  <button class="btn hidden" type="button" id="stop-btn">{{ icon("stop") }}Stop</button>
+</div>
+
+<div class="privacy-strip mb-3 hidden" id="privacy-strip" role="status">
+  <span class="mic-dot" style="background:var(--critical)"></span>
+  <span><b>Microphone on.</b> Audio is analysed window by window.
+  {% if live.store_audio == "events" %}Only windows with a detected event are stored.{% elif live.store_audio == "all" %}Every window is stored.{% else %}No audio is stored, only predictions.{% endif %}
+  Stop at any time.</span>
+</div>
+
+<div id="alert-banner" class="hidden mb-3"></div>
+
+<section class="panel mb-3" aria-labelledby="now-h">
+  <div class="panel-head"><h2 id="now-h">Now hearing</h2><span class="meta" id="now-meta">not started</span></div>
+  <div class="now">
+    <div class="current">
+      <div id="now-cat">{{ cat(None, large=True) }}</div>
+      <div class="facts" id="now-facts"><span class="muted small">Start monitoring to see live results.</span></div>
+      <div class="small muted" id="now-action"></div>
+      <div class="mt-1">
+        <div class="row-between small"><span class="muted">Input level</span><span class="num" id="level-val">-</span></div>
+        <div class="meter" id="level"><span style="width:0%"></span></div>
+      </div>
+    </div>
+    <div>
+      <div class="model-tag python">Python model{% if python_version %} &middot; <span class="mono">{{ python_version }}</span>{% endif %}</div>
+      <ol class="top3 mt-2" id="py-top"><li class="muted" style="font-weight:400">-</li></ol>
+    </div>
+    <div>
+      <div class="model-tag gtm">Teachable Machine <span id="gtm-state" class="muted">{{ "" if gtm.enabled else "(not configured)" }}</span></div>
+      <ol class="top3 mt-2" id="gtm-top"><li class="muted" style="font-weight:400">-</li></ol>
+    </div>
+  </div>
+  <div class="stat-strip" style="border-top:1px solid var(--rule)">
+    <div><div class="l">Windows</div><div class="v" id="st-windows">0</div></div>
+    <div><div class="l">Detections</div><div class="v" id="st-detections">0</div></div>
+    <div><div class="l">Alerts</div><div class="v" id="st-alerts">0</div></div>
+    <div><div class="l">Silent</div><div class="v" id="st-silent">0</div></div>
+    <div><div class="l">Latency</div><div class="v" id="st-latency">-</div></div>
+  </div>
+</section>
+
+<section class="panel console-panel mb-3">
+  <div class="panel-head"><h2>Waveform {{ icon("wave") }}</h2><span class="meta mono">live input &middot; amplitude against time</span></div>
+  <div class="scope-wrap tall ruled">
+    <span class="scope-mark tl">+1.0</span>
+    <span class="scope-mark bl">&minus;1.0</span>
+    <span class="scope-mark tr">time &rarr;</span>
+    <canvas id="scope" aria-label="Live waveform" role="img"></canvas>
+  </div>
+</section>
+
+<div class="grid grid-2 mb-3">
+  <section class="panel console-panel">
+    <div class="panel-head"><h2>Spectrogram</h2><span class="meta mono">0&ndash;8 kHz, scrolling</span></div>
+    <div class="livespec-wrap" style="border-top:0">
+      <span class="scope-mark tl">8 kHz</span>
+      <span class="scope-mark bl">0 Hz</span>
+      <canvas id="livespec" aria-label="Live spectrogram" role="img"></canvas>
+    </div>
+  </section>
+  <section class="panel console-panel">
+    <div class="panel-head"><h2>3D spectrum</h2><span class="meta mono" id="spectrum3d-state">waiting for the microphone</span></div>
+    <div class="spectrum3d" id="spectrum3d" role="img" aria-label="Three-dimensional spectrum waterfall of the microphone, 0 to 8 kHz"></div>
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel-head"><h2>Recent windows</h2><span class="meta">newest first</span></div>
+  <div class="panel-body flush"><div class="table-wrap">
+    <table class="table compact windows-table">
+      <thead><tr><th>Time</th><th>#</th><th>Result</th><th class="num">Conf.</th><th>Python</th><th>GTM</th><th>Agreement</th><th>Severity</th><th>Alert status</th><th>Quality</th></tr></thead>
+      <tbody id="windows"><tr class="placeholder"><td colspan="10" class="muted">No windows yet.</td></tr></tbody>
+    </table>
+  </div></div>
+</section>
+
+{% if sessions %}
+<section class="panel mt-3">
+  <div class="panel-head"><h2>Your recent sessions</h2></div>
+  <div class="panel-body flush"><table class="table compact">
+    <thead><tr><th>Session</th><th>Started</th><th>Status</th><th class="num">Windows</th><th class="num">Detections</th><th class="num">Alerts</th><th class="num">Avg latency</th></tr></thead>
+    <tbody>{% for s in sessions %}<tr><td class="mono">{{ s.session_code }}</td><td>{{ when(s.started_at) }}</td><td>{{ s.status }}</td><td class="num">{{ s.windows_processed }}</td><td class="num">{{ s.detections }}</td><td class="num">{{ s.alerts }}</td><td class="num">{{ (s.avg_latency_ms or 0)|round|int }} ms</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+{% endif %}
+
+<dialog id="consent-dialog">
+  <div class="dlg-head"><h2>Before you start the microphone</h2></div>
+  <div class="dlg-body">
+    <p>SonicSentinel will listen through this device's microphone and analyse the sound in short windows to detect events such as alarms, breaking glass or calls for help.</p>
+    <ul>
+      <li>A red <b>Microphone on</b> indicator is visible while monitoring runs. You can pause or stop at any time.</li>
+      <li>{% if live.store_audio == "events" %}Only windows with a detected event are stored{% elif live.store_audio == "all" %}Every window is stored{% else %}No audio is stored{% endif %}; audio is deleted after the retention period.</li>
+      <li>Only monitor places where you are allowed to, and tell people nearby that sound monitoring is active.</li>
+    </ul>
+    <p class="small">Read the full <a href="{{ url_for('auth.privacy') }}" target="_blank" rel="noopener">privacy notice</a>.</p>
+  </div>
+  <div class="dlg-foot"><button class="btn" type="button" value="cancel" id="consent-cancel">Cancel</button><button class="btn btn-primary" type="button" id="consent-ok">I understand, start</button></div>
+</dialog>
+
+<script type="application/json" id="live-config">{{ {
+  "consent": consent,
+  "consentUrl": url_for('live.consent'),
+  "startUrl": url_for('live.start'),
+  "sessionBase": "/api/live/sessions/",
+  "gtm": gtm,
+  "classCodes": class_codes,
+  "workletUrl": url_for('static', filename='js/capture-worklet.js'),
+  "pythonReady": python_ready
+}|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/tf.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/gtm.js') }}?v={{ app_version }}&_t={{ range(100000, 999999)|random }}"></script>
+<script src="{{ url_for('static', filename='js/live.js') }}?v={{ app_version }}&_t={{ range(100000, 999999)|random }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/live3d.js') }}?v={{ app_version }}"></script>
+{% endblock %}

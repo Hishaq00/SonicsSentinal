@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SonicSentinel AI - Model comparison {{ run.run_code }}</title>
+<style>
+  :root { --ink:#1b1a17; --ink-3:#77736a; --rule:#e3dfd6; --surface:#fff; --data:#3a3833; --critical:#d03b3b; --good-text:#006300; --critical-text:#a92626; }
+  body { font: 13px/1.45 "IBM Plex Sans", system-ui, "Segoe UI", sans-serif; color: var(--ink); margin: 32px; }
+  h1 { font-size: 22px; margin: 0 0 4px; } h2 { font-size: 15px; margin: 22px 0 8px; }
+  .muted { color: var(--ink-3); } .mono { font-family: "IBM Plex Mono", Consolas, monospace; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 14px; font-size: 11.5px; }
+  th, td { border-bottom: 1px solid var(--rule); padding: 4px 6px; text-align: left; vertical-align: top; }
+  th { color: var(--ink-3); font-weight: 500; text-transform: uppercase; font-size: 10.5px; letter-spacing: .04em; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .kpis { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--rule); border-radius: 8px; margin: 12px 0; }
+  .kpi { padding: 10px 12px; border-right: 1px solid var(--rule); } .kpi:last-child { border-right: 0; }
+  .kpi .label { font-size: 11.5px; color: var(--ink-3); } .kpi .value { font-size: 20px; font-weight: 600; } .kpi .meta { font-size: 11px; color: var(--ink-3); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; } .panel-head h2 { margin: 12px 0 4px; } .panel-head .meta { font-size: 11px; color: var(--ink-3); }
+  .matrix td, .matrix th { border: 1px solid var(--rule); text-align: center; min-width: 26px; }
+  .matrix th.rowh { text-align: right; white-space: nowrap; } .matrix td.diag { font-weight: 600; }
+  .table-caption { font-size: 11px; color: var(--ink-3); }
+  .panel { break-inside: avoid; } .mb-3 { margin-bottom: 12px; }
+  @media print { body { margin: 12mm; } }
+</style>
+</head>
+<body>
+<h1>Model prediction &amp; confidence comparison report</h1>
+<p class="muted">SonicSentinel AI &middot; run <span class="mono">{{ run.run_code }}</span> &middot; {{ run.created_at.strftime("%d %b %Y %H:%M") }} UTC &middot; {{ summary.n }} unseen test recordings &middot; Python <span class="mono">{{ summary.python_version }}</span> &middot; GTM <span class="mono">{{ summary.gtm_version or "n/a" }}</span></p>
+{% set class_codes = {} %}
+{% include "admin/_evaluation_summary.html" %}
+<h2>Recordings</h2>
+<table>
+  <thead><tr>{% for h in ["audio_id", "actual_class", "python_predicted_class", "gtm_predicted_class", "class_match", "top_class_confidence_difference", "python_top_two_margin", "gtm_top_two_margin", "audio_quality", "severity", "alert_status", "manual_review", "final_decision", "final_correct", "explanation_of_disagreement"] %}<th>{{ h.replace('_', ' ') }}</th>{% endfor %}</tr></thead>
+  <tbody>
+  {% set ix = {} %}{% for h in head %}{% set _ = ix.update({h: loop.index0}) %}{% endfor %}
+  {% for r in rows %}
+  <tr>{% for h in ["audio_id", "actual_class", "python_predicted_class", "gtm_predicted_class", "class_match", "top_class_confidence_difference", "python_top_two_margin", "gtm_top_two_margin", "audio_quality", "severity", "alert_status", "manual_review", "final_decision", "final_correct", "explanation_of_disagreement"] %}{% set v = r[ix[h]] %}<td{% if v is number and v is not sameas true and v is not sameas false %} class="num"{% endif %}>{% if v is float %}{{ "%.3f"|format(v) }}{% elif v is none %}-{% else %}{{ v }}{% endif %}</td>{% endfor %}</tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p class="muted">Per-class confidence scores for both models are included in the CSV and Excel exports. Prototype for controlled testing; not a certified emergency-response system.</p>
+</body>
+</html>

@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, sev, quality, agree, status, alert_state, cat, pct, bar, when, record_link, empty, source with context %}
+{% block title %}{{ record.audio_id }}{% endblock %}
+{% block crumbs %}<a href="{{ url_for('history.history') }}" class="hide-sm">Event history</a><span class="hide-sm">/</span><b class="mono">{{ record.audio_id }}</b>{% endblock %}
+{% block content %}
+{% set d = record.decision or {} %}
+{% set pending = record.gtm_status == "pending" %}
+<div class="page-head">
+  <div style="min-width:0">
+    <p class="eyebrow"><span class="mono">{{ record.audio_id }}</span> &middot; {{ source(record.source) }}{% if record.session %} &middot; session <span class="mono">{{ record.session.session_code }}</span>{% endif %}</p>
+    <h1 class="truncate" title="{{ record.display_name }}">{{ record.display_name }}</h1>
+    <p class="lede">{{ "%.2f"|format(record.duration or 0) }} s &middot; {{ record.format }}/{{ record.codec }} &middot; {{ record.sample_rate }} Hz &middot; {{ record.channels }} ch &middot; by {{ record.user.full_name if record.user else "-" }} &middot; {{ when(record.created_at) }}</p>
+  </div>
+  <div class="actions">
+    <a class="btn" href="{{ url_for('analysis.record_report', audio_id=record.audio_id) }}">{{ icon("download") }}PDF report</a>
+    {% if can_close and record.status not in ("Closed",) and not pending %}
+    <form method="post" action="{{ url_for('analysis.close_record', audio_id=record.audio_id) }}" class="inline-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn" type="submit" data-confirm="Close this event? Open alerts on it will be resolved.">{{ icon("check") }}Close event</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+{% if pending %}
+<div class="callout mb-3" id="gtm-pending">
+  <b>Finishing analysis.</b> The Teachable Machine model is running in your browser on the same {{ record.segments|rejectattr('silent')|list|length }} segment(s)&hellip; <span id="gtm-progress"></span>
+</div>
+{% endif %}
+{% if record.error_message %}<div class="callout warn mb-3">{{ record.error_message }}</div>{% endif %}
+{% if record.duplicate_of %}<div class="callout warn mb-3">This file is identical (same SHA-256) to {{ record_link(record.duplicate_of) }} uploaded {{ when(record.duplicate_of.created_at) }}.</div>{% endif %}
+{% if record.near_duplicate_of %}<div class="callout warn mb-3">This recording looks like a re-encoded, trimmed or volume-changed copy of {{ record_link(record.near_duplicate_of) }} (fingerprint bit-error rate {{ "%.2f"|format(record.near_duplicate_ber) }}).</div>{% endif %}
+
+<div class="grid grid-main">
+  <div class="stack">
+    {# ---------------- final decision ---------------- #}
+    <section class="panel{% if record.alert_status == 'Alert Generated' %} critical{% endif %}" aria-labelledby="verdict-h">
+      <div class="panel-head"><h2 id="verdict-h">Final result</h2>{{ status(record.status) }}</div>
+      <div class="panel-body">
+        {% if pending %}
+          <p class="muted">Waiting for the Teachable Machine result before the models are compared.</p>
+        {% else %}
+        <div class="verdict">
+          <div>
+            {{ cat(record.effective_category, large=True) }}
+            {% if record.reviewed_category and record.reviewed_category != record.final_category %}
+              <p class="small mt-1 mb-0">Reviewer corrected the automatic result <b>{{ record.final_category }}</b>. Original model outputs are kept below.</p>
+            {% endif %}
+            <div class="facts">
+              {{ sev(record.effective_severity) }} {{ agree(record.consistency) }} {{ quality(record.quality_label) }}
+              {% if record.alert_status %}<span class="chip{% if record.alert_status == 'Alert Generated' %} alert-Active{% else %} chip-plain{% endif %}"><span class="glyph"></span>{{ record.alert_status }}</span>{% endif %}
+              {% if record.overlapping %}<span class="chip q-Poor">Overlapping: {{ record.overlap_classes|join(", ") }}</span>{% endif %}
+            </div>
+          </div>
+          <div class="confidence-dial">
+            <div class="v">{{ pct(record.final_confidence) }}</div>
+            <div class="l">{{ record.confidence_level }} confidence (fused)</div>
+          </div>
+        </div>
+        <div class="action-box{% if record.alert_status == 'Alert Generated' %} alert{% elif record.needs_review %} review{% endif %}">
+          <div class="upper-label mb-0">Recommended action</div>
+          <div>{{ record.recommended_action or "No action needed." }}</div>
+          {% if d.escalation_note %}<div class="small mt-1"><b>Escalation:</b> {{ d.escalation_note }}</div>{% endif %}
+        </div>
+        {% if record.needs_review %}
+          <div class="mt-2"><div class="upper-label mb-2">Manual review required because</div><ul class="reason-list">{% for r in record.review_reasons or [] %}<li>{{ r }}</li>{% endfor %}</ul></div>
+        {% elif record.uncertain_reasons %}
+          <div class="mt-2 small muted">Uncertainty noted: {{ record.uncertain_reasons|join(", ") }}.</div>
+        {% endif %}
+        {% endif %}
+      </div>
+    </section>
+
+    {# ---------------- audio ---------------- #}
+    <section class="panel">
+      <div class="panel-head"><h2>Audio</h2><span class="meta">waveform, detected events and mel spectrogram (0&ndash;11 kHz)</span></div>
+      {% if record.stored_path and not record.audio_deleted %}
+      <div class="player" id="player" style="border:0;border-radius:0">
+        <div class="player-controls">
+          <button class="btn btn-icon" type="button" data-play aria-label="Play">{{ icon("play") }}</button>
+          <button class="btn btn-icon" type="button" data-replay aria-label="Replay from start" title="Replay">{{ icon("replay") }}</button>
+          <span class="time" data-time>0:00.0 / 0:00.0</span>
+          {% if record.processed_path %}
+          <select class="source-switch" data-source aria-label="Audio source" style="width:auto;height:28px">
+            <option value="{{ url_for('analysis.record_audio', audio_id=record.audio_id, kind='original') }}">Original</option>
+            <option value="{{ url_for('analysis.record_audio', audio_id=record.audio_id, kind='processed') }}">Pre-processed</option>
+          </select>
+          {% endif %}
+          <label class="vol">{{ icon("volume") }}<span class="sr-only">Volume</span><input type="range" min="0" max="1" step="0.05" value="0.8" data-volume></label>
+        </div>
+        <div class="wave-wrap"><canvas class="wave"></canvas></div>
+        <div class="seg-track" id="seg-track" aria-label="Detected events"></div>
+        {% if record.spectrogram_path %}
+        <div class="spec-wrap">
+          <img src="{{ url_for('analysis.record_spectrogram', audio_id=record.audio_id) }}" alt="Mel spectrogram of the recording">
+          <div class="spec-axis" id="spec-axis"></div>
+          <div class="spec-playhead"></div>
+        </div>
+        {% endif %}
+        <div class="time-axis" id="time-axis"></div>
+      </div>
+      {% else %}
+      <div class="panel-body">{{ empty("Audio was not stored (privacy setting) or has been removed by the retention policy. Predictions are kept.", "lock") }}</div>
+      {% endif %}
+    </section>
+
+    {# ---------------- model comparison ---------------- #}
+    {% if not pending %}
+    <section class="panel" aria-labelledby="cmp-h">
+      <div class="panel-head"><h2 id="cmp-h">Python model vs Teachable Machine</h2><span class="meta">recording level (mean over event segments)</span></div>
+      <div class="panel-body">
+        <div class="grid grid-2">
+          <div>
+            <div class="model-tag python">Python &middot; {{ record.python_model_version or "-" }}</div>
+            <div class="mt-1">{{ cat(record.python_top) }} <b class="num">{{ pct(record.python_confidence, 1) }}</b></div>
+            <ol class="top3 mt-2">{% for c, v in (d.python or {}).get("top3", []) %}<li><span>{{ c }}</span><span class="v">{{ pct(v, 1) }}</span>{{ bar(v, "python") }}</li>{% endfor %}</ol>
+          </div>
+          <div>
+            <div class="model-tag gtm">Teachable Machine &middot; {{ record.gtm_model_version or "not available" }}</div>
+            {% if record.gtm_top %}
+            <div class="mt-1">{{ cat(record.gtm_top) }} <b class="num">{{ pct(record.gtm_confidence, 1) }}</b></div>
+            <ol class="top3 mt-2">{% for c, v in (d.gtm or {}).get("top3", []) %}<li><span>{{ c }}</span><span class="v">{{ pct(v, 1) }}</span>{{ bar(v, "gtm") }}</li>{% endfor %}</ol>
+            {% else %}
+            <p class="muted mt-1">{{ "GTM model not configured." if record.gtm_status == "unavailable" else "No GTM result (" ~ record.gtm_status ~ ")." }} The result is based on the Python model only.</p>
+            {% endif %}
+          </div>
+        </div>
+        <dl class="kv mt-3">
+          <dt>Predicted-class match</dt><dd>{% if record.class_match is none %}-{% elif record.class_match %}Yes, both chose {{ record.python_top }}{% else %}No: {{ record.python_top }} vs {{ record.gtm_top }}{% endif %}</dd>
+          <dt>Top-class confidence difference</dt><dd class="num">{{ "%.3f"|format(record.confidence_difference) if record.confidence_difference is not none else "-" }} <span class="muted small">|Python top &minus; GTM top|</span></dd>
+          <dt>Top-two margin</dt><dd class="num">Python {{ "%.3f"|format((d.python or {}).get("margin", 0)) }}{% if d.gtm %} &middot; GTM {{ "%.3f"|format(d.gtm.margin) }} &middot; difference {{ "%.3f"|format(record.margin_difference or 0) }}{% endif %}</dd>
+          <dt>Agreement status</dt><dd>{{ agree(record.consistency) }}</dd>
+        </dl>
+        <div class="table-wrap mt-3">
+          <table class="conf-table">
+            <thead><tr><th>Class</th><th><span class="model-tag python">Python</span></th><th class="right">%</th><th><span class="model-tag gtm">GTM</span></th><th class="right">%</th><th class="right">Fused</th></tr></thead>
+            <tbody>
+            {% set fused = d.fused_scores or {} %}
+            {% for c, fv in fused.items()|sort(attribute='1', reverse=True) %}
+              <tr{% if loop.first %} class="is-top"{% endif %}>
+                <td class="nowrap">{{ c }}</td>
+                <td style="width:26%">{{ bar((record.python_scores or {}).get(c, 0), "python") }}</td>
+                <td class="val">{{ pct((record.python_scores or {}).get(c, 0), 1) }}</td>
+                <td style="width:26%">{% if record.gtm_scores %}{{ bar(record.gtm_scores.get(c, 0), "gtm") }}{% endif %}</td>
+                <td class="val">{{ pct(record.gtm_scores.get(c, 0), 1) if record.gtm_scores else "-" }}</td>
+                <td class="val"><b>{{ pct(fv, 1) }}</b></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel-note">The two models are trained separately on the same training recordings. GTM receives only the audio of each segment (its own 1-second spectrogram); it never sees the Python prediction.</div>
+    </section>
+    {% endif %}
+
+    {# ---------------- segments ---------------- #}
+    <section class="panel">
+      <div class="panel-head"><h2>Segments</h2><span class="meta">{{ record.segments|length }} &times; {{ (record.preprocessing or {}).get("segment_seconds", 2) }} s, hop {{ (record.preprocessing or {}).get("segment_hop_seconds", 1) }} s</span></div>
+      <div class="panel-body flush"><div class="table-wrap">
+        <table class="table compact">
+          <thead><tr><th>#</th><th>Time</th><th>Python</th><th>GTM</th><th>Final</th><th>Severity</th><th>Alert</th><th>Quality</th><th></th></tr></thead>
+          <tbody>
+          {% for s in record.segments %}
+            <tr>
+              <td class="num">{{ s.index }}</td>
+              <td class="nowrap mono small">{{ s.start_time|tc }}&ndash;{{ s.end_time|tc }}</td>
+              {% if s.silent %}
+              <td colspan="6" class="muted">Silent segment &mdash; not classified</td>
+              {% else %}
+              <td class="nowrap">{{ s.python_top }} <span class="muted small">{{ pct(s.python_confidence) }}</span></td>
+              <td class="nowrap">{% if s.gtm_top %}{{ s.gtm_top }} <span class="muted small">{{ pct(s.gtm_confidence) }}</span>{% else %}<span class="muted">-</span>{% endif %}</td>
+              <td class="nowrap">{{ s.final_category or "-" }}{% if s.needs_review %} <span class="tag">review</span>{% endif %}</td>
+              <td>{{ sev(s.severity) }}</td>
+              <td class="small nowrap">{{ s.alert_status or "-" }}</td>
+              <td>{{ quality(s.quality_label) }}</td>
+              {% endif %}
+              <td>{% if record.stored_path and not record.audio_deleted %}<button class="btn btn-sm btn-ghost" type="button" data-play-seg="{{ s.start_time }}" data-seg-end="{{ s.end_time }}" aria-label="Play segment {{ s.index }}">{{ icon("play") }}</button>{% endif %}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div></div>
+    </section>
+
+    {# ---------------- review ---------------- #}
+    {% if can_review and not pending %}
+    <section class="panel" id="review">
+      <div class="panel-head"><h2>Reviewer decision</h2>{% if record.needs_review %}<span class="chip status status-Manual-Review"><span class="glyph"></span>In review queue</span>{% endif %}</div>
+      <form method="post" action="{{ url_for('analysis.submit_review', audio_id=record.audio_id) }}" class="panel-body stack" style="gap:14px" id="review-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% if request.args.get('from') == 'queue' %}<input type="hidden" name="next" value="queue">{% endif %}
+        <div class="row" role="radiogroup" aria-label="Decision">
+          <label class="check"><input type="radio" name="decision" value="confirmed" checked> Confirm <b>{{ record.final_category }}</b></label>
+          <label class="check"><input type="radio" name="decision" value="corrected"> Correct the category</label>
+          <label class="check"><input type="radio" name="decision" value="false_alarm"> False alarm</label>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label for="rv-cat">Actual sound</label>
+            <select id="rv-cat" name="category" disabled>{% for c in review_categories if c != record.final_category %}<option{% if c == 'Background Noise' %} selected{% endif %}>{{ c }}</option>{% endfor %}</select></div>
+          <div class="field"><span class="label">Override</span><label class="check" style="height:34px"><input type="checkbox" name="override" value="1"> Replace the automatic result (model outputs are kept)</label></div>
+          <div class="field full"><label for="rv-comment">Comment</label><textarea id="rv-comment" name="comment" placeholder="What did you hear? e.g. 'door slam, not a gunshot'"></textarea></div>
+          <div class="field full"><label for="rv-action">Recommended action <span class="muted">(optional)</span></label><input id="rv-action" name="recommended_action" placeholder="{{ rule.get('recommended_action', '')[:90] }}"></div>
+        </div>
+        <div class="row-between"><span class="small muted">Your decision is recorded in the audit trail.</span><button class="btn btn-primary" type="submit">Save review</button></div>
+      </form>
+      {% if record.reviews %}
+      <div class="panel-foot" style="display:block">
+        <div class="upper-label mb-2">Review history</div>
+        <ul class="history-list">
+          {% for rv in record.reviews|reverse %}
+          <li>{{ when(rv.created_at) }} &middot; <b>{{ rv.reviewer.username }}</b> {{ rv.decision.replace('_', ' ') }}: {{ rv.original_category }} &rarr; {{ rv.reviewed_category }}{% if rv.is_override %} (override){% endif %}{% if rv.comment %} &mdash; &ldquo;{{ rv.comment }}&rdquo;{% endif %}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </section>
+    {% elif record.reviews %}
+    <section class="panel"><div class="panel-head"><h2>Review history</h2></div><div class="panel-body">
+      <ul class="history-list">{% for rv in record.reviews|reverse %}<li>{{ when(rv.created_at) }} &middot; <b>{{ rv.reviewer.username }}</b> {{ rv.decision.replace('_', ' ') }}: {{ rv.original_category }} &rarr; {{ rv.reviewed_category }}{% if rv.comment %} &mdash; &ldquo;{{ rv.comment }}&rdquo;{% endif %}</li>{% endfor %}</ul>
+    </div></section>
+    {% endif %}
+  </div>
+
+  {# ================= right column ================= #}
+  <div class="stack">
+    {% if not pending and d.alert_conditions %}
+    <section class="panel">
+      <div class="panel-head"><h2>Alert rule check</h2><span class="meta">{{ record.final_category }}</span></div>
+      <div class="panel-body">
+        <ul class="conditions">
+          {% for name, c in d.alert_conditions.items() %}
+          <li><span class="{{ 'ok' if c.passed else 'no' }}">{{ "✓" if c.passed else "✗" }}</span><span>{{ name.replace('_', ' ')|capitalize }}<br><span class="req">required {{ c.required }}</span></span><span class="num small">{{ c.actual }}</span></li>
+          {% endfor %}
+        </ul>
+        <p class="small muted mt-2 mb-0">Consecutive detections: {{ d.consecutive_count }} &middot; within repeat window: {{ d.repeat_count }}. Rules are edited in <a href="{{ url_for('admin.rules') if can('admin') else '#' }}">Alert rules</a>.</p>
+      </div>
+    </section>
+    {% endif %}
+
+    {% if record.alerts %}
+    <section class="panel">
+      <div class="panel-head"><h2>Alerts</h2></div>
+      <div class="panel-body flush">
+        {% for a in record.alerts %}
+        <div class="alert-card sev-{{ a.severity }}" style="grid-template-columns:4px minmax(0,1fr)">
+          <span class="stripe"></span>
+          <div>
+            <div class="head"><span class="mono small">{{ a.alert_code }}</span> {{ sev(a.severity) }} {{ alert_state(a.status) }}</div>
+            <div class="msg small">{{ a.message }}</div>
+            <div class="meta"><span>{{ when(a.created_at) }}</span>{% if a.occurrences > 1 %}<span>{{ a.occurrences }} detections</span>{% endif %}{% if a.escalated_to %}<span>Escalated: {{ a.escalated_to }}</span>{% endif %}</div>
+            {% if a.actions %}<ul class="history-list">{% for x in a.actions %}<li>{{ when(x.created_at) }} &middot; {{ x.user.username if x.user else "system" }} {{ x.action }}{% if x.comment %}: {{ x.comment }}{% endif %}</li>{% endfor %}</ul>{% endif %}
+            <a class="small" href="{{ url_for('alerts.list_alerts', tab='all') }}">Manage in Alerts</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="panel">
+      <div class="panel-head"><h2>Audio quality</h2>{{ quality(record.quality_label) }}</div>
+      <div class="panel-body">
+        {% set qm = (record.quality or {}).get("metrics", {}) %}
+        <dl class="kv">
+          <dt>Score</dt><dd class="num">{{ record.quality_score }} / 100</dd>
+          <dt>Peak / RMS level</dt><dd class="num">{{ qm.peak_dbfs }} / {{ qm.rms_dbfs }} dBFS</dd>
+          <dt>Noise floor</dt><dd class="num">{{ qm.noise_floor_dbfs }} dBFS{% if qm.noise_level_exceeded %} <span class="tag">above limit</span>{% endif %}</dd>
+          <dt>Estimated SNR</dt><dd class="num">{{ qm.snr_estimate_db }} dB</dd>
+          <dt>Silence</dt><dd class="num">{{ pct(qm.silence_ratio) }}</dd>
+          <dt>Clipping</dt><dd class="num">{{ pct(qm.clipping_ratio, 2) }}</dd>
+          {% if qm.dropouts is defined %}<dt>Drop-outs</dt><dd class="num">{{ qm.dropouts }}</dd>{% endif %}
+        </dl>
+        {% if (record.quality or {}).get("issues") %}
+        <ul class="reason-list mt-2">{% for i in record.quality.issues %}<li title="{{ i.detail }}">{{ i.label }}</li>{% endfor %}</ul>
+        {% else %}<p class="small muted mt-2 mb-0">No quality problems found.</p>{% endif %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Metadata</h2></div>
+      <div class="panel-body">
+        <dl class="kv">
+          <dt>Audio ID</dt><dd class="mono">{{ record.audio_id }}</dd>
+          <dt>Filename</dt><dd>{{ record.original_filename }}</dd>
+          <dt>Format / codec</dt><dd>{{ record.format }} / {{ record.codec }}</dd>
+          <dt>Duration</dt><dd class="num">{{ "%.3f"|format(record.duration or 0) }} s</dd>
+          <dt>Sampling rate</dt><dd class="num">{{ record.sample_rate }} Hz</dd>
+          <dt>Channels</dt><dd class="num">{{ record.channels }}</dd>
+          <dt>Bit depth</dt><dd>{{ record.bit_depth ~ "-bit" if record.bit_depth else "n/a (compressed)" }}</dd>
+          <dt>File size</dt><dd class="num">{{ record.file_size|bytes }}</dd>
+          <dt>Uploaded</dt><dd>{{ when(record.created_at, rel=False) }}</dd>
+          <dt>SHA-256</dt><dd class="mono small" style="word-break:break-all">{{ record.sha256 or "-" }}</dd>
+          <dt>Python model</dt><dd class="mono small">{{ record.python_model_version or "-" }}</dd>
+          <dt>GTM model</dt><dd class="mono small">{{ record.gtm_model_version or record.gtm_status }}</dd>
+          <dt>Processing time</dt><dd class="num">{{ record.processing_ms or "-" }} ms</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Validation</h2></div>
+      <div class="panel-body">
+        <ul class="checks" style="margin:0">
+          {% for c in (record.validation or {}).get("checks", []) %}
+          <li><span class="{{ c.status }}">{{ "✓" if c.status == "pass" else ("!" if c.status == "warn" else "✗") }}</span><span class="muted">{{ c.name }}</span><span>{{ c.detail }}</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Pre-processing</h2></div>
+      <div class="panel-body">
+        <ol class="steps-list">{% for s in (record.preprocessing or {}).get("steps", []) %}<li><span><b>{{ s.step }}</b> &mdash; {{ s.detail }}</span></li>{% endfor %}</ol>
+      </div>
+    </section>
+
+    {% if siblings %}
+    <section class="panel">
+      <div class="panel-head"><h2>Other detections in this session</h2></div>
+      <div class="panel-body flush"><table class="table compact"><tbody>
+        {% for r in siblings %}<tr><td>{{ record_link(r) }}</td><td>{{ cat(r.effective_category) }}</td><td>{{ sev(r.effective_severity) }}</td></tr>{% endfor %}
+      </tbody></table></div>
+    </section>
+    {% endif %}
+  </div>
+</div>
+
+<script type="application/json" id="record-data">{{ {
+  "audioId": record.audio_id,
+  "pending": pending,
+  "jobUrl": url_for('analysis.record_gtm_job', audio_id=record.audio_id),
+  "src": url_for('analysis.record_audio', audio_id=record.audio_id, kind='original') if record.stored_path and not record.audio_deleted else None,
+  "waveform": waveform,
+  "duration": record.duration,
+  "events": record.events or [],
+  "gtm": gtm,
+  "severity": record.effective_severity
+}|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+{% if pending %}<script src="{{ url_for('static', filename='vendor/tf.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/gtm.js') }}?v={{ app_version }}"></script>{% endif %}
+<script src="{{ url_for('static', filename='js/player.js') }}?v={{ app_version }}"></script>
+<script src="{{ url_for('static', filename='js/record.js') }}?v={{ app_version }}"></script>
+{% endblock %}

@@ -1,0 +1,31 @@
+audio_id,actual,predicted,confidence,top3,correct
+DS-MCH-0007,Machinery Fault,Machinery Fault,0.7842,Machinery Fault 0.78; Person Asking for Help 0.07; Background Noise 0.03,True
+DS-MCH-0009,Machinery Fault,Aggression,0.2911,Aggression 0.29; Machinery Fault 0.23; Alarm or Siren 0.20,False
+DS-MCH-0011,Machinery Fault,Machinery Fault,0.5655,Machinery Fault 0.57; Gunshot 0.15; Background Noise 0.12,True
+DS-GLS-0013,Glass Breaking,Glass Breaking,0.9997,Glass Breaking 1.00; Panic Scream 0.00; Alarm or Siren 0.00,True
+DS-GLS-0025,Glass Breaking,Glass Breaking,0.9922,Glass Breaking 0.99; Panic Scream 0.00; Gunshot 0.00,True
+DS-GLS-0027,Glass Breaking,Glass Breaking,0.9932,Glass Breaking 0.99; Person Asking for Help 0.00; Aggression 0.00,True
+DS-ALM-0002,Alarm or Siren,Vehicle Horn,0.3058,Vehicle Horn 0.31; Aggression 0.25; Alarm or Siren 0.21,False
+DS-ALM-0005,Alarm or Siren,Alarm or Siren,0.7854,Alarm or Siren 0.79; Vehicle Horn 0.07; Gunshot 0.03,True
+DS-ALM-0010,Alarm or Siren,Alarm or Siren,0.79,Alarm or Siren 0.79; Glass Breaking 0.06; Vehicle Horn 0.03,True
+DS-HRN-0008,Vehicle Horn,Gunshot,0.8183,Gunshot 0.82; Background Noise 0.15; Vehicle Horn 0.02,False
+DS-HRN-0009,Vehicle Horn,Vehicle Horn,0.9579,Vehicle Horn 0.96; Panic Scream 0.01; Animal Sound 0.01,True
+DS-HRN-0015,Vehicle Horn,Vehicle Horn,0.8632,Vehicle Horn 0.86; Glass Breaking 0.05; Background Noise 0.03,True
+DS-ANM-0010,Animal Sound,Animal Sound,1.0,Animal Sound 1.00; Gunshot 0.00; Person Asking for Help 0.00,True
+DS-ANM-0018,Animal Sound,Animal Sound,0.3145,Animal Sound 0.31; Background Noise 0.26; Aggression 0.10,True
+DS-ANM-0024,Animal Sound,Animal Sound,0.9598,Animal Sound 0.96; Gunshot 0.01; Background Noise 0.01,True
+DS-GUN-0015,Gunshot,Gunshot,0.989,Gunshot 0.99; Vehicle Horn 0.01; Glass Breaking 0.00,True
+DS-GUN-0024,Gunshot,Gunshot,0.9588,Gunshot 0.96; Animal Sound 0.01; Panic Scream 0.01,True
+DS-GUN-0029,Gunshot,Gunshot,0.9506,Gunshot 0.95; Panic Scream 0.02; Glass Breaking 0.01,True
+DS-SCR-0021,Panic Scream,Panic Scream,0.8975,Panic Scream 0.90; Alarm or Siren 0.06; Glass Breaking 0.01,True
+DS-SCR-0029,Panic Scream,Panic Scream,0.9922,Panic Scream 0.99; Glass Breaking 0.00; Animal Sound 0.00,True
+DS-SCR-0049,Panic Scream,Panic Scream,0.6398,Panic Scream 0.64; Person Asking for Help 0.09; Animal Sound 0.07,True
+DS-AGR-0008,Aggression,Aggression,0.545,Aggression 0.54; Background Noise 0.09; Person Asking for Help 0.07,True
+DS-AGR-0017,Aggression,Aggression,0.5679,Aggression 0.57; Person Asking for Help 0.14; Animal Sound 0.10,True
+DS-AGR-0020,Aggression,Aggression,0.8862,Aggression 0.89; Background Noise 0.03; Animal Sound 0.02,True
+DS-HLP-0002,Person Asking for Help,Person Asking for Help,0.5925,Person Asking for Help 0.59; Gunshot 0.09; Aggression 0.07,True
+DS-HLP-0003,Person Asking for Help,Person Asking for Help,0.9048,Person Asking for Help 0.90; Aggression 0.02; Alarm or Siren 0.02,True
+DS-HLP-0004,Person Asking for Help,Person Asking for Help,0.9039,Person Asking for Help 0.90; Aggression 0.03; Gunshot 0.02,True
+DS-BGN-0010,Background Noise,Person Asking for Help,0.2847,Person Asking for Help 0.28; Aggression 0.25; Glass Breaking 0.13,False
+DS-BGN-0012,Background Noise,Background Noise,0.8883,Background Noise 0.89; Animal Sound 0.07; Glass Breaking 0.01,True
+DS-BGN-0019,Background Noise,Background Noise,0.6113,Background Noise 0.61; Gunshot 0.12; Glass Breaking 0.06,True

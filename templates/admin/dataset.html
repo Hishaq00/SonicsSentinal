@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, pct, empty, quality with context %}
+{% block title %}Dataset{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Administration</p>
+    <h1>Common sound dataset</h1>
+    <p class="lede">One dataset feeds both models. Every recording has an Audio ID, a class, a source and a stratified train / validation / test split; segments and augmented copies stay in their recording's split.</p>
+  </div>
+  <div class="actions">{% if stats %}<a class="btn" href="{{ url_for('admin.dataset_metadata') }}">{{ icon("download") }}Metadata CSV</a>{% endif %}</div>
+</div>
+{% if stats %}
+<section class="kpis mb-3">
+  <div class="kpi"><div class="label">Original clips</div><div class="value">{{ stats.total_original }}</div><div class="meta">target 3,000</div></div>
+  <div class="kpi"><div class="label">Train / val / test</div><div class="value">{{ stats.split_totals.train }}<small>/{{ stats.split_totals.validation }}/{{ stats.split_totals.test }}</small></div><div class="meta">70 / 15 / 15</div></div>
+  <div class="kpi"><div class="label">Augmented copies</div><div class="value">{{ stats.total_augmented }}</div><div class="meta">training only, not counted as originals</div></div>
+  <div class="kpi"><div class="label">Total audio</div><div class="value">{{ stats.total_hours }}<small> h</small></div></div>
+  {% if features %}<div class="kpi"><div class="label">Feature rows</div><div class="value">{{ features.n_segments }}</div><div class="meta">{{ features.n_features }} features, {{ features.segment_seconds }} s segments</div></div>{% endif %}
+</section>
+{% if stats.balance_warnings %}
+<div class="callout warn mb-3"><b>Balance check</b><ul class="mb-0">{% for w in stats.balance_warnings %}<li>{{ w }}</li>{% endfor %}</ul></div>
+{% else %}
+<div class="callout good mb-3"><b>Balance check passed.</b> Every class has at least 300 original clips, within 10% of the class mean, with at least 10 test recordings.</div>
+{% endif %}
+<section class="panel mb-3">
+  <div class="panel-head"><h2>Class balance</h2><span class="meta">generated {{ stats.generated_at[:16].replace('T', ' ') }} UTC</span></div>
+  <div class="panel-body flush"><div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Class</th><th class="num">Train</th><th class="num">Validation</th><th class="num">Test</th><th class="num">Total</th><th class="num">Augmented</th><th class="num">Mean length</th><th>Sources</th><th>Quality</th></tr></thead>
+      <tbody>
+      {% set mx = stats.classes.values()|map(attribute='original')|max %}
+      {% for c, v in stats.classes.items() %}
+      <tr>
+        <td>{{ c }}</td><td class="num">{{ v.splits.train }}</td><td class="num">{{ v.splits.validation }}</td><td class="num">{{ v.splits.test }}</td>
+        <td class="num"><b>{{ v.original }}</b> <span class="minibar" style="width:{{ (v.original / (mx or 1) * 50)|round|int }}px"></span></td>
+        <td class="num">{{ v.augmented }}</td><td class="num">{{ v.mean_duration_s }} s</td>
+        <td class="small">{% for s, n in v.sources.items() %}{{ s }} {{ n }}{{ ", " if not loop.last }}{% endfor %}</td>
+        <td class="small">{% for q, n in v.quality.items() %}{{ q }} {{ n }}{{ ", " if not loop.last }}{% endfor %}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div></div>
+</section>
+<div class="grid grid-2 mb-3">
+  <section class="panel">
+    <div class="panel-head"><h2>Recording environments</h2></div>
+    <div class="panel-body flush"><table class="table compact"><tbody>
+      {% set env = {} %}{% for c, v in stats.classes.items() %}{% for k, n in v.environments.items() %}{% set _ = env.update({k: env.get(k, 0) + n}) %}{% endfor %}{% endfor %}
+      {% for k, n in env.items()|sort(attribute='1', reverse=True) %}<tr><td>{{ k }}</td><td class="num">{{ n }}</td></tr>{% else %}<tr><td class="muted">Not recorded</td><td></td></tr>{% endfor %}
+    </tbody></table></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Recording devices</h2></div>
+    <div class="panel-body flush"><table class="table compact"><tbody>
+      {% set dev = {} %}{% for c, v in stats.classes.items() %}{% for k, n in v.devices.items() %}{% set _ = dev.update({k: dev.get(k, 0) + n}) %}{% endfor %}{% endfor %}
+      {% for k, n in dev.items()|sort(attribute='1', reverse=True) %}<tr><td>{{ k }}</td><td class="num">{{ n }}</td></tr>{% else %}<tr><td class="muted">Not recorded</td><td></td></tr>{% endfor %}
+    </tbody></table></div>
+  </section>
+</div>
+{% if sample %}
+<section class="panel mb-3">
+  <div class="panel-head"><h2>Metadata sample</h2><span class="meta">two recordings per class</span></div>
+  <div class="panel-body flush"><div class="table-wrap">
+    <table class="table compact">
+      <thead><tr><th>Audio ID</th><th>Class</th><th>Split</th><th>Source</th><th class="num">Duration</th><th class="num">Rate</th><th>Environment</th><th>Device</th><th class="num">Distance</th><th class="num">SNR</th><th>Overlap</th><th>Quality</th></tr></thead>
+      <tbody>{% for r in sample %}<tr><td class="mono small">{{ r.audio_id }}</td><td>{{ r.class_label }}</td><td>{{ r.split }}</td><td class="small">{{ r.source }}</td><td class="num">{{ r.duration_s }}</td><td class="num">{{ r.sample_rate }}</td><td class="small">{{ r.environment }}</td><td class="small">{{ r.device }}</td><td class="num">{{ r.distance_m }}</td><td class="num">{{ r.snr_db }}</td><td class="small">{{ r.overlap }}</td><td>{{ quality(r.quality_label) }}</td></tr>{% endfor %}</tbody>
+    </table>
+  </div></div>
+</section>
+{% endif %}
+{% else %}
+<div class="panel"><div class="panel-body">{{ empty("No dataset built yet. Run: python -m scripts.build_dataset", "database") }}</div></div>
+{% endif %}
+<section class="panel">
+  <div class="panel-head"><h2>Adding real recordings</h2></div>
+  <div class="panel-body">
+    <ol class="steps-list">
+      <li><span>Put files in <code>audio_dataset/incoming/&lt;class_slug&gt;/</code> (for example <code>audio_dataset/incoming/gunshot/</code>). Optional details go in <code>audio_dataset/incoming/metadata.csv</code> (filename, environment, device, distance_m, source, license, speaker, notes).</span></li>
+      <li><span>Run <code>python -m scripts.build_dataset</code> &mdash; files are validated, de-duplicated, given Audio IDs and split 70/15/15 without changing existing splits.</span></li>
+      <li><span>Run <code>python -m augmentation.augment_dataset</code>, <code>python -m feature_extraction.build_features</code> and <code>python -m python_models.train</code>.</span></li>
+      <li><span>Run <code>python -m scripts.train_gtm_model</code> to retrain the GTM model on the same splits (needs <code>requirements-gtm.txt</code>), or run <code>python -m gtm_model.export_gtm_samples</code> and retrain it in Teachable Machine with the new training samples.</span></li>
+    </ol>
+  </div>
+</section>
+{% endblock %}

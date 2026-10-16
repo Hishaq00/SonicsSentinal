@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, empty with context %}
+{% block title %}GTM training helper{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Administration &middot; Models</p>
+    <h1>Teachable Machine training helper</h1>
+    <p class="lede">Teachable Machine audio projects learn from sound recorded through a microphone. This page plays the exported training samples of one class at a time so you can record them into the matching Teachable Machine class. The samples come only from the <b>training split</b>, the same recordings the Python model was trained on. To train the same Teachable Machine network without a microphone, run <code>python -m scripts.train_gtm_model</code>: it uses the exact input the browser computes and reports test-set accuracy.</p>
+  </div>
+  <div class="actions"><a class="btn" href="https://teachablemachine.withgoogle.com/train/audio" target="_blank" rel="noopener">{{ icon("external") }}Open Teachable Machine</a></div>
+</div>
+<div class="grid grid-main">
+  <section class="panel">
+    <div class="panel-head"><h2>Classes</h2>{% if manifest %}<span class="meta">{{ manifest.window_seconds }} s samples at {{ manifest.sample_rate }} Hz</span>{% endif %}</div>
+    <div class="panel-body flush">
+      {% if manifest %}
+      <table class="table">
+        <thead><tr><th>Teachable Machine class name</th><th class="num">Samples</th><th class="num">Seconds</th><th></th></tr></thead>
+        <tbody>
+        {% for cls, info in manifest.classes.items() %}
+        <tr>
+          <td><b class="mono">{{ cls }}</b>{% if cls == "Background Noise" %} <span class="tag">GTM's built-in class</span>{% endif %}</td>
+          <td class="num">{{ info.samples }}</td><td class="num">{{ info.seconds }}</td>
+          <td class="right"><button class="btn btn-sm" type="button" data-play-class="{{ url_for('gtm.training_sample', filename='_concat/' ~ cls ~ '.wav') }}" data-name="{{ cls }}">{{ icon("play") }}Play</button></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      {{ empty("No samples exported yet. Run: python -m gtm_model.export_gtm_samples", "mic") }}
+      {% endif %}
+    </div>
+    <div class="player" id="trainer" style="border:0;border-top:1px solid var(--rule);border-radius:0">
+      <div class="player-controls">
+        <span class="mic-state" data-state="available"><span class="mic-dot"></span><span id="trainer-label">Choose a class</span></span>
+        <span class="time" id="trainer-time">0:00.0</span>
+        <label class="vol">{{ icon("volume") }}<input type="range" min="0" max="1" step="0.05" value="1" id="trainer-vol" aria-label="Volume"></label>
+        <button class="btn btn-sm" type="button" id="trainer-stop">{{ icon("stop") }}Stop</button>
+      </div>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Steps</h2></div>
+    <div class="panel-body">
+      <ol class="steps-list">
+        <li><span>Run <code>python -m gtm_model.export_gtm_samples</code> (already done if the table shows samples).</span></li>
+        <li><span>In Teachable Machine create an <b>Audio project</b>. Rename the classes to exactly the names in the table (case and spaces matter). "Background Noise" already exists.</span></li>
+        <li><span>Route this page's sound into the Teachable Machine microphone: best with a virtual audio cable (e.g. VB-CABLE: set it as this browser tab's output and as Teachable Machine's input); otherwise play through speakers in a quiet room.</span></li>
+        <li><span>In a class, set the recording length to 20 s, press <b>Record</b> and immediately press <b>Play</b> here for the same class. Extract the samples. Repeat until all samples of the class are recorded.</span></li>
+        <li><span>Train the model (defaults: 50 epochs, batch 16, learning rate 0.001), then <b>Export &rarr; TensorFlow.js &rarr; Download</b> (or Upload for a shareable link).</span></li>
+        <li><span>Unzip model.json, metadata.json and weights.bin into <code>gtm_model/model/</code>, or paste the link on the <a href="{{ url_for('admin.models') }}">Models</a> page. The label check there must say the class names match.</span></li>
+      </ol>
+      <p class="small muted mt-2 mb-0">Full guide with screenshots checklist: <code>gtm_model/README.md</code>.</p>
+    </div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/gtm-trainer.js') }}?v={{ app_version }}"></script>{% endblock %}

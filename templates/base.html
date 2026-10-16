@@ -1,0 +1,113 @@
+{% from "partials/macros.html" import icon, brand_mark with context %}<!doctype html>
+<html lang="en"{% if user_theme in ("light", "dark") %} data-theme="{{ user_theme }}"{% endif %}>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Overview{% endblock %} &middot; SonicSentinel AI</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}?v={{ app_version }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}?v={{ app_version }}"></script>
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+{% include "partials/icons.svg" %}
+<div class="app">
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a class="brand" href="{{ url_for('main.dashboard') }}">
+      {{ brand_mark() }}
+      <span class="brand-name">SonicSentinel AI<small>Acoustic event monitoring</small></span>
+    </a>
+    <nav>
+      {% for section in nav_sections %}
+      <div class="nav-section">
+        <div class="nav-section-title">{{ section.title }}</div>
+        {% for item in section["items"] %}
+          {% set active = item.endpoint == nav_active %}
+          <a class="nav-item{% if active %} active{% endif %}" href="{{ url_for(item.endpoint) }}"{% if active %} aria-current="page"{% endif %}>
+            {{ icon(item.icon) }}<span>{{ item.label }}</span>
+            {% if item.badge and badges.get(item.badge) %}<span class="badge{% if item.badge in ('alerts', 'system') %} hot{% endif %}" data-badge="{{ item.badge }}">{{ badges[item.badge] }}</span>{% elif item.badge %}<span class="badge hidden" data-badge="{{ item.badge }}">0</span>{% endif %}
+          </a>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </nav>
+    <div class="sidebar-foot">
+      <div class="user-card">
+        <span class="avatar">{{ current_user.initials }}</span>
+        <span class="who"><b>{{ current_user.full_name }}</b><span>{{ current_user.role_label }} &middot; <span class="mono">{{ current_user.user_code }}</span></span></span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="btn btn-ghost btn-icon menu-btn" type="button" data-toggle-nav aria-label="Open navigation">{{ icon("menu") }}</button>
+      <div class="crumbs">{% block crumbs %}<b>{{ self.title() }}</b>{% endblock %}</div>
+      <div class="spacer"></div>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('main.index') }}" title="Go to SonicSentinel Website" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; margin-right:4px;">
+        {{ icon("grid") }}<span>Landing Page</span>
+      </a>
+      <a class="chip hidden" id="live-pill" href="{{ url_for('live.monitor') }}" title="Microphone monitoring is on">
+        <span class="mic-dot" style="background: var(--critical)"></span>Microphone on
+      </a>
+      <button class="btn btn-ghost btn-icon" type="button" data-theme-toggle aria-label="Switch colour theme" title="Switch light / dark">{{ icon("moon") }}</button>
+      <a class="btn btn-ghost btn-icon" href="{{ url_for('alerts.list_alerts') }}" aria-label="Alerts" title="Alerts" style="position: relative">
+        {{ icon("bell") }}
+        <span class="badge hot{% if not badges.get('alerts') %} hidden{% endif %}" data-badge="alerts" style="position:absolute; top:-2px; right:-4px">{{ badges.get('alerts', 0) }}</span>
+      </a>
+      <div class="menu" data-menu>
+        <button class="btn btn-ghost" type="button" data-menu-button aria-haspopup="true" aria-expanded="false">
+          <span class="avatar" style="width:24px;height:24px;font-size:10px">{{ current_user.initials }}</span>
+          <span class="hide-sm">{{ current_user.username }}</span>{{ icon("chevron-down") }}
+        </button>
+        <div class="menu-panel" role="menu">
+          <div class="head">{{ current_user.full_name }}<br><span class="mono">{{ current_user.user_code }}</span> &middot; {{ current_user.role_label }}</div>
+          <div class="sep"></div>
+          <a href="{{ url_for('main.index') }}" role="menuitem">{{ icon("grid") }}Website Home</a>
+          <a href="{{ url_for('auth.profile') }}" role="menuitem">{{ icon("user") }}Profile &amp; preferences</a>
+          <a href="{{ url_for('auth.privacy') }}" role="menuitem">{{ icon("shield") }}Privacy notice</a>
+          <button type="button" role="menuitem" data-motion-toggle>{{ icon("wave") }}Animations<span class="switch-state">On</span></button>
+          <div class="sep"></div>
+          <form method="post" action="{{ url_for('auth.logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" role="menuitem">{{ icon("logout") }}Sign out</button>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-area" role="status">
+      {% for category, message in messages %}<div class="flash flash-{{ category }}">{{ message }}</div>{% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <main class="content" id="content">
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="app-foot">
+      <span>SonicSentinel AI {{ app_version }}</span>
+      <span>Competition prototype for controlled and ethical testing &mdash; not a certified emergency-response or law-enforcement system.</span>
+      <a href="{{ url_for('auth.privacy') }}">Privacy</a>
+    </footer>
+  </div>
+</div>
+<div class="toasts" id="toasts" aria-live="assertive"></div>
+<script type="application/json" id="app-config">{{ {
+  "feedUrl": url_for('alerts.feed'),
+  "alertsUrl": url_for('alerts.list_alerts'),
+  "alertSound": alert_sound,
+  "user": current_user.username,
+  "role": current_user.role,
+  "classParents": class_parents
+}|tojson }}</script>
+<script src="{{ url_for('static', filename='js/app.js') }}?v={{ app_version }}"></script>
+<script src="{{ url_for('static', filename='vendor/gsap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/SplitText.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/motion.js') }}?v={{ app_version }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, when, empty, pct with context %}
+{% block title %}Model comparison{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Administration</p>
+    <h1>Model prediction &amp; confidence comparison</h1>
+    <p class="lede">Runs unseen <b>test-split</b> recordings through the full pipeline: the Python model on the server and the Teachable Machine model in this browser, on the same segments. The report compares both models recording by recording (at least 10 recordings per class).</p>
+  </div>
+</div>
+<div class="grid grid-main-r" style="grid-template-columns:minmax(260px,340px) minmax(0,1fr)">
+  <form class="panel" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="panel-head"><h2>New run</h2></div>
+    <div class="panel-body stack" style="gap:12px">
+      <p class="mb-0 small">Test pool: <b>{{ pool }}</b> original recordings.</p>
+      <div class="field"><label for="pc">Recordings per class</label><input id="pc" type="number" name="per_class" min="10" max="200" value="10"><span class="help">10 per class = 100 recordings (the SRS minimum). A full run uses {{ (pool / 10)|int if pool else 45 }}.</span></div>
+      <p class="small muted mb-0">Keep this tab open while it runs: the GTM model executes in the browser. Evaluation records do not raise alerts and are hidden from normal dashboards.</p>
+    </div>
+    <div class="panel-foot"><span></span><button class="btn btn-primary" type="submit"{% if not pool %} disabled{% endif %}>{{ icon("scale") }}Start run</button></div>
+  </form>
+  <section class="panel">
+    <div class="panel-head"><h2>Runs</h2></div>
+    <div class="panel-body flush">
+      {% if runs %}
+      <table class="table">
+        <thead><tr><th>Run</th><th>Started</th><th>Status</th><th class="num">Progress</th><th class="num">Python acc.</th><th class="num">GTM acc.</th><th class="num">Agreement</th><th></th></tr></thead>
+        <tbody>
+        {% for r in runs %}
+        {% set res = (r.summary or {}).get("result") %}
+        <tr>
+          <td class="mono">{{ r.run_code }}</td><td class="small">{{ when(r.created_at) }}<div class="muted">{{ r.user.username if r.user else "" }}</div></td>
+          <td>{{ r.status }}</td><td class="num">{{ r.completed }}/{{ r.total }}</td>
+          <td class="num">{{ pct(res.python.accuracy, 1) if res else "-" }}</td>
+          <td class="num">{{ pct(res.gtm.accuracy, 1) if res and res.gtm.accuracy is not none else "-" }}</td>
+          <td class="num">{{ pct(res.agreement_rate, 1) if res and res.agreement_rate is not none else "-" }}</td>
+          <td class="right"><a class="btn btn-sm" href="{{ url_for('admin.evaluation_run', code=r.run_code) }}">{{ "Open report" if r.status == "completed" else "Continue" }}</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}{{ empty("No comparison runs yet.", "scale") }}{% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

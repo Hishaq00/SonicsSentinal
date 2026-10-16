@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, pct, empty with context %}
+{% block title %}Analytics{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Insights</p>
+    <h1>Analytics &amp; reporting</h1>
+    <p class="lede">How often each sound occurs, how confident and consistent the two models are, where they disagree, what reviewers corrected, and how quickly alerts are handled.</p>
+  </div>
+</div>
+<form class="filters mb-3" method="get">
+  <div class="field"><label for="days">Period</label>
+    <select id="days" name="days" data-autosubmit>{% for d, l in [(7, "Last 7 days"), (30, "Last 30 days"), (90, "Last 90 days"), (365, "Last 12 months")] %}<option value="{{ d }}"{% if days == d %} selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <noscript><button class="btn" type="submit">Apply</button></noscript>
+</form>
+
+<section class="kpis mb-3">
+  <div class="kpi"><div class="label">Detected events</div><div class="value">{{ kpis.events }}</div><div class="meta">{{ kpis.total }} analysed</div></div>
+  <div class="kpi"><div class="label">Critical alerts</div><div class="value">{{ kpis.critical_alerts }}</div><div class="meta">{{ kpis.active_alerts }} still open</div></div>
+  <div class="kpi"><div class="label">Average confidence</div><div class="value">{{ pct(kpis.avg_confidence) if kpis.avg_confidence is not none else "-" }}</div><div class="meta">fused</div></div>
+  <div class="kpi"><div class="label">Model disagreement</div><div class="value">{{ pct(kpis.disagreement_rate) if kpis.disagreement_rate is not none else "-" }}</div><div class="meta">{{ kpis.disagreements }} of {{ kpis.compared }}</div></div>
+  <div class="kpi"><div class="label">Reviewer confirmed</div><div class="value">{{ pct(fpfn.precision_of_reviewed) if fpfn.precision_of_reviewed is not none else "-" }}</div><div class="meta">{{ fpfn.confirmed }} of {{ fpfn.reviewed }} reviewed</div></div>
+  <div class="kpi"><div class="label">Poor-quality audio</div><div class="value">{{ kpis.poor_quality }}</div><div class="meta">poor or unusable</div></div>
+</section>
+
+<div class="grid grid-2 mb-3">
+  <section class="panel chart-card" id="c-cat">
+    <div class="panel-head"><h2>Category frequency</h2><button class="btn btn-sm" type="button" data-table-toggle aria-pressed="false">Table</button></div>
+    <div class="chart-box tall"><canvas role="img" aria-label="Events per category"></canvas></div>
+    <div class="table-view"></div>
+  </section>
+  <section class="panel chart-card" id="c-trend">
+    <div class="panel-head"><h2>Detections per day</h2><button class="btn btn-sm" type="button" data-table-toggle aria-pressed="false">Table</button></div>
+    <div class="chart-box tall"><canvas role="img" aria-label="Detected events per day, critical and high highlighted"></canvas></div>
+    <div class="table-view"></div>
+    <div class="legend"></div>
+  </section>
+  <section class="panel chart-card" id="c-conf">
+    <div class="panel-head"><h2>Confidence distribution</h2><button class="btn btn-sm" type="button" data-table-toggle aria-pressed="false">Table</button></div>
+    <div class="chart-box"><canvas role="img" aria-label="Histogram of top-class confidence for the Python and GTM models"></canvas></div>
+    <div class="table-view"></div>
+    <div class="legend"></div>
+  </section>
+  <section class="panel chart-card" id="c-scatter">
+    <div class="panel-head"><h2>Python vs GTM confidence</h2><button class="btn btn-sm" type="button" data-table-toggle aria-pressed="false">Table</button></div>
+    <div class="chart-box"><canvas role="img" aria-label="Scatter of Python confidence against GTM confidence"></canvas></div>
+    <div class="table-view"></div>
+    <div class="legend"></div>
+  </section>
+</div>
+
+<div class="grid grid-2 mb-3">
+  <section class="panel">
+    <div class="panel-head"><h2>Audio quality</h2></div>
+    <div class="panel-body" id="quality-block"></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Model agreement</h2></div>
+    <div class="panel-body" id="agree-block"></div>
+  </section>
+</div>
+
+<div class="grid grid-2 mb-3">
+  <section class="panel">
+    <div class="panel-head"><h2>False positives &amp; negatives</h2><span class="meta">from reviewer decisions</span></div>
+    <div class="panel-body flush">
+      {% if fpfn.reviewed %}
+      <table class="table compact">
+        <thead><tr><th>Category</th><th class="num">False positives</th><th class="num">False negatives</th></tr></thead>
+        <tbody>
+        {% set mx = [1] + fpfn.rows|map(attribute='false_positives')|list + fpfn.rows|map(attribute='false_negatives')|list %}
+        {% for r in fpfn.rows %}
+          <tr><td>{{ r.category }}</td>
+            <td class="num">{{ r.false_positives }} <span class="minibar" style="width:{{ (r.false_positives / (mx|max) * 60)|round|int }}px;background:var(--serious)"></span></td>
+            <td class="num">{{ r.false_negatives }} <span class="minibar" style="width:{{ (r.false_negatives / (mx|max) * 60)|round|int }}px"></span></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <div class="table-caption">False positive = the models said this category and a reviewer disagreed. False negative = a reviewer said this category but the models chose another.</div>
+      {% else %}{{ empty("No reviewer decisions yet in this period.", "check") }}{% endif %}
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Where the models disagree</h2></div>
+    <div class="panel-body flush">
+      {% if pairs %}
+      <table class="table compact">
+        <thead><tr><th><span class="model-tag python">Python said</span></th><th><span class="model-tag gtm">GTM said</span></th><th class="num">Times</th></tr></thead>
+        <tbody>{% for p in pairs %}<tr><td>{{ p.python }}</td><td>{{ p.gtm }}</td><td class="num">{{ p.count }}</td></tr>{% endfor %}</tbody>
+      </table>
+      {% else %}{{ empty("No disagreements in this period.", "scale") }}{% endif %}
+    </div>
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel-head"><h2>Alert response</h2><span class="meta">{{ response.total }} alerts &middot; {% for k, v in response.by_status.items() %}{{ v }} {{ k|lower }}{{ ", " if not loop.last }}{% endfor %}</span></div>
+  <div class="panel-body flush">
+    <table class="table">
+      <thead><tr><th>Severity</th><th class="num">Alerts</th><th class="num">Responded</th><th class="num">Median first response</th><th class="num">Mean first response</th></tr></thead>
+      <tbody>{% for s in response.severity %}<tr><td>{{ s.severity }}</td><td class="num">{{ s.count }}</td><td class="num">{{ s.responded }}</td><td class="num">{{ s.median_response_s|secs }}</td><td class="num">{{ s.mean_response_s|secs }}</td></tr>{% endfor %}</tbody>
+    </table>
+    <div class="table-caption">Actions taken: {% for k, v in response.actions.items() %}{{ k }} {{ v }}{{ ", " if not loop.last }}{% else %}none yet{% endfor %}.</div>
+  </div>
+</section>
+<script type="application/json" id="analytics-config">{{ {"url": url_for('analytics.data', days=days)}|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}?v={{ app_version }}"></script>
+<script src="{{ url_for('static', filename='js/analytics.js') }}?v={{ app_version }}"></script>
+{% endblock %}

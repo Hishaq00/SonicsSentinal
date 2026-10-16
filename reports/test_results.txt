@@ -1,0 +1,276 @@
+SonicSentinel AI - Automated Test Results
+==============================================================================
+
+Generated      : 2026-09-29 04:15:17
+Command        : python -m pytest tests
+Platform       : Windows-11-10.0.26200-SP0
+Python         : 3.14.7
+pytest         : 9.1.1
+Duration       : 75.8 s
+
+RESULT SUMMARY
+------------------------------------------------------------------------------
+  Total tests  : 174
+  Passed       : 166
+  Failed       : 0
+  Errors       : 0
+  Skipped      : 8
+
+  OVERALL      : PASS - no failures, no errors
+
+PER-SUITE BREAKDOWN
+------------------------------------------------------------------------------
+  test_alert_engine.py          39 tests   39 pass   0 skip   0 fail
+      Alert rules, thresholds, consecutive detections, severity, escalation
+  test_audio_io.py              21 tests   21 pass   0 skip   0 fail
+      Audio formats, boundary and negative cases, invalid/empty/silent files
+  test_cnn.py                    4 tests    3 pass   1 skip   0 fail
+      CNN model variant
+  test_dataset_tools.py         16 tests   16 pass   0 skip   0 fail
+      Audio-ID uniqueness, split balance, source-leak checks
+  test_features_model.py        13 tests    6 pass   7 skip   0 fail
+      Feature extraction, determinism, Python model outputs
+  test_gtm.py                   11 tests   11 pass   0 skip   0 fail
+      GTM export, browser/Python parity, label check, fallback
+  test_preprocessing_quality.py  18 tests   18 pass   0 skip   0 fail
+      Preprocessing, noise, clipping, silence, dropouts, quality labels
+  test_roles_workflow.py        25 tests   25 pass   0 skip   0 fail
+      RBAC, dashboards, review workflow, alert acknowledgement
+  test_security_db_live.py      27 tests   27 pass   0 skip   0 fail
+      Security, password hashing, CSRF, database scale, live sessions
+
+SKIPPED TESTS AND WHY
+------------------------------------------------------------------------------
+  test_cnn.py::test_numpy_inference_matches_pytorch
+      reason: could not import 'torch': No module named 'torch'
+  test_features_model.py::test_dataset_is_balanced_and_split_70_15_15
+      reason: dataset not generated
+  test_features_model.py::test_no_source_leaks_between_splits
+      reason: dataset not generated
+  test_features_model.py::test_audio_ids_unique_and_files_exist
+      reason: dataset not generated
+  test_features_model.py::test_model_recognises_unseen_test_clips[Gunshot]
+      reason: dataset not generated
+  test_features_model.py::test_model_recognises_unseen_test_clips[Alarm or Siren]
+      reason: dataset not generated
+  test_features_model.py::test_model_recognises_unseen_test_clips[Glass Breaking]
+      reason: dataset not generated
+  test_features_model.py::test_model_recognises_unseen_test_clips[Background Noise]
+      reason: dataset not generated
+
+  None of the skips indicates a defect:
+    - torch is an optional retraining dependency (requirements-gtm.txt). The
+      shipped GTM model runs in the browser and does not need PyTorch; the
+      export is still verified by the NumPy runner in the other GTM tests.
+    - 'dataset not generated' skips need the regenerated feature matrix under
+      data/features/ and the working copy of audio_dataset/. The submitted
+      dataset is in folders 04-06 and its statistics in folder 07; the saved
+      model and its metrics are unaffected. Run
+      'python -m feature_extraction.build_features' to enable these.
+
+FULL TEST LIST
+==============================================================================
+
+test_alert_engine.py
+------------------------------------------------------------------------------
+  [PASSED ] test_summary_top_three_and_margin  (0.00s)
+  [PASSED ] test_confidence_difference_is_absolute_top_class_difference  (0.00s)
+  [PASSED ] test_consistency_status[py0-gtm0-Acceptable Match]  (0.00s)
+  [PASSED ] test_consistency_status[py1-gtm1-Weak Match]  (0.00s)
+  [PASSED ] test_consistency_status[py2-gtm2-Weak Match]  (0.00s)
+  [PASSED ] test_consistency_status[py3-gtm3-Model Disagreement]  (0.00s)
+  [PASSED ] test_consistency_status[py4-gtm4-Uncertain Result]  (0.00s)
+  [PASSED ] test_single_model_result_when_gtm_missing  (0.00s)
+  [PASSED ] test_python_prediction_is_not_an_input_to_gtm_scores  (0.00s)
+  [PASSED ] test_low_confidence_is_uncertain_and_reviewed  (0.00s)
+  [PASSED ] test_similar_top_classes_flagged  (0.00s)
+  [PASSED ] test_overlapping_sounds_detected  (0.00s)
+  [PASSED ] test_background_second_class_is_not_an_overlap  (0.00s)
+  [PASSED ] test_very_low_confidence_becomes_unknown  (0.00s)
+  [PASSED ] test_unusable_audio_is_never_classified  (0.00s)
+  [PASSED ] test_default_severity_per_category[Background Noise-Informational]  (0.00s)
+  [PASSED ] test_default_severity_per_category[Dog Bark-Low]  (0.00s)
+  [PASSED ] test_default_severity_per_category[Machinery Fault-High]  (0.00s)
+  [PASSED ] test_default_severity_per_category[Glass Breaking-High]  (0.00s)
+  [PASSED ] test_default_severity_per_category[Alarm or Siren-High]  (0.00s)
+  [PASSED ] test_default_severity_per_category[Aggression-High]  (0.00s)
+  [PASSED ] test_default_severity_per_category[Panic Scream-Critical]  (0.00s)
+  [PASSED ] test_default_severity_per_category[Person Asking for Help-Critical]  (0.00s)
+  [PASSED ] test_default_severity_per_category[Gunshot-Critical]  (0.00s)
+  [PASSED ] test_glass_breaking_confident_agreement_generates_alert  (0.00s)
+  [PASSED ] test_vehicle_horn_never_alerts  (0.00s)
+  [PASSED ] test_gunshot_requires_model_agreement  (0.00s)
+  [PASSED ] test_poor_quality_blocks_gunshot_alert  (0.00s)
+  [PASSED ] test_min_confidence_threshold_is_configurable  (0.00s)
+  [PASSED ] test_live_gunshot_pending_then_confirmed_in_next_window  (0.00s)
+  [PASSED ] test_non_consecutive_history_does_not_count_as_consecutive  (0.00s)
+  [PASSED ] test_upload_single_window_not_confirmed  (0.00s)
+  [PASSED ] test_repeated_aggression_escalates_to_critical  (0.00s)
+  [PASSED ] test_background_noise_escalates_only_above_noise_limit  (0.00s)
+  [PASSED ] test_live_result_is_the_mean_of_the_recent_windows  (0.00s)
+  [PASSED ] test_live_smoothing_keeps_one_odd_window_from_flipping_the_category  (0.00s)
+  [PASSED ] test_live_smoothing_uses_only_the_windows_it_is_given  (0.00s)
+  [PASSED ] test_uploads_are_never_smoothed  (0.00s)
+  [PASSED ] test_live_path_has_its_own_fusion_weight  (0.00s)
+
+test_audio_io.py
+------------------------------------------------------------------------------
+  [PASSED ] test_wav_subtypes_decode_with_bit_depth[PCM_16-16]  (0.04s)
+  [PASSED ] test_wav_subtypes_decode_with_bit_depth[PCM_24-24]  (0.02s)
+  [PASSED ] test_wav_subtypes_decode_with_bit_depth[FLOAT-32]  (0.02s)
+  [PASSED ] test_flac_and_ogg_decode  (0.05s)
+  [PASSED ] test_compressed_formats_decode[mp3-args0]  (0.09s)
+  [PASSED ] test_compressed_formats_decode[m4a-args1]  (0.20s)
+  [PASSED ] test_stereo_file_reports_channels  (0.02s)
+  [PASSED ] test_valid_file_passes_all_checks  (0.02s)
+  [PASSED ] test_unsupported_extension_rejected  (0.01s)
+  [PASSED ] test_fake_audio_content_rejected  (0.00s)
+  [PASSED ] test_empty_file_rejected  (0.00s)
+  [PASSED ] test_truncated_wav_is_flagged_or_rejected  (0.03s)
+  [PASSED ] test_silent_file_rejected  (0.02s)
+  [PASSED ] test_near_silent_file_rejected  (0.02s)
+  [PASSED ] test_too_short_rejected_and_boundary_accepted  (0.04s)
+  [PASSED ] test_too_long_rejected  (0.03s)
+  [PASSED ] test_size_limit  (0.01s)
+  [PASSED ] test_low_sample_rate_rejected  (0.02s)
+  [PASSED ] test_too_many_channels_rejected  (0.03s)
+  [PASSED ] test_sha256_changes_with_content  (0.04s)
+  [PASSED ] test_decode_missing_file_raises  (0.00s)
+
+test_cnn.py
+------------------------------------------------------------------------------
+  [PASSED ] test_logmel_shape_for_a_two_second_segment  (0.63s)
+  [PASSED ] test_short_live_window_is_padded_for_the_poolings  (0.00s)
+  [PASSED ] test_fusion_weights_and_normalisation  (0.00s)
+  [SKIPPED] test_numpy_inference_matches_pytorch  (0.00s)
+
+test_dataset_tools.py
+------------------------------------------------------------------------------
+  [PASSED ] test_optional_categories_are_classes_with_generators  (0.00s)
+  [PASSED ] test_optional_generators_give_clean_audio[Door Impact]  (0.01s)
+  [PASSED ] test_optional_generators_give_clean_audio[Drilling or Grinder Sound]  (0.03s)
+  [PASSED ] test_optional_generators_give_clean_audio[Drone Sound]  (0.06s)
+  [PASSED ] test_optional_generators_give_clean_audio[Explosion]  (0.02s)
+  [PASSED ] test_optional_generators_give_clean_audio[Fireworks]  (0.00s)
+  [PASSED ] test_optional_generators_give_clean_audio[Graffiti Spray]  (0.01s)
+  [PASSED ] test_optional_generators_give_clean_audio[Vehicle Backfire]  (0.00s)
+  [PASSED ] test_variant_generators_give_clean_audio[empty-room]  (0.01s)
+  [PASSED ] test_variant_generators_give_clean_audio[everyday-clicks]  (0.02s)
+  [PASSED ] test_variant_generators_give_clean_audio[large-animals]  (0.01s)
+  [PASSED ] test_time_shift_keeps_short_clips_inside  (0.00s)
+  [PASSED ] test_relabel_plan_selects_the_documented_recordings  (0.02s)
+  [PASSED ] test_temperature_scaling_keeps_predictions_and_calibrates  (0.03s)
+  [PASSED ] test_live_rendering_matches_the_live_service_path  (0.04s)
+  [PASSED ] test_microphone_simulation_is_deterministic_and_bounded  (0.01s)
+
+test_features_model.py
+------------------------------------------------------------------------------
+  [PASSED ] test_feature_vector_shape_and_names  (0.43s)
+  [PASSED ] test_features_are_finite_even_for_silence_and_short_input  (0.06s)
+  [PASSED ] test_features_are_deterministic  (0.06s)
+  [PASSED ] test_features_distinguish_tone_from_noise_and_impulse  (0.07s)
+  [SKIPPED] test_dataset_is_balanced_and_split_70_15_15  (0.00s)
+  [SKIPPED] test_no_source_leaks_between_splits  (0.00s)
+  [SKIPPED] test_audio_ids_unique_and_files_exist  (0.00s)
+  [PASSED ] test_active_model_card_is_complete  (0.00s)
+  [PASSED ] test_model_outputs_probabilities_for_all_classes  (2.25s)
+  [SKIPPED] test_model_recognises_unseen_test_clips[Gunshot]  (0.00s)
+  [SKIPPED] test_model_recognises_unseen_test_clips[Alarm or Siren]  (0.00s)
+  [SKIPPED] test_model_recognises_unseen_test_clips[Glass Breaking]  (0.00s)
+  [SKIPPED] test_model_recognises_unseen_test_clips[Background Noise]  (0.00s)
+
+test_gtm.py
+------------------------------------------------------------------------------
+  [PASSED ] test_gtm_spectrogram_shape_and_scale  (0.04s)
+  [PASSED ] test_best_window_is_centred_on_the_event  (0.00s)
+  [PASSED ] test_python_and_javascript_spectrograms_match[False]  (0.16s)
+  [PASSED ] test_python_and_javascript_spectrograms_match[True]  (0.14s)
+  [PASSED ] test_python_and_javascript_pick_the_same_window  (0.38s)
+  [PASSED ] test_exported_gtm_model_labels_and_shape  (0.02s)
+  [PASSED ] test_browser_gtm_path_matches_python_pipeline  (0.45s)
+  [PASSED ] test_label_check_and_score_parsing  (1.50s)
+  [PASSED ] test_gtm_files_served_and_results_finalise_record  (1.14s)
+  [PASSED ] test_gtm_error_payload_falls_back_to_single_model  (1.06s)
+  [PASSED ] test_gtm_label_mismatch_is_rejected  (1.25s)
+
+test_preprocessing_quality.py
+------------------------------------------------------------------------------
+  [PASSED ] test_stereo_to_mono_resample_and_normalise  (0.01s)
+  [PASSED ] test_silence_trimming_records_offset  (0.00s)
+  [PASSED ] test_trim_not_applied_for_live_windows  (0.01s)
+  [PASSED ] test_trim_silence_helper_keeps_signal  (0.00s)
+  [PASSED ] test_fix_length_pad_and_truncate  (0.00s)
+  [PASSED ] test_segmentation_lengths_and_timestamps  (0.00s)
+  [PASSED ] test_short_clip_becomes_one_padded_segment  (0.00s)
+  [PASSED ] test_event_segment_selection_drops_quiet_segments  (0.00s)
+  [PASSED ] test_noise_reduction_skips_stationary_signals  (0.01s)
+  [PASSED ] test_noise_reduction_attenuates_noise_floor  (0.02s)
+  [PASSED ] test_quality_good_for_clean_event  (0.01s)
+  [PASSED ] test_quality_silence_is_unusable  (0.00s)
+  [PASSED ] test_quality_detects_severe_clipping  (0.00s)
+  [PASSED ] test_quality_detects_excessive_noise  (0.01s)
+  [PASSED ] test_quality_low_signal  (0.00s)
+  [PASSED ] test_quality_detects_dropouts  (0.01s)
+  [PASSED ] test_quality_reports_truncated_stream  (0.00s)
+  [PASSED ] test_quality_noise_level_flag_for_background_escalation  (0.01s)
+
+test_roles_workflow.py
+------------------------------------------------------------------------------
+  [PASSED ] test_each_role_lands_on_its_own_dashboard[user->Overview</h1>]  (1.32s)
+  [PASSED ] test_each_role_lands_on_its_own_dashboard[reviewer->Review desk</h1>]  (1.16s)
+  [PASSED ] test_each_role_lands_on_its_own_dashboard[security->Security console</h1>]  (1.17s)
+  [PASSED ] test_each_role_lands_on_its_own_dashboard[maintenance->Maintenance console</h1>]  (1.21s)
+  [PASSED ] test_admin_dashboard_is_system_overview  (1.31s)
+  [PASSED ] test_operators_can_still_open_the_site_overview  (1.21s)
+  [PASSED ] test_security_console_shows_only_security_categories  (1.30s)
+  [PASSED ] test_operator_can_acknowledge_from_console  (1.10s)
+  [PASSED ] test_maintenance_cannot_act_on_security_alert  (1.12s)
+  [PASSED ] test_permission_matrix[/review-allowed0]  (1.75s)
+  [PASSED ] test_permission_matrix[/analytics-allowed1]  (1.78s)
+  [PASSED ] test_permission_matrix[/admin/-allowed2]  (1.72s)
+  [PASSED ] test_permission_matrix[/admin/rules-allowed3]  (1.63s)
+  [PASSED ] test_permission_matrix[/admin/settings-allowed4]  (1.69s)
+  [PASSED ] test_permission_matrix[/history/export.csv-allowed5]  (1.62s)
+  [PASSED ] test_nav_labels_follow_role  (1.38s)
+  [PASSED ] test_disagreement_goes_to_review_queue_and_desk  (1.10s)
+  [PASSED ] test_reviewer_override_keeps_model_outputs  (1.10s)
+  [PASSED ] test_normal_user_cannot_review  (1.08s)
+  [PASSED ] test_dismissed_alert_is_sent_to_review  (1.01s)
+  [PASSED ] test_admin_changes_threshold_and_consecutive_rule  (1.06s)
+  [PASSED ] test_all_five_severities_available  (0.84s)
+  [PASSED ] test_batch_upload_requires_operator_role  (1.12s)
+  [PASSED ] test_admin_exports_csv_and_excel  (1.20s)
+  [PASSED ] test_admin_dashboard_trend_data  (1.00s)
+
+test_security_db_live.py
+------------------------------------------------------------------------------
+  [PASSED ] test_pages_require_login[/dashboard]  (0.86s)
+  [PASSED ] test_pages_require_login[/history]  (0.86s)
+  [PASSED ] test_pages_require_login[/alerts]  (0.90s)
+  [PASSED ] test_pages_require_login[/review]  (0.86s)
+  [PASSED ] test_pages_require_login[/admin/]  (0.84s)
+  [PASSED ] test_pages_require_login[/live]  (0.86s)
+  [PASSED ] test_pages_require_login[/analyze]  (0.83s)
+  [PASSED ] test_api_requires_login  (0.87s)
+  [PASSED ] test_wrong_password_rejected_and_audited  (1.04s)
+  [PASSED ] test_account_locks_after_repeated_failures  (1.60s)
+  [PASSED ] test_passwords_are_hashed  (1.01s)
+  [PASSED ] test_open_redirect_blocked  (1.00s)
+  [PASSED ] test_security_headers  (1.21s)
+  [PASSED ] test_csrf_enforced_when_enabled  (0.14s)
+  [PASSED ] test_user_cannot_open_someone_elses_record  (1.04s)
+  [PASSED ] test_normal_user_cannot_change_roles  (1.11s)
+  [PASSED ] test_record_alert_review_audit_are_linked  (0.99s)
+  [PASSED ] test_audio_id_is_unique  (0.90s)
+  [PASSED ] test_20000_records_stay_searchable  (3.17s)
+  [PASSED ] test_fingerprint_matches_volume_adjusted_and_trimmed_copy  (0.04s)
+  [PASSED ] test_identical_upload_flagged_as_duplicate  (1.52s)
+  [PASSED ] test_reencoded_copy_flagged_as_near_duplicate  (1.73s)
+  [PASSED ] test_microphone_needs_consent_first  (1.15s)
+  [PASSED ] test_live_session_status_windows_and_stop  (1.69s)
+  [PASSED ] test_live_results_are_smoothed_over_consecutive_windows_only  (2.72s)
+  [PASSED ] test_silent_live_window_is_not_classified  (1.23s)
+  [PASSED ] test_other_user_cannot_use_my_session  (1.15s)
+
+==============================================================================
+END - 166/174 passed, 8 skipped, 0 failed, 0 errors

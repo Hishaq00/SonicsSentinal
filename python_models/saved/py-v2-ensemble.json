@@ -1,0 +1,1140 @@
+{
+  "version": "py-v2-ensemble",
+  "algorithm": "ensemble",
+  "algorithm_label": "Soft-voting ensemble (Histogram Gradient Boosting + Multi-layer Perceptron + XGBoost)",
+  "trained_at": "2026-09-24T19:18:10Z",
+  "classes": [
+    "Machinery Fault",
+    "Glass Breaking",
+    "Alarm or Siren",
+    "Vehicle Horn",
+    "Animal Sound",
+    "Gunshot",
+    "Panic Scream",
+    "Aggression",
+    "Person Asking for Help",
+    "Background Noise"
+  ],
+  "critical_classes": [
+    "Gunshot",
+    "Glass Breaking",
+    "Panic Scream",
+    "Aggression",
+    "Person Asking for Help"
+  ],
+  "hyperparameters": {
+    "members": [
+      "hist_gradient_boosting",
+      "mlp",
+      "xgboost"
+    ],
+    "weights": "equal",
+    "combination": "mean of class probabilities"
+  },
+  "feature_set": "ssf-1.0",
+  "n_features": 193,
+  "feature_config": {
+    "sr": 22050,
+    "n_fft": 2048,
+    "hop_length": 512,
+    "n_mfcc": 20,
+    "n_mels": 64,
+    "mel_summary_bands": 32,
+    "fmin": 20.0,
+    "f0_min": 60.0,
+    "f0_max": 2000.0,
+    "segment_seconds": 2.0,
+    "version": "ssf-1.0"
+  },
+  "preprocessing": {
+    "target_sr": 22050,
+    "trim_silence": true,
+    "trim_top_db": 40.0,
+    "noise_reduction": true,
+    "nr_max_db": 12.0,
+    "nr_min_dynamic_range_db": 12.0,
+    "normalize_peak": 0.95
+  },
+  "segment_seconds": 2.0,
+  "segment_hop_seconds": 1.0,
+  "dataset": {
+    "train_segments": 9109,
+    "train_recordings": 2100,
+    "augmented_recordings": 2100,
+    "validation_recordings": 450,
+    "test_recordings": 450,
+    "sources": {
+      "synthetic-procedural": 2585,
+      "synthetic-tts": 415
+    }
+  },
+  "metrics": {
+    "cv_f1_macro": 0.8016432174926291,
+    "validation": {
+      "segment": {
+        "accuracy": 0.8839190628328009,
+        "precision_macro": 0.8778602378533555,
+        "recall_macro": 0.882711704591894,
+        "f1_macro": 0.8793431066919689,
+        "f1_weighted": 0.8840304183077708,
+        "critical_recall_min": 0.7948717948717948,
+        "critical_recall_mean": 0.87543675622623,
+        "per_class": {
+          "Machinery Fault": {
+            "precision": 0.9752066115702479,
+            "recall": 0.8872180451127819,
+            "f1": 0.9291338582677166,
+            "support": 133
+          },
+          "Glass Breaking": {
+            "precision": 0.9130434782608695,
+            "recall": 0.9545454545454546,
+            "f1": 0.9333333333333333,
+            "support": 88
+          },
+          "Alarm or Siren": {
+            "precision": 0.9369369369369369,
+            "recall": 0.9904761904761905,
+            "f1": 0.9629629629629629,
+            "support": 105
+          },
+          "Vehicle Horn": {
+            "precision": 0.8636363636363636,
+            "recall": 0.8769230769230769,
+            "f1": 0.8702290076335878,
+            "support": 65
+          },
+          "Animal Sound": {
+            "precision": 0.8082191780821918,
+            "recall": 0.8082191780821918,
+            "f1": 0.8082191780821918,
+            "support": 73
+          },
+          "Gunshot": {
+            "precision": 0.891566265060241,
+            "recall": 0.925,
+            "f1": 0.9079754601226994,
+            "support": 80
+          },
+          "Panic Scream": {
+            "precision": 0.8961038961038961,
+            "recall": 0.9078947368421053,
+            "f1": 0.9019607843137255,
+            "support": 76
+          },
+          "Aggression": {
+            "precision": 0.9117647058823529,
+            "recall": 0.7948717948717948,
+            "f1": 0.8493150684931506,
+            "support": 117
+          },
+          "Person Asking for Help": {
+            "precision": 0.7294117647058823,
+            "recall": 0.7948717948717948,
+            "f1": 0.7607361963190185,
+            "support": 78
+          },
+          "Background Noise": {
+            "precision": 0.8527131782945736,
+            "recall": 0.8870967741935484,
+            "f1": 0.8695652173913043,
+            "support": 124
+          }
+        },
+        "confusion_matrix": [
+          [
+            118,
+            0,
+            2,
+            0,
+            2,
+            0,
+            0,
+            0,
+            0,
+            11
+          ],
+          [
+            0,
+            84,
+            0,
+            1,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            104,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            57,
+            0,
+            2,
+            0,
+            2,
+            1,
+            2
+          ],
+          [
+            0,
+            1,
+            3,
+            1,
+            59,
+            2,
+            3,
+            2,
+            2,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            0,
+            4,
+            74,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            2,
+            0,
+            0,
+            2,
+            0,
+            69,
+            2,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            3,
+            3,
+            1,
+            0,
+            93,
+            15,
+            2
+          ],
+          [
+            0,
+            0,
+            1,
+            0,
+            1,
+            3,
+            4,
+            3,
+            62,
+            4
+          ],
+          [
+            2,
+            4,
+            0,
+            4,
+            1,
+            1,
+            0,
+            0,
+            2,
+            110
+          ]
+        ],
+        "n": 939
+      },
+      "recording": {
+        "accuracy": 0.92,
+        "precision_macro": 0.9219328565066638,
+        "recall_macro": 0.9200000000000002,
+        "f1_macro": 0.9201488810736279,
+        "f1_weighted": 0.9201488810736279,
+        "critical_recall_min": 0.8222222222222222,
+        "critical_recall_mean": 0.9111111111111111,
+        "per_class": {
+          "Machinery Fault": {
+            "precision": 0.9761904761904762,
+            "recall": 0.9111111111111111,
+            "f1": 0.9425287356321839,
+            "support": 45
+          },
+          "Glass Breaking": {
+            "precision": 0.9555555555555556,
+            "recall": 0.9555555555555556,
+            "f1": 0.9555555555555556,
+            "support": 45
+          },
+          "Alarm or Siren": {
+            "precision": 0.9782608695652174,
+            "recall": 1.0,
+            "f1": 0.989010989010989,
+            "support": 45
+          },
+          "Vehicle Horn": {
+            "precision": 0.9545454545454546,
+            "recall": 0.9333333333333333,
+            "f1": 0.9438202247191011,
+            "support": 45
+          },
+          "Animal Sound": {
+            "precision": 0.8695652173913043,
+            "recall": 0.8888888888888888,
+            "f1": 0.8791208791208791,
+            "support": 45
+          },
+          "Gunshot": {
+            "precision": 0.9347826086956522,
+            "recall": 0.9555555555555556,
+            "f1": 0.945054945054945,
+            "support": 45
+          },
+          "Panic Scream": {
+            "precision": 0.9130434782608695,
+            "recall": 0.9333333333333333,
+            "f1": 0.9230769230769231,
+            "support": 45
+          },
+          "Aggression": {
+            "precision": 0.9487179487179487,
+            "recall": 0.8222222222222222,
+            "f1": 0.8809523809523809,
+            "support": 45
+          },
+          "Person Asking for Help": {
+            "precision": 0.8163265306122449,
+            "recall": 0.8888888888888888,
+            "f1": 0.851063829787234,
+            "support": 45
+          },
+          "Background Noise": {
+            "precision": 0.8723404255319149,
+            "recall": 0.9111111111111111,
+            "f1": 0.8913043478260869,
+            "support": 45
+          }
+        },
+        "confusion_matrix": [
+          [
+            41,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            3
+          ],
+          [
+            0,
+            43,
+            0,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            45,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            42,
+            0,
+            1,
+            0,
+            1,
+            1,
+            0
+          ],
+          [
+            0,
+            1,
+            1,
+            0,
+            40,
+            0,
+            2,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1,
+            43,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            2,
+            0,
+            42,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            37,
+            6,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            2,
+            0,
+            40,
+            2
+          ],
+          [
+            1,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            0,
+            41
+          ]
+        ],
+        "n": 450
+      },
+      "ms_per_segment": 0.1916877529294073
+    },
+    "test": {
+      "segment": {
+        "accuracy": 0.8935091277890467,
+        "precision_macro": 0.8911978238887682,
+        "recall_macro": 0.8879247593091728,
+        "f1_macro": 0.8883046708737643,
+        "f1_weighted": 0.8941848615198734,
+        "critical_recall_min": 0.7631578947368421,
+        "critical_recall_mean": 0.8855032852441516,
+        "per_class": {
+          "Machinery Fault": {
+            "precision": 0.9448818897637795,
+            "recall": 0.9022556390977443,
+            "f1": 0.9230769230769231,
+            "support": 133
+          },
+          "Glass Breaking": {
+            "precision": 0.92,
+            "recall": 0.971830985915493,
+            "f1": 0.9452054794520548,
+            "support": 71
+          },
+          "Alarm or Siren": {
+            "precision": 0.9847328244274809,
+            "recall": 0.9416058394160584,
+            "f1": 0.9626865671641791,
+            "support": 137
+          },
+          "Vehicle Horn": {
+            "precision": 0.958904109589041,
+            "recall": 0.8641975308641975,
+            "f1": 0.9090909090909091,
+            "support": 81
+          },
+          "Animal Sound": {
+            "precision": 0.821917808219178,
+            "recall": 0.7894736842105263,
+            "f1": 0.8053691275167785,
+            "support": 76
+          },
+          "Gunshot": {
+            "precision": 0.8795180722891566,
+            "recall": 0.9358974358974359,
+            "f1": 0.906832298136646,
+            "support": 78
+          },
+          "Panic Scream": {
+            "precision": 0.975,
+            "recall": 0.9176470588235294,
+            "f1": 0.9454545454545454,
+            "support": 85
+          },
+          "Aggression": {
+            "precision": 0.8918918918918919,
+            "recall": 0.8389830508474576,
+            "f1": 0.8646288209606987,
+            "support": 118
+          },
+          "Person Asking for Help": {
+            "precision": 0.7073170731707317,
+            "recall": 0.7631578947368421,
+            "f1": 0.7341772151898734,
+            "support": 76
+          },
+          "Background Noise": {
+            "precision": 0.8278145695364238,
+            "recall": 0.9541984732824428,
+            "f1": 0.8865248226950354,
+            "support": 131
+          }
+        },
+        "confusion_matrix": [
+          [
+            120,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            13
+          ],
+          [
+            0,
+            69,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            7,
+            0,
+            129,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            2,
+            70,
+            1,
+            0,
+            0,
+            0,
+            3,
+            5
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            60,
+            5,
+            1,
+            0,
+            5,
+            5
+          ],
+          [
+            0,
+            2,
+            0,
+            0,
+            3,
+            73,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            78,
+            2,
+            0,
+            1
+          ],
+          [
+            0,
+            2,
+            0,
+            1,
+            3,
+            1,
+            1,
+            99,
+            10,
+            1
+          ],
+          [
+            0,
+            1,
+            0,
+            0,
+            5,
+            2,
+            0,
+            9,
+            58,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            5,
+            125
+          ]
+        ],
+        "n": 986
+      },
+      "recording": {
+        "accuracy": 0.9244444444444444,
+        "precision_macro": 0.9267739759839166,
+        "recall_macro": 0.9244444444444445,
+        "f1_macro": 0.9243820564664673,
+        "f1_weighted": 0.9243820564664674,
+        "critical_recall_min": 0.8222222222222222,
+        "critical_recall_mean": 0.9377777777777778,
+        "per_class": {
+          "Machinery Fault": {
+            "precision": 0.9523809523809523,
+            "recall": 0.8888888888888888,
+            "f1": 0.9195402298850575,
+            "support": 45
+          },
+          "Glass Breaking": {
+            "precision": 0.9782608695652174,
+            "recall": 1.0,
+            "f1": 0.989010989010989,
+            "support": 45
+          },
+          "Alarm or Siren": {
+            "precision": 0.9772727272727273,
+            "recall": 0.9555555555555556,
+            "f1": 0.9662921348314607,
+            "support": 45
+          },
+          "Vehicle Horn": {
+            "precision": 0.975609756097561,
+            "recall": 0.8888888888888888,
+            "f1": 0.9302325581395349,
+            "support": 45
+          },
+          "Animal Sound": {
+            "precision": 0.926829268292683,
+            "recall": 0.8444444444444444,
+            "f1": 0.8837209302325582,
+            "support": 45
+          },
+          "Gunshot": {
+            "precision": 0.9361702127659575,
+            "recall": 0.9777777777777777,
+            "f1": 0.9565217391304348,
+            "support": 45
+          },
+          "Panic Scream": {
+            "precision": 0.9777777777777777,
+            "recall": 0.9777777777777777,
+            "f1": 0.9777777777777777,
+            "support": 45
+          },
+          "Aggression": {
+            "precision": 0.8723404255319149,
+            "recall": 0.9111111111111111,
+            "f1": 0.8913043478260869,
+            "support": 45
+          },
+          "Person Asking for Help": {
+            "precision": 0.8409090909090909,
+            "recall": 0.8222222222222222,
+            "f1": 0.8314606741573034,
+            "support": 45
+          },
+          "Background Noise": {
+            "precision": 0.8301886792452831,
+            "recall": 0.9777777777777777,
+            "f1": 0.8979591836734694,
+            "support": 45
+          }
+        },
+        "confusion_matrix": [
+          [
+            40,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            5
+          ],
+          [
+            0,
+            45,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            43,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            40,
+            0,
+            0,
+            0,
+            0,
+            2,
+            2
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            38,
+            1,
+            1,
+            0,
+            3,
+            2
+          ],
+          [
+            0,
+            1,
+            0,
+            0,
+            0,
+            44,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            44,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            41,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            2,
+            1,
+            0,
+            5,
+            37,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            44
+          ]
+        ],
+        "n": 450
+      },
+      "ms_per_segment": 0.1987973630820478
+    },
+    "noise_robustness": {
+      "20 dB": {
+        "accuracy": 0.9222222222222223,
+        "f1_macro": 0.9231197454245816,
+        "critical_recall_min": 0.8444444444444444
+      },
+      "10 dB": {
+        "accuracy": 0.8666666666666667,
+        "f1_macro": 0.866150102532572,
+        "critical_recall_min": 0.7333333333333333
+      },
+      "5 dB": {
+        "accuracy": 0.7533333333333333,
+        "f1_macro": 0.7555393756844835,
+        "critical_recall_min": 0.5777777777777777
+      },
+      "0 dB": {
+        "accuracy": 0.48,
+        "f1_macro": 0.4876703648725716,
+        "critical_recall_min": 0.24444444444444444
+      }
+    }
+  },
+  "comparison": [
+    {
+      "model": "svm",
+      "label": "Support Vector Machine (RBF kernel)",
+      "selected": false,
+      "cv_f1_macro": 0.8013,
+      "val_accuracy": 0.8889,
+      "val_f1_macro": 0.8892,
+      "val_critical_recall_min": 0.7778,
+      "test_accuracy": 0.9022,
+      "test_precision_macro": 0.9052,
+      "test_recall_macro": 0.9022,
+      "test_f1_macro": 0.9022,
+      "test_critical_recall_min": 0.7333,
+      "test_segment_accuracy": 0.8803,
+      "noise_0db_accuracy": 0.4844,
+      "tune_seconds": 0.0,
+      "fit_seconds": 17.8,
+      "inference_ms_per_segment": 1.436,
+      "hyperparameters": "{\"clf__C\": 24.171857265923215, \"clf__gamma\": 0.0030405325392865654}"
+    },
+    {
+      "model": "random_forest",
+      "label": "Random Forest",
+      "selected": false,
+      "cv_f1_macro": 0.7711,
+      "val_accuracy": 0.8778,
+      "val_f1_macro": 0.8785,
+      "val_critical_recall_min": 0.7333,
+      "test_accuracy": 0.8711,
+      "test_precision_macro": 0.8784,
+      "test_recall_macro": 0.8711,
+      "test_f1_macro": 0.872,
+      "test_critical_recall_min": 0.7556,
+      "test_segment_accuracy": 0.8509,
+      "noise_0db_accuracy": 0.3289,
+      "tune_seconds": 0.0,
+      "fit_seconds": 67.8,
+      "inference_ms_per_segment": 0.324,
+      "hyperparameters": "{\"max_depth\": 32, \"max_features\": 0.2, \"min_samples_leaf\": 2, \"n_estimators\": 391}"
+    },
+    {
+      "model": "hist_gradient_boosting",
+      "label": "Histogram Gradient Boosting",
+      "selected": false,
+      "cv_f1_macro": 0.7983,
+      "val_accuracy": 0.9133,
+      "val_f1_macro": 0.9137,
+      "val_critical_recall_min": 0.7778,
+      "test_accuracy": 0.9178,
+      "test_precision_macro": 0.9224,
+      "test_recall_macro": 0.9178,
+      "test_f1_macro": 0.9187,
+      "test_critical_recall_min": 0.8222,
+      "test_segment_accuracy": 0.8874,
+      "noise_0db_accuracy": 0.4289,
+      "tune_seconds": 0.0,
+      "fit_seconds": 60.5,
+      "inference_ms_per_segment": 0.156,
+      "hyperparameters": "{\"l2_regularization\": 0.012561043700013555, \"learning_rate\": 0.08110848199986004, \"max_leaf_nodes\": 15, \"min_samples_leaf\": 40}"
+    },
+    {
+      "model": "mlp",
+      "label": "Multi-layer Perceptron (neural network)",
+      "selected": false,
+      "cv_f1_macro": 0.8024,
+      "val_accuracy": 0.9067,
+      "val_f1_macro": 0.9065,
+      "val_critical_recall_min": 0.8,
+      "test_accuracy": 0.9244,
+      "test_precision_macro": 0.9261,
+      "test_recall_macro": 0.9244,
+      "test_f1_macro": 0.9242,
+      "test_critical_recall_min": 0.8222,
+      "test_segment_accuracy": 0.8925,
+      "noise_0db_accuracy": 0.5089,
+      "tune_seconds": 0.0,
+      "fit_seconds": 56.8,
+      "inference_ms_per_segment": 0.014,
+      "hyperparameters": "{\"clf__alpha\": 0.0001002595690228957, \"clf__hidden_layer_sizes\": [512, 256], \"clf__learning_rate_init\": 0.0003145616317558388}"
+    },
+    {
+      "model": "xgboost",
+      "label": "XGBoost (gradient-boosted trees)",
+      "selected": false,
+      "cv_f1_macro": 0.8042,
+      "val_accuracy": 0.9044,
+      "val_f1_macro": 0.9047,
+      "val_critical_recall_min": 0.7556,
+      "test_accuracy": 0.9044,
+      "test_precision_macro": 0.9103,
+      "test_recall_macro": 0.9044,
+      "test_f1_macro": 0.9055,
+      "test_critical_recall_min": 0.7778,
+      "test_segment_accuracy": 0.8844,
+      "noise_0db_accuracy": 0.4044,
+      "tune_seconds": 0.0,
+      "fit_seconds": 61.9,
+      "inference_ms_per_segment": 0.027,
+      "hyperparameters": "{\"colsample_bytree\": 0.7099025726528951, \"learning_rate\": 0.08110848199986004, \"max_depth\": 4, \"min_child_weight\": 5, \"n_estimators\": 258, \"subsample\": 0.8199582915145766}"
+    },
+    {
+      "model": "ensemble",
+      "label": "Soft-voting ensemble (Histogram Gradient Boosting + Multi-layer Perceptron + XGBoost)",
+      "selected": true,
+      "cv_f1_macro": 0.8016,
+      "val_accuracy": 0.92,
+      "val_f1_macro": 0.9201,
+      "val_critical_recall_min": 0.8222,
+      "test_accuracy": 0.9244,
+      "test_precision_macro": 0.9268,
+      "test_recall_macro": 0.9244,
+      "test_f1_macro": 0.9244,
+      "test_critical_recall_min": 0.8222,
+      "test_segment_accuracy": 0.8935,
+      "noise_0db_accuracy": 0.48,
+      "tune_seconds": 0.0,
+      "fit_seconds": 179.2,
+      "inference_ms_per_segment": 0.199,
+      "hyperparameters": "{\"members\": [\"hist_gradient_boosting\", \"mlp\", \"xgboost\"], \"weights\": \"equal\", \"combination\": \"mean of class probabilities\"}"
+    }
+  ],
+  "noise_robustness_all": {
+    "svm": {
+      "20 dB": {
+        "accuracy": 0.8933333333333333,
+        "f1_macro": 0.8936248389223393,
+        "critical_recall_min": 0.7555555555555555
+      },
+      "10 dB": {
+        "accuracy": 0.8311111111111111,
+        "f1_macro": 0.8308624140524801,
+        "critical_recall_min": 0.6444444444444445
+      },
+      "5 dB": {
+        "accuracy": 0.7111111111111111,
+        "f1_macro": 0.7115104550559497,
+        "critical_recall_min": 0.4444444444444444
+      },
+      "0 dB": {
+        "accuracy": 0.48444444444444446,
+        "f1_macro": 0.4868177887146629,
+        "critical_recall_min": 0.2222222222222222
+      }
+    },
+    "random_forest": {
+      "20 dB": {
+        "accuracy": 0.88,
+        "f1_macro": 0.8803472426817299,
+        "critical_recall_min": 0.8
+      },
+      "10 dB": {
+        "accuracy": 0.8066666666666666,
+        "f1_macro": 0.8055062610758693,
+        "critical_recall_min": 0.7111111111111111
+      },
+      "5 dB": {
+        "accuracy": 0.6377777777777778,
+        "f1_macro": 0.6301714646033981,
+        "critical_recall_min": 0.4222222222222222
+      },
+      "0 dB": {
+        "accuracy": 0.3288888888888889,
+        "f1_macro": 0.29330443536108064,
+        "critical_recall_min": 0.08888888888888889
+      }
+    },
+    "hist_gradient_boosting": {
+      "20 dB": {
+        "accuracy": 0.9155555555555556,
+        "f1_macro": 0.9157523453297486,
+        "critical_recall_min": 0.8
+      },
+      "10 dB": {
+        "accuracy": 0.8577777777777778,
+        "f1_macro": 0.8578177931021148,
+        "critical_recall_min": 0.6888888888888889
+      },
+      "5 dB": {
+        "accuracy": 0.7377777777777778,
+        "f1_macro": 0.7410684254058344,
+        "critical_recall_min": 0.5111111111111111
+      },
+      "0 dB": {
+        "accuracy": 0.4288888888888889,
+        "f1_macro": 0.4271811811500603,
+        "critical_recall_min": 0.17777777777777778
+      }
+    },
+    "mlp": {
+      "20 dB": {
+        "accuracy": 0.9288888888888889,
+        "f1_macro": 0.9291231565444507,
+        "critical_recall_min": 0.8222222222222222
+      },
+      "10 dB": {
+        "accuracy": 0.8555555555555555,
+        "f1_macro": 0.8555819148536049,
+        "critical_recall_min": 0.7555555555555555
+      },
+      "5 dB": {
+        "accuracy": 0.7222222222222222,
+        "f1_macro": 0.7204330994133149,
+        "critical_recall_min": 0.6222222222222222
+      },
+      "0 dB": {
+        "accuracy": 0.5088888888888888,
+        "f1_macro": 0.509613546847447,
+        "critical_recall_min": 0.26666666666666666
+      }
+    },
+    "xgboost": {
+      "20 dB": {
+        "accuracy": 0.9133333333333333,
+        "f1_macro": 0.9147011095826455,
+        "critical_recall_min": 0.8444444444444444
+      },
+      "10 dB": {
+        "accuracy": 0.86,
+        "f1_macro": 0.8585646405612671,
+        "critical_recall_min": 0.7111111111111111
+      },
+      "5 dB": {
+        "accuracy": 0.74,
+        "f1_macro": 0.7416793943623887,
+        "critical_recall_min": 0.5333333333333333
+      },
+      "0 dB": {
+        "accuracy": 0.40444444444444444,
+        "f1_macro": 0.40550404060900924,
+        "critical_recall_min": 0.13333333333333333
+      }
+    },
+    "ensemble": {
+      "20 dB": {
+        "accuracy": 0.9222222222222223,
+        "f1_macro": 0.9231197454245816,
+        "critical_recall_min": 0.8444444444444444
+      },
+      "10 dB": {
+        "accuracy": 0.8666666666666667,
+        "f1_macro": 0.866150102532572,
+        "critical_recall_min": 0.7333333333333333
+      },
+      "5 dB": {
+        "accuracy": 0.7533333333333333,
+        "f1_macro": 0.7555393756844835,
+        "critical_recall_min": 0.5777777777777777
+      },
+      "0 dB": {
+        "accuracy": 0.48,
+        "f1_macro": 0.4876703648725716,
+        "critical_recall_min": 0.24444444444444444
+      }
+    }
+  },
+  "report_dir": "reports/python_model/py-v2-ensemble",
+  "file": "py-v2-ensemble.joblib",
+  "environment": {
+    "python": "3.14.2",
+    "platform": "Windows-10-10.0.19045-SP0"
+  }
+}

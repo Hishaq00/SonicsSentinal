@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, sev, agree, quality, cat, pct, when, record_link, empty, source with context %}
+{% block title %}Review queue{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Investigate</p>
+    <h1>Manual review queue</h1>
+    <p class="lede">Uncertain and conflicting events: the models disagreed, confidence was low, audio quality was poor, sounds overlapped, or a critical event could not be confirmed. Listen, then confirm or correct the category.</p>
+  </div>
+</div>
+<div class="grid grid-main-r" style="grid-template-columns: minmax(220px, 280px) minmax(0, 1fr)">
+  <aside class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2>Reasons</h2><span class="meta">{{ records|length }} open</span></div>
+      <div class="panel-body flush">
+        <table class="table compact"><tbody>
+          <tr><td><a href="{{ url_for('review.queue', sort=sort) }}"{% if not reason %} style="font-weight:600"{% endif %}>All reasons</a></td><td class="num">{{ counts.values()|sum if counts else 0 }}</td></tr>
+          {% for r in reasons %}
+          <tr><td><a href="{{ url_for('review.queue', reason=r, sort=sort) }}"{% if reason == r %} style="font-weight:600"{% endif %}>{{ r }}</a></td><td class="num">{{ counts.get(r, 0) }}</td></tr>
+          {% endfor %}
+        </tbody></table>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>Recently reviewed</h2></div>
+      <div class="panel-body flush">
+        {% if reviewed %}<table class="table compact"><tbody>{% for r in reviewed %}<tr><td>{{ record_link(r) }}<div class="small muted">{{ r.final_category }} &rarr; {{ r.reviewed_category }}</div></td><td class="small">{{ r.reviewer.username if r.reviewer else "" }}</td></tr>{% endfor %}</tbody></table>
+        {% else %}{{ empty("No reviews yet.", "check") }}{% endif %}
+      </div>
+    </section>
+  </aside>
+  <section class="panel">
+    <div class="panel-head">
+      <h2>{{ reason or "All open items" }}</h2>
+      <div class="pill-toggle" role="group" aria-label="Sort">
+        <a class="btn btn-sm{% if sort == 'severity' %} btn-primary{% endif %}" href="{{ url_for('review.queue', reason=reason or None, sort='severity') }}">Severity first</a>
+        <a class="btn btn-sm{% if sort == 'newest' %} btn-primary{% endif %}" href="{{ url_for('review.queue', reason=reason or None, sort='newest') }}">Newest first</a>
+      </div>
+    </div>
+    <div class="panel-body flush">
+      {% if records %}
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Event</th><th>Detected</th><th>Python / GTM</th><th>Agreement</th><th>Severity</th><th>Quality</th><th>Why</th><th></th></tr></thead>
+        <tbody>
+        {% for r in records %}
+        <tr>
+          <td class="nowrap">{{ record_link(r) }}<div class="small muted">{{ source(r.source) }} {{ when(r.created_at) }}</div></td>
+          <td>{{ cat(r.final_category) }}<div class="small muted">{{ pct(r.final_confidence) }} fused</div></td>
+          <td class="small nowrap"><span class="model-tag python">{{ r.python_top or "-" }} {{ pct(r.python_confidence) }}</span><br><span class="model-tag gtm">{{ r.gtm_top or "n/a" }} {{ pct(r.gtm_confidence) if r.gtm_confidence is not none else "" }}</span></td>
+          <td>{{ agree(r.consistency) }}</td>
+          <td>{{ sev(r.severity) }}</td>
+          <td>{{ quality(r.quality_label) }}</td>
+          <td class="small" style="max-width:260px">{{ (r.review_reasons or [])|join("; ") }}</td>
+          <td><a class="btn btn-sm btn-primary" href="{{ url_for('analysis.record_detail', audio_id=r.audio_id, **{'from': 'queue'}) }}#review">Review</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+      {% else %}{{ empty("The review queue is empty.", "check") }}{% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

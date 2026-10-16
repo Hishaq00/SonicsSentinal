@@ -1,0 +1,590 @@
+{
+  "generated_at": "2026-09-28T14:39:20.143297+00:00",
+  "classes": {
+    "Machinery Fault": {
+      "original": 300,
+      "augmented": 0,
+      "splits": {
+        "train": 210,
+        "validation": 45,
+        "test": 45
+      },
+      "mean_duration_s": 3.7,
+      "sources": {
+        "synthetic-procedural": 300
+      },
+      "environments": {
+        "indoor-factory": 176,
+        "outdoor-street": 44,
+        "indoor-small-room": 35,
+        "indoor-hall": 45
+      },
+      "devices": {
+        "headset": 55,
+        "body-camera": 49,
+        "smartphone": 53,
+        "laptop-mic": 50,
+        "studio-recorder": 45,
+        "cctv-camera": 48
+      },
+      "quality": {
+        "Good": 300
+      }
+    },
+    "Glass Breaking": {
+      "original": 340,
+      "augmented": 0,
+      "splits": {
+        "train": 238,
+        "validation": 51,
+        "test": 51
+      },
+      "mean_duration_s": 3.02,
+      "sources": {
+        "synthetic-procedural": 300,
+        "esc50": 40
+      },
+      "environments": {
+        "outdoor-street": 132,
+        "indoor-hall": 52,
+        "indoor-small-room": 83,
+        "outdoor-open": 33
+      },
+      "devices": {
+        "cctv-camera": 46,
+        "headset": 53,
+        "body-camera": 55,
+        "studio-recorder": 58,
+        "laptop-mic": 42,
+        "smartphone": 46
+      },
+      "quality": {
+        "Good": 325,
+        "Acceptable": 15
+      }
+    },
+    "Alarm or Siren": {
+      "original": 1041,
+      "augmented": 0,
+      "splits": {
+        "train": 729,
+        "validation": 156,
+        "test": 156
+      },
+      "mean_duration_s": 3.87,
+      "sources": {
+        "synthetic-procedural": 300,
+        "urbansound8k": 661,
+        "esc50": 80
+      },
+      "environments": {
+        "outdoor-street": 136,
+        "outdoor-open": 48,
+        "indoor-small-room": 52,
+        "indoor-hall": 64,
+        "urban": 661
+      },
+      "devices": {
+        "studio-recorder": 51,
+        "headset": 38,
+        "body-camera": 49,
+        "laptop-mic": 55,
+        "smartphone": 56,
+        "cctv-camera": 51,
+        "field_recorder": 661
+      },
+      "quality": {
+        "Good": 945,
+        "Acceptable": 68,
+        "Poor": 24,
+        "Unusable": 4
+      }
+    },
+    "Vehicle Horn": {
+      "original": 729,
+      "augmented": 0,
+      "splits": {
+        "train": 510,
+        "validation": 110,
+        "test": 109
+      },
+      "mean_duration_s": 2.84,
+      "sources": {
+        "synthetic-procedural": 300,
+        "urbansound8k": 389,
+        "esc50": 40
+      },
+      "environments": {
+        "outdoor-open": 70,
+        "indoor-hall": 36,
+        "outdoor-street": 194,
+        "urban": 389
+      },
+      "devices": {
+        "headset": 57,
+        "body-camera": 49,
+        "cctv-camera": 34,
+        "smartphone": 61,
+        "laptop-mic": 48,
+        "studio-recorder": 51,
+        "field_recorder": 389
+      },
+      "quality": {
+        "Acceptable": 23,
+        "Good": 706
+      }
+    },
+    "Animal Sound": {
+      "original": 1657,
+      "augmented": 0,
+      "splits": {
+        "train": 1159,
+        "validation": 252,
+        "test": 246
+      },
+      "mean_duration_s": 3.67,
+      "sources": {
+        "esc50": 480,
+        "synthetic-procedural": 450,
+        "urbansound8k": 727
+      },
+      "environments": {
+        "outdoor-open": 185,
+        "outdoor-street": 137,
+        "indoor-small-room": 84,
+        "indoor-hall": 44,
+        "urban": 727
+      },
+      "devices": {
+        "laptop-mic": 82,
+        "studio-recorder": 87,
+        "headset": 70,
+        "body-camera": 76,
+        "cctv-camera": 67,
+        "smartphone": 68,
+        "field_recorder": 727
+      },
+      "quality": {
+        "Good": 1576,
+        "Acceptable": 72,
+        "Poor": 9
+      }
+    },
+    "Gunshot": {
+      "original": 665,
+      "augmented": 0,
+      "splits": {
+        "train": 465,
+        "validation": 100,
+        "test": 100
+      },
+      "mean_duration_s": 2.17,
+      "sources": {
+        "synthetic-procedural": 300,
+        "urbansound8k": 365
+      },
+      "environments": {
+        "outdoor-street": 129,
+        "outdoor-open": 79,
+        "indoor-small-room": 45,
+        "indoor-hall": 47,
+        "urban": 365
+      },
+      "devices": {
+        "laptop-mic": 56,
+        "body-camera": 41,
+        "cctv-camera": 36,
+        "smartphone": 57,
+        "studio-recorder": 54,
+        "headset": 56,
+        "field_recorder": 365
+      },
+      "quality": {
+        "Good": 599,
+        "Acceptable": 57,
+        "Poor": 9
+      }
+    },
+    "Panic Scream": {
+      "original": 300,
+      "augmented": 0,
+      "splits": {
+        "train": 210,
+        "validation": 45,
+        "test": 45
+      },
+      "mean_duration_s": 2.71,
+      "sources": {
+        "synthetic-procedural": 300
+      },
+      "environments": {
+        "outdoor-street": 77,
+        "indoor-hall": 50,
+        "indoor-small-room": 93,
+        "outdoor-open": 80
+      },
+      "devices": {
+        "studio-recorder": 39,
+        "body-camera": 57,
+        "smartphone": 63,
+        "headset": 43,
+        "laptop-mic": 46,
+        "cctv-camera": 52
+      },
+      "quality": {
+        "Good": 291,
+        "Acceptable": 9
+      }
+    },
+    "Aggression": {
+      "original": 300,
+      "augmented": 0,
+      "splits": {
+        "train": 210,
+        "validation": 45,
+        "test": 45
+      },
+      "mean_duration_s": 3.62,
+      "sources": {
+        "synthetic-procedural": 172,
+        "synthetic-tts": 128
+      },
+      "environments": {
+        "outdoor-open": 35,
+        "outdoor-street": 103,
+        "indoor-small-room": 87,
+        "indoor-hall": 75
+      },
+      "devices": {
+        "body-camera": 55,
+        "cctv-camera": 51,
+        "smartphone": 48,
+        "laptop-mic": 54,
+        "headset": 40,
+        "studio-recorder": 52
+      },
+      "quality": {
+        "Good": 296,
+        "Acceptable": 4
+      }
+    },
+    "Person Asking for Help": {
+      "original": 300,
+      "augmented": 0,
+      "splits": {
+        "train": 210,
+        "validation": 45,
+        "test": 45
+      },
+      "mean_duration_s": 2.72,
+      "sources": {
+        "synthetic-tts": 287,
+        "synthetic-procedural": 13
+      },
+      "environments": {
+        "indoor-hall": 57,
+        "outdoor-street": 81,
+        "outdoor-open": 68,
+        "indoor-small-room": 94
+      },
+      "devices": {
+        "body-camera": 59,
+        "studio-recorder": 44,
+        "laptop-mic": 57,
+        "cctv-camera": 49,
+        "smartphone": 49,
+        "headset": 42
+      },
+      "quality": {
+        "Good": 294,
+        "Acceptable": 6
+      }
+    },
+    "Drone Sound": {
+      "original": 300,
+      "augmented": 0,
+      "splits": {
+        "train": 210,
+        "validation": 45,
+        "test": 45
+      },
+      "mean_duration_s": 3.8,
+      "sources": {
+        "synthetic-procedural": 300
+      },
+      "environments": {
+        "outdoor-street": 96,
+        "outdoor-open": 170,
+        "indoor-hall": 16,
+        "indoor-small-room": 18
+      },
+      "devices": {
+        "headset": 52,
+        "smartphone": 42,
+        "studio-recorder": 52,
+        "body-camera": 44,
+        "laptop-mic": 49,
+        "cctv-camera": 61
+      },
+      "quality": {
+        "Good": 300
+      }
+    },
+    "Drilling or Grinder Sound": {
+      "original": 829,
+      "augmented": 0,
+      "splits": {
+        "train": 579,
+        "validation": 126,
+        "test": 124
+      },
+      "mean_duration_s": 3.63,
+      "sources": {
+        "urbansound8k": 599,
+        "synthetic-procedural": 150,
+        "esc50": 80
+      },
+      "environments": {
+        "urban": 599,
+        "indoor-factory": 66,
+        "outdoor-street": 31,
+        "indoor-hall": 14,
+        "indoor-small-room": 33,
+        "outdoor-open": 6
+      },
+      "devices": {
+        "field_recorder": 599,
+        "laptop-mic": 29,
+        "body-camera": 25,
+        "smartphone": 25,
+        "headset": 21,
+        "studio-recorder": 27,
+        "cctv-camera": 23
+      },
+      "quality": {
+        "Good": 818,
+        "Acceptable": 11
+      }
+    },
+    "Fireworks": {
+      "original": 340,
+      "augmented": 0,
+      "splits": {
+        "train": 238,
+        "validation": 51,
+        "test": 51
+      },
+      "mean_duration_s": 4.07,
+      "sources": {
+        "synthetic-procedural": 300,
+        "esc50": 40
+      },
+      "environments": {
+        "outdoor-open": 186,
+        "outdoor-street": 114
+      },
+      "devices": {
+        "laptop-mic": 57,
+        "headset": 41,
+        "studio-recorder": 53,
+        "smartphone": 45,
+        "body-camera": 55,
+        "cctv-camera": 49
+      },
+      "quality": {
+        "Good": 319,
+        "Acceptable": 18,
+        "Poor": 3
+      }
+    },
+    "Vehicle Backfire": {
+      "original": 300,
+      "augmented": 0,
+      "splits": {
+        "train": 210,
+        "validation": 45,
+        "test": 45
+      },
+      "mean_duration_s": 2.77,
+      "sources": {
+        "synthetic-procedural": 300
+      },
+      "environments": {
+        "outdoor-open": 88,
+        "outdoor-street": 212
+      },
+      "devices": {
+        "smartphone": 40,
+        "cctv-camera": 64,
+        "studio-recorder": 42,
+        "headset": 51,
+        "laptop-mic": 52,
+        "body-camera": 51
+      },
+      "quality": {
+        "Good": 282,
+        "Acceptable": 12,
+        "Poor": 6
+      }
+    },
+    "Explosion": {
+      "original": 300,
+      "augmented": 0,
+      "splits": {
+        "train": 210,
+        "validation": 45,
+        "test": 45
+      },
+      "mean_duration_s": 3.93,
+      "sources": {
+        "synthetic-procedural": 300
+      },
+      "environments": {
+        "outdoor-street": 108,
+        "outdoor-open": 97,
+        "indoor-hall": 33,
+        "indoor-factory": 46,
+        "indoor-small-room": 16
+      },
+      "devices": {
+        "laptop-mic": 46,
+        "smartphone": 39,
+        "studio-recorder": 58,
+        "cctv-camera": 51,
+        "headset": 55,
+        "body-camera": 51
+      },
+      "quality": {
+        "Good": 286,
+        "Acceptable": 13,
+        "Poor": 1
+      }
+    },
+    "Door Impact": {
+      "original": 373,
+      "augmented": 0,
+      "splits": {
+        "train": 261,
+        "validation": 56,
+        "test": 56
+      },
+      "mean_duration_s": 3.09,
+      "sources": {
+        "synthetic-procedural": 333,
+        "esc50": 40
+      },
+      "environments": {
+        "indoor-hall": 86,
+        "outdoor-open": 6,
+        "indoor-factory": 20,
+        "indoor-small-room": 166,
+        "outdoor-street": 55
+      },
+      "devices": {
+        "cctv-camera": 58,
+        "studio-recorder": 52,
+        "laptop-mic": 61,
+        "smartphone": 48,
+        "body-camera": 47,
+        "headset": 67
+      },
+      "quality": {
+        "Good": 362,
+        "Acceptable": 9,
+        "Poor": 2
+      }
+    },
+    "Graffiti Spray": {
+      "original": 300,
+      "augmented": 0,
+      "splits": {
+        "train": 210,
+        "validation": 45,
+        "test": 45
+      },
+      "mean_duration_s": 3.47,
+      "sources": {
+        "synthetic-procedural": 300
+      },
+      "environments": {
+        "outdoor-street": 186,
+        "indoor-small-room": 13,
+        "outdoor-open": 81,
+        "indoor-hall": 20
+      },
+      "devices": {
+        "studio-recorder": 55,
+        "smartphone": 46,
+        "body-camera": 45,
+        "laptop-mic": 52,
+        "headset": 54,
+        "cctv-camera": 48
+      },
+      "quality": {
+        "Good": 300
+      }
+    },
+    "Background Noise": {
+      "original": 3644,
+      "augmented": 0,
+      "splits": {
+        "train": 2546,
+        "validation": 548,
+        "test": 550
+      },
+      "mean_duration_s": 4.17,
+      "sources": {
+        "synthetic-procedural": 977,
+        "urbansound8k": 1467,
+        "esc50": 1200
+      },
+      "environments": {
+        "indoor-hall": 100,
+        "indoor-factory": 47,
+        "outdoor-street": 102,
+        "indoor-small-room": 656,
+        "outdoor-open": 72,
+        "urban": 1467
+      },
+      "devices": {
+        "headset": 171,
+        "smartphone": 148,
+        "cctv-camera": 148,
+        "body-camera": 168,
+        "studio-recorder": 173,
+        "laptop-mic": 169,
+        "field_recorder": 1467
+      },
+      "quality": {
+        "Good": 3421,
+        "Acceptable": 194,
+        "Poor": 29
+      }
+    }
+  },
+  "total_original": 12018,
+  "total_augmented": 0,
+  "split_totals": {
+    "train": 8405,
+    "validation": 1810,
+    "test": 1803
+  },
+  "total_hours": 12.06,
+  "balance_warnings": [
+    "Machinery Fault: 300 clips is more than 10% away from the class mean (707).",
+    "Glass Breaking: 340 clips is more than 10% away from the class mean (707).",
+    "Alarm or Siren: 1041 clips is more than 10% away from the class mean (707).",
+    "Animal Sound: 1657 clips is more than 10% away from the class mean (707).",
+    "Panic Scream: 300 clips is more than 10% away from the class mean (707).",
+    "Aggression: 300 clips is more than 10% away from the class mean (707).",
+    "Person Asking for Help: 300 clips is more than 10% away from the class mean (707).",
+    "Drone Sound: 300 clips is more than 10% away from the class mean (707).",
+    "Drilling or Grinder Sound: 829 clips is more than 10% away from the class mean (707).",
+    "Fireworks: 340 clips is more than 10% away from the class mean (707).",
+    "Vehicle Backfire: 300 clips is more than 10% away from the class mean (707).",
+    "Explosion: 300 clips is more than 10% away from the class mean (707).",
+    "Door Impact: 373 clips is more than 10% away from the class mean (707).",
+    "Graffiti Spray: 300 clips is more than 10% away from the class mean (707).",
+    "Background Noise: 3644 clips is more than 10% away from the class mean (707)."
+  ]
+}

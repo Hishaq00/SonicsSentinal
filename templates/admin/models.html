@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import icon, pct, when, empty with context %}
+{% block title %}Models{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Administration</p>
+    <h1>Models</h1>
+    <p class="lede">The Python classifier (trained with <code>python -m python_models.train</code>) and the Google Teachable Machine audio model (the Teachable Machine audio network, trained with <code>python -m scripts.train_gtm_model</code> on the same splits and the exact input the browser computes). Every prediction stores the version of both models.</p>
+  </div>
+  <div class="actions"><a class="btn" href="{{ url_for('admin.gtm_trainer') }}">{{ icon("mic") }}GTM training helper</a><a class="btn btn-primary" href="{{ url_for('admin.evaluation') }}">{{ icon("scale") }}Compare on test set</a></div>
+</div>
+
+<section class="panel mb-3">
+  <div class="panel-head"><h2><span class="model-tag python">Python model</span></h2>{% if card %}<span class="mono small">{{ card.version }}</span>{% endif %}</div>
+  {% if card %}
+  {% set t = card.metrics.test.recording %}
+  <div class="kpis" style="border:0;border-bottom:1px solid var(--rule);border-radius:0">
+    <div class="kpi"><div class="label">Test accuracy</div><div class="value">{{ pct(t.accuracy, 1) }}</div><div class="meta">target 85%</div></div>
+    <div class="kpi"><div class="label">Macro F1</div><div class="value">{{ "%.3f"|format(t.f1_macro) }}</div><div class="meta">target 0.80</div></div>
+    <div class="kpi"><div class="label">Min. critical recall</div><div class="value">{{ pct(t.critical_recall_min, 1) }}</div><div class="meta">target 85%</div></div>
+    <div class="kpi"><div class="label">Test recordings</div><div class="value">{{ card.dataset.test_recordings }}</div><div class="meta">unseen</div></div>
+    <div class="kpi"><div class="label">Training segments</div><div class="value">{{ card.dataset.train_segments }}</div><div class="meta">{{ card.dataset.train_recordings }} recordings + augmentation</div></div>
+  </div>
+  <div class="panel-body grid grid-2">
+    <dl class="kv">
+      <dt>Algorithm</dt><dd>{{ card.algorithm_label }}</dd>
+      <dt>Trained</dt><dd>{{ card.trained_at }}</dd>
+      <dt>Hyper-parameters</dt><dd class="mono small">{{ card.hyperparameters|tojson }}</dd>
+      <dt>Features</dt><dd>{{ card.n_features }} ({{ card.feature_set }}) on {{ card.segment_seconds }} s segments, hop {{ card.segment_hop_seconds }} s</dd>
+      <dt>Classes</dt><dd>{{ card.classes|join(", ") }}</dd>
+      <dt>Report folder</dt><dd class="mono small">{{ card.report_dir }}</dd>
+    </dl>
+    <div>
+      <div class="upper-label mb-2">Class-wise test performance</div>
+      <table class="table compact">
+        <thead><tr><th>Class</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1</th><th class="num">n</th></tr></thead>
+        <tbody>{% for c, m in t.per_class.items() %}<tr><td>{{ c }}{% if c in card.critical_classes %} <span class="tag">critical</span>{% endif %}</td><td class="num">{{ "%.2f"|format(m.precision) }}</td><td class="num">{{ "%.2f"|format(m.recall) }}</td><td class="num">{{ "%.2f"|format(m.f1) }}</td><td class="num">{{ m.support }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </div>
+  <div class="panel-head" style="border-top:1px solid var(--rule)"><h2>Models compared</h2><span class="meta">same training data, tuned with grouped cross-validation, selected on validation</span></div>
+  <div class="panel-body flush"><div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Model</th><th class="num">CV macro F1</th><th class="num">Val. macro F1</th><th class="num">Test accuracy</th><th class="num">Test macro F1</th><th class="num">Min. critical recall</th><th class="num">Noisy (0 dB) acc.</th><th class="num">ms / segment</th><th></th></tr></thead>
+      <tbody>{% for c in card.comparison %}<tr><td>{{ c.label }}</td><td class="num">{{ "%.3f"|format(c.cv_f1_macro) }}</td><td class="num">{{ "%.3f"|format(c.val_f1_macro) }}</td><td class="num">{{ pct(c.test_accuracy, 1) }}</td><td class="num">{{ "%.3f"|format(c.test_f1_macro) }}</td><td class="num">{{ pct(c.test_critical_recall_min, 1) }}</td><td class="num">{{ pct(c.noise_0db_accuracy, 1) if c.noise_0db_accuracy == c.noise_0db_accuracy else "-" }}</td><td class="num">{{ "%.2f"|format(c.inference_ms_per_segment) }}</td><td>{% if c.selected %}<span class="chip agree-Acceptable-Match"><span class="sym">=</span>Selected</span>{% endif %}</td></tr>{% endfor %}</tbody>
+    </table>
+  </div></div>
+  {% if card.noise_robustness_all %}
+  <div class="panel-head" style="border-top:1px solid var(--rule)"><h2>Noise robustness</h2><span class="meta">test accuracy after adding background noise</span></div>
+  <div class="panel-body flush"><table class="table compact">
+    {% set levels = (card.noise_robustness_all.values()|list)[0].keys()|list %}
+    <thead><tr><th>Model</th>{% for l in levels %}<th class="num">{{ l }} SNR</th>{% endfor %}</tr></thead>
+    <tbody>{% for name, res in card.noise_robustness_all.items() %}<tr><td>{{ name }}</td>{% for l in levels %}<td class="num">{{ pct(res[l].accuracy, 1) }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table></div>
+  {% endif %}
+  {% if images %}
+  <div class="panel-head" style="border-top:1px solid var(--rule)"><h2>Confusion matrices (test set)</h2></div>
+  <div class="panel-body grid grid-2">
+    {% for img in images %}<figure style="margin:0"><img src="{{ url_for('admin.report_file', filename=card.report_dir.split('reports/', 1)[1] ~ '/' ~ img) }}" alt="{{ img }}" style="border:1px solid var(--rule);border-radius:6px;background:#fff"><figcaption class="small muted mt-1">{{ img.replace('confusion_matrix_', '').replace('.png', '').replace('_', ' ') }}</figcaption></figure>{% endfor %}
+  </div>
+  {% endif %}
+  {% else %}
+  <div class="panel-body">{{ empty("No Python model trained yet. Run: python -m python_models.train", "cpu") }}</div>
+  {% endif %}
+  {% if cards|length > 1 %}
+  <div class="panel-head" style="border-top:1px solid var(--rule)"><h2>Saved versions</h2></div>
+  <div class="panel-body flush"><table class="table compact">
+    <thead><tr><th>Version</th><th>Algorithm</th><th>Trained</th><th class="num">Test acc.</th><th></th></tr></thead>
+    <tbody>{% for c in cards %}<tr><td class="mono small">{{ c.version }}</td><td>{{ c.algorithm_label }}</td><td class="small">{{ c.trained_at }}</td><td class="num">{{ pct(c.metrics.test.recording.accuracy, 1) }}</td>
+      <td class="right">{% if active and active.version == c.version %}<span class="chip agree-Acceptable-Match"><span class="sym">=</span>Active</span>{% else %}<form method="post" action="{{ url_for('admin.activate_model') }}" class="inline-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="version" value="{{ c.version }}"><button class="btn btn-sm" type="submit">Activate</button></form>{% endif %}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% endif %}
+</section>
+
+<section class="panel mb-3">
+  <div class="panel-head"><h2><span class="model-tag gtm">Google Teachable Machine model</span></h2>{% if gtm.enabled %}<span class="chip agree-Acceptable-Match"><span class="sym">=</span>Active in browser</span>{% else %}<span class="chip agree-Single-Model-Result"><span class="sym">1</span>Not configured</span>{% endif %}</div>
+  <div class="panel-body grid grid-2">
+    <form method="post" action="{{ url_for('admin.configure_gtm') }}" class="stack" style="gap:12px">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="check"><input type="checkbox" name="enabled" value="1"{% if gtm_settings.enabled %} checked{% endif %}> Use the GTM model for comparison</label>
+      <div class="field"><span class="label">Model source</span>
+        <label class="check"><input type="radio" name="source" value="local"{% if gtm_settings.source != 'url' %} checked{% endif %}> Exported files in <code>gtm_model/model/</code> (model.json, metadata.json, weights.bin)</label>
+        <label class="check"><input type="radio" name="source" value="url"{% if gtm_settings.source == 'url' %} checked{% endif %}> Shareable Teachable Machine link</label>
+      </div>
+      <div class="field"><label for="gtm-url">Teachable Machine model URL</label><input id="gtm-url" name="url" type="url" value="{{ gtm_settings.url }}" placeholder="https://teachablemachine.withgoogle.com/models/XXXXXXXX/"></div>
+      <div class="field"><label for="gtm-ver">Version label <span class="muted">(optional)</span></label><input id="gtm-ver" name="version_label" value="{{ gtm_settings.version_label }}" placeholder="e.g. gtm-v2-2026-09-26"><span class="help">If empty, the version is read from metadata.json (model name + timestamp).</span></div>
+      <div><button class="btn btn-primary" type="submit">Save GTM configuration</button></div>
+    </form>
+    <div>
+      <dl class="kv">
+        <dt>Local files</dt><dd>{% if gtm_files %}{% for n, s in gtm_files.items() %}<span class="mono small">{{ n }}</span> <span class="muted small">{{ s|bytes }}</span><br>{% endfor %}{% else %}<span class="muted">none in gtm_model/model/</span>{% endif %}</dd>
+        <dt>Model name</dt><dd>{{ (gtm_meta or {}).get("modelName", "-") }}</dd>
+        <dt>Exported</dt><dd>{{ (gtm_meta or {}).get("timeStamp", "-") }}</dd>
+        <dt>Labels</dt><dd>{{ gtm_labels|join(", ") if gtm_labels else "-" }}</dd>
+        <dt>Label check</dt><dd>{% if label_check %}{% if label_check.ok %}<span class="chip agree-Acceptable-Match"><span class="sym">=</span>Class names match the Python model</span>{% else %}<span class="chip agree-Model-Disagreement"><span class="sym">&ne;</span>Mismatch</span><div class="small mt-1">Missing: {{ label_check.missing|join(", ") or "-" }}<br>Extra: {{ label_check.extra|join(", ") or "-" }}</div>{% endif %}{% else %}-{% endif %}</dd>
+      </dl>
+      {% if gtm_versions %}
+      <div class="upper-label mt-3 mb-2">Versions seen by the application</div>
+      <table class="table compact"><tbody>{% for v in gtm_versions %}<tr><td class="mono small">{{ v.version }}</td><td class="small">{{ when(v.registered_at) }}</td><td>{% if v.is_active %}<span class="tag">active</span>{% endif %}</td></tr>{% endfor %}</tbody></table>
+      {% endif %}
+    </div>
+  </div>
+  <div class="panel-note">How GTM runs here: the browser loads the exported TensorFlow.js model, computes GTM's own 43&times;232 spectrogram from the same pre-processed segment the Python model analysed, and posts only GTM's class scores. See <code>gtm_model/README.md</code> for training and export steps.</div>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><h2>Acoustic features used by the Python model</h2></div>
+  <div class="panel-body flush"><table class="table compact">
+    <thead><tr><th>Group</th><th class="num">Values</th><th>Examples</th></tr></thead>
+    <tbody>{% for g, names in feature_groups.items() %}<tr><td>{{ g }}</td><td class="num">{{ names|length }}</td><td class="mono small">{{ names[:4]|join(", ") }}{% if names|length > 4 %}, &hellip;{% endif %}</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+{% endblock %}

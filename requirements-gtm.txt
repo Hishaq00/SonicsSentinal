@@ -1,0 +1,4 @@
+# Extra dependency for training the GTM model (python -m scripts.train_gtm_model).
+# The web application does not need it: the exported model runs in the browser with TensorFlow.js.
+# Install:  python -m pip install -r requirements.txt -r requirements-gtm.txt
+torch==2.14.0

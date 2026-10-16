@@ -1,0 +1,171 @@
+{
+  "version": 5,
+  "description": "Single source of truth for SonicSentinel AI sound categories. The Python model, the Google Teachable Machine (GTM) model, the alert rules and the UI must all use exactly these class names.",
+  "unknown_label": "Unknown Sound",
+  "classes": [
+    {
+      "name": "Machinery Fault",
+      "code": "MCH",
+      "slug": "machinery_fault",
+      "display_name": "Machinery Fault",
+      "group": "maintenance",
+      "color": "#8B6B4A",
+      "description": "Abnormal machine noise: grinding, knocking, bearing squeal, belt slip or rattling."
+    },
+    {
+      "name": "Glass Breaking",
+      "code": "GLS",
+      "slug": "glass_breaking",
+      "display_name": "Glass Breaking",
+      "group": "security",
+      "color": "#2F9A9A",
+      "description": "Window or glass shattering, including the scattered shards that follow the impact."
+    },
+    {
+      "name": "Alarm or Siren",
+      "code": "ALM",
+      "slug": "alarm_or_siren",
+      "display_name": "Alarm or Siren",
+      "group": "safety",
+      "color": "#D1495B",
+      "description": "Fire alarms, intrusion alarms, emergency-vehicle sirens and beeping alert tones."
+    },
+    {
+      "name": "Vehicle Horn",
+      "code": "HRN",
+      "slug": "vehicle_horn",
+      "display_name": "Vehicle Horn",
+      "group": "traffic",
+      "color": "#D99A2B",
+      "description": "Car, truck, motorbike or bus horns."
+    },
+    {
+      "name": "Animal Sound",
+      "code": "ANM",
+      "slug": "animal_sound",
+      "display_name": "Animal Sound",
+      "group": "environment",
+      "color": "#5E9447",
+      "description": "Dogs barking, cats, livestock, birds, insects, frogs and other animal vocalisations."
+    },
+    {
+      "name": "Gunshot",
+      "code": "GUN",
+      "slug": "gunshot",
+      "display_name": "Gunshot",
+      "group": "security",
+      "color": "#2F2E2B",
+      "description": "Firearm discharge: a sharp broadband impulse followed by an echo tail."
+    },
+    {
+      "name": "Panic Scream",
+      "code": "SCR",
+      "slug": "panic_scream",
+      "display_name": "Panic Scream",
+      "group": "safety",
+      "color": "#B5487F",
+      "description": "High-pitched screams that indicate fear or distress."
+    },
+    {
+      "name": "Aggression",
+      "code": "AGR",
+      "slug": "aggression",
+      "display_name": "Aggression or Violent Conflict",
+      "group": "security",
+      "color": "#7B5EA7",
+      "description": "Aggressive shouting, heated arguments and sounds of physical conflict."
+    },
+    {
+      "name": "Person Asking for Help",
+      "code": "HLP",
+      "slug": "person_asking_for_help",
+      "display_name": "Person Asking for Help",
+      "group": "safety",
+      "color": "#4F6D9A",
+      "description": "Defined safety phrases only: \"Help me\", \"Somebody help\", \"Please help\", \"Call for help\", \"Emergency\"."
+    },
+    {
+      "name": "Drone Sound",
+      "code": "DRN",
+      "slug": "drone_sound",
+      "display_name": "Drone Sound",
+      "group": "security",
+      "color": "#3E7CB1",
+      "description": "Multirotor drone (UAV) flying, hovering or passing: buzzing rotor tones with beating between the propellers."
+    },
+    {
+      "name": "Drilling or Grinder Sound",
+      "code": "DRL",
+      "slug": "drilling_or_grinder_sound",
+      "display_name": "Drilling or Grinder Sound",
+      "group": "maintenance",
+      "color": "#9C6644",
+      "description": "Power tools: electric or hammer drills, jackhammers, angle and bench grinders, impact drivers."
+    },
+    {
+      "name": "Fireworks",
+      "code": "FWK",
+      "slug": "fireworks",
+      "display_name": "Fireworks",
+      "group": "safety",
+      "color": "#E07A5F",
+      "description": "Firework shells, rockets and firecracker strings: whistles, bursts and crackling tails."
+    },
+    {
+      "name": "Vehicle Backfire",
+      "code": "BKF",
+      "slug": "vehicle_backfire",
+      "display_name": "Vehicle Backfire",
+      "group": "traffic",
+      "color": "#B08D57",
+      "description": "Exhaust backfire or afterfire pops from a vehicle, usually with engine sound around them."
+    },
+    {
+      "name": "Explosion",
+      "code": "EXP",
+      "slug": "explosion",
+      "display_name": "Explosion",
+      "group": "safety",
+      "color": "#8F2D2D",
+      "description": "Blasts and explosions: a heavy low-frequency boom with a long rumbling tail, sometimes debris."
+    },
+    {
+      "name": "Door Impact",
+      "code": "DOR",
+      "slug": "door_impact",
+      "display_name": "Door Impact",
+      "group": "security",
+      "color": "#6D5A72",
+      "description": "Doors being slammed, kicked, rammed or banged on, and knocking on doors."
+    },
+    {
+      "name": "Graffiti Spray",
+      "code": "GRF",
+      "slug": "graffiti_spray",
+      "display_name": "Graffiti Spray",
+      "group": "security",
+      "color": "#2A9D8F",
+      "description": "Aerosol spray cans: the mixing-ball rattle of a shaken can and bursts of spray hiss."
+    },
+    {
+      "name": "Background Noise",
+      "code": "BGN",
+      "slug": "background_noise",
+      "display_name": "Background Noise",
+      "group": "environment",
+      "color": "#A39E93",
+      "description": "Ambient sound with no event of interest: traffic hum, wind, rain, office or crowd murmur."
+    }
+  ],
+  "help_phrases": [
+    "Help me",
+    "Somebody help",
+    "Please help",
+    "Call for help",
+    "Emergency"
+  ],
+  "optional_classes": [
+    "Normal Machinery"
+  ],
+  "optional_classes_note": "Exactly the SRS list: the ten mandatory categories plus the seven optional ones (Drone Sound, Drilling or Grinder Sound, Fireworks, Vehicle Backfire, Explosion, Door Impact, Graffiti Spray). Categories trialled on 28 Sep 2026 - Human Speech, the animal species and the everyday sounds - were removed again to match the SRS; their recordings stay in the dataset under Animal Sound or Background Noise, so the extra real audio still helps the models."
+}

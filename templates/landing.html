@@ -1,0 +1,340 @@
+{% from "partials/macros.html" import brand_mark, icon with context %}<!doctype html>
+<html lang="en" class="lp-root">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SonicSentinel AI &middot; Every sound, on the record</title>
+  <meta name="description" content="SonicSentinel listens to recordings and live microphones, recognises ten kinds of sound events and checks every result with two independent models before it raises an alert.">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="theme-color" content="#0c0d0b">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}?v={{ app_version }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}?v={{ app_version }}"></script>
+</head>
+{% set console_url = url_for('live.monitor') if current_user.is_authenticated else url_for('auth.login') %}
+{% set sev_code = {"Critical": "crit", "High": "high", "Medium": "med", "Low": "low", "Informational": "info"} %}
+<body class="lp">
+{% include "partials/icons.svg" %}
+<div class="lp-grain" aria-hidden="true"></div>
+<div class="lp-cursor" aria-hidden="true"><span></span></div>
+<div class="lp-intro" aria-hidden="true">
+  <div class="lp-intro-trace"></div>
+  <div class="lp-intro-read"><span>SonicSentinel</span><span data-intro-count>000</span></div>
+</div>
+
+<header class="lp-nav" data-nav>
+  <a class="lp-brand" href="{{ url_for('main.index') }}" aria-label="SonicSentinel home">{{ brand_mark("lp-mark") }}<span>SonicSentinel</span></a>
+  <nav class="lp-links" aria-label="Sections">
+    <a href="#pipeline" data-link>Pipeline</a>
+    <a href="#sounds" data-link>Sounds</a>
+    <a href="#models" data-link>Models</a>
+    <a href="#alerts" data-link>Alerts</a>
+    <a href="#faq" data-link>FAQ</a>
+  </nav>
+  <div class="lp-nav-actions">
+    <button class="lp-motion" type="button" data-motion-toggle aria-pressed="true" title="Turn animations on or off"><i></i><span>Motion</span></button>
+    {% if current_user.is_authenticated %}
+      <a class="lp-btn lp-btn-quiet" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+    {% else %}
+      <a class="lp-btn lp-btn-quiet" href="{{ url_for('auth.login') }}">Sign in</a>
+    {% endif %}
+    <a class="lp-btn lp-btn-signal" href="{{ console_url }}" data-magnetic><span>Open console</span>{{ icon("arrow-right") }}</a>
+  </div>
+  <div class="lp-progress" aria-hidden="true"><span></span></div>
+</header>
+
+<main>
+  <!-- ============ HERO ============ -->
+  <section class="lp-hero" id="top">
+    <div class="lp-field" id="soundfield" aria-hidden="true"></div>
+    <div class="lp-hero-shade" aria-hidden="true"></div>
+    <div class="lp-hero-inner lp-wrap">
+      <p class="lp-kicker" data-hero-fade><span class="lp-rec"></span>Acoustic event monitoring &middot; {{ classes|length }} sound classes</p>
+      <h1 class="lp-title" data-hero-title>Every sound,<br><em>on the record.</em></h1>
+      <div class="lp-hero-foot">
+        <p class="lp-lede" data-hero-fade>SonicSentinel listens to recordings and live microphones, recognises ten kinds of sound&nbsp;&mdash; from a gunshot or breaking glass to a person calling for help&nbsp;&mdash; and checks every result with two independent models before it raises an alert.</p>
+        <div class="lp-cta" data-hero-fade>
+          <a class="lp-btn lp-btn-signal lp-btn-lg" href="{{ console_url }}" data-magnetic><span>Open the console</span>{{ icon("arrow-right") }}</a>
+          <a class="lp-btn lp-btn-line lp-btn-lg" href="#pipeline" data-link><span>See how it listens</span>{{ icon("arrow-down") }}</a>
+        </div>
+      </div>
+    </div>
+    <aside class="lp-hud" data-hero-fade aria-label="Spectrogram display (simulated sound scene)">
+      <div class="lp-hud-head"><span class="lp-rec"></span>CH-01 &middot; simulated scene</div>
+      <dl class="lp-hud-grid">
+        <dt>Rate</dt><dd>44.1&nbsp;kHz</dd>
+        <dt>Frame</dt><dd>43&nbsp;&times;&nbsp;232</dd>
+        <dt>Window</dt><dd>2.0&nbsp;s</dd>
+        <dt>Clock</dt><dd data-clock>--:--:--</dd>
+      </dl>
+      <div class="lp-hud-now">
+        <span class="lp-hud-label">Hearing</span>
+        <b data-hud-event>Background noise</b>
+        <span class="lp-hud-meta"><span class="lp-code" data-hud-code>BGN</span><span class="lp-sev" data-hud-sev>Informational</span></span>
+      </div>
+      <div class="lp-hud-meter" aria-hidden="true">{% for i in range(18) %}<i></i>{% endfor %}</div>
+      <div class="lp-hud-axis" aria-hidden="true"><span>&larr; time</span><span>frequency 0&ndash;11&nbsp;kHz &rarr;</span></div>
+    </aside>
+    <a class="lp-scroll-cue" href="#manifesto" data-link aria-label="Scroll to the next section"><span>Scroll</span><i></i></a>
+  </section>
+
+  <!-- ============ MANIFESTO ============ -->
+  <section class="lp-manifesto lp-wrap" id="manifesto">
+    <p class="lp-index"><span>01</span>Why sound</p>
+    <p class="lp-statement" data-words>Cameras see what is in frame. Microphones hear around corners, through walls and in the dark. SonicSentinel turns that sound into events a person can act&nbsp;on.</p>
+  </section>
+
+  <!-- ============ PIPELINE ============ -->
+  <section class="lp-pipeline" id="pipeline">
+    <div class="lp-pipe-pin">
+      <div class="lp-pipe-head lp-wrap">
+        <p class="lp-index"><span>02</span>Pipeline</p>
+        <h2 class="lp-h2" data-reveal-title>From microphone<br>to decision.</h2>
+        <div class="lp-pipe-count" aria-hidden="true"><b data-step-now>01</b><span>/ 06</span></div>
+      </div>
+      <div class="lp-pipe-rail" aria-hidden="true"><span data-pipe-bar></span></div>
+      <div class="lp-pipe-track" data-track>
+        <article class="lp-step">
+          <span class="lp-step-no">01</span>
+          <svg class="lp-art" viewBox="0 0 240 120" aria-hidden="true"><path class="d" d="M20 60h30l6-18 8 40 8-54 8 64 7-38 5 6h30"/><path class="d" d="M150 30h26v40a13 13 0 0 1-26 0z M142 64v6a21 21 0 0 0 42 0v-6 M163 91v14 M150 105h26"/></svg>
+          <h3>Capture</h3>
+          <p>Upload a recording, or open the live monitor and stream a microphone in rolling two-second windows.</p>
+          <ul class="lp-specs"><li>WAV &middot; MP3 &middot; FLAC &middot; OGG &middot; M4A</li><li>Up to 25&nbsp;MB and 10&nbsp;minutes</li></ul>
+        </article>
+        <article class="lp-step">
+          <span class="lp-step-no">02</span>
+          <svg class="lp-art" viewBox="0 0 240 120" aria-hidden="true"><path class="d dim" d="M14 36l6-9 5 16 6-14 4 11 6-18 5 20 6-13 5 9 6-15 5 17 6-12 5 10 6-16 5 13 6-9 5 14 6-11 5 8 6-13 5 12 6-8 5 10 6-12 5 9 6-7 5 11 6-9 5 8 6-10 5 7 6-8 5 6"/><path class="d" d="M14 90h40l6-16 6 30 6-40 6 44 6-24 5 6h40l5-10 6 18 5-14 5 6h40"/><path class="d thin" d="M14 62h212"/></svg>
+          <h3>Clean</h3>
+          <p>Mixed to mono, DC offset removed, resampled to 22.05&nbsp;kHz, spectral-gate noise reduction, silence trimmed and the peak normalised.</p>
+          <ul class="lp-specs"><li>Same steps for training and prediction</li></ul>
+        </article>
+        <article class="lp-step">
+          <span class="lp-step-no">03</span>
+          <svg class="lp-art" viewBox="0 0 240 120" aria-hidden="true"><path class="d" d="M10 62h24l5-14 6 30 6-40 6 44 5-24 4 8h30l5-10 6 22 6-30 6 34 5-18 4 4h30l6-12 6 16 5-6 4 2h30"/><path class="d thin" d="M14 24v8M14 24h92v8M68 12v8M68 12h92v8M122 24v8M122 24h92v8"/></svg>
+          <h3>Segment</h3>
+          <p>Cut into two-second segments that overlap by one second, so a short event is never split in half. Quiet segments are skipped.</p>
+          <ul class="lp-specs"><li>2&nbsp;s windows &middot; 1&nbsp;s hop</li></ul>
+        </article>
+        <article class="lp-step">
+          <span class="lp-step-no">04</span>
+          <svg class="lp-art" viewBox="0 0 240 120" aria-hidden="true"><path class="d" d="M16 60h40M56 60l24-28M56 60l24 28"/><path class="d" d="M92 22h8v20h-8zM106 30h8v12h-8zM120 16h8v26h-8zM134 26h8v16h-8z"/><path class="d" d="M92 74h56v34H92zM92 85h56M92 97h56M106 74v34M120 74v34M134 74v34"/><path class="d thin" d="M160 32h60M160 91h60"/></svg>
+          <h3>Listen twice</h3>
+          <p>A Python ensemble reads 193 acoustic features on the server. A Teachable Machine network reads a 43&nbsp;&times;&nbsp;232 spectrogram in your browser.</p>
+          <ul class="lp-specs"><li>Neither model sees the other&rsquo;s answer</li></ul>
+        </article>
+        <article class="lp-step">
+          <span class="lp-step-no">05</span>
+          <svg class="lp-art" viewBox="0 0 240 120" aria-hidden="true"><path class="d" d="M20 30h110M20 90h90M130 30l40 30M110 90l60-30M170 60h50"/><path class="d thin" d="M196 44v32"/></svg>
+          <h3>Compare</h3>
+          <p>The two probability sets are fused and compared. The result is a match, a weak match, a disagreement or an uncertain result.</p>
+          <ul class="lp-specs"><li>= &nbsp;&asymp; &nbsp;&ne; &nbsp;?</li></ul>
+        </article>
+        <article class="lp-step">
+          <span class="lp-step-no">06</span>
+          <svg class="lp-art" viewBox="0 0 240 120" aria-hidden="true"><path class="d" d="M60 30l26 30-26 30-26-30z"/><path class="d" d="M118 88V64a20 20 0 0 1 40 0v24M110 88h56v10h-56zM138 24v10M112 34l6 6M164 34l-6 6"/><path class="d" d="M186 62l10 10 22-24"/></svg>
+          <h3>Act</h3>
+          <p>Per-class alert rules decide severity, confirmation and escalation. Anything uncertain goes to a person in the review queue.</p>
+          <ul class="lp-specs"><li>Every step is kept in the audit trail</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SOUNDS ============ -->
+  <section class="lp-sounds lp-wrap" id="sounds">
+    <div class="lp-sec-head">
+      <p class="lp-index"><span>03</span>What it hears</p>
+      <h2 class="lp-h2" data-reveal-title>Ten sounds.<br>Each has a shape.</h2>
+      <p class="lp-sec-lede">Each card draws the typical spectrogram of its class &mdash; time left to right, pitch bottom to top. Hover a card to play its scan.</p>
+    </div>
+    <div class="lp-sound-grid">
+      {% for c in classes %}
+      <article class="lp-sound" data-reveal-card>
+        <canvas class="lp-sig" data-sig="{{ c.slug }}" aria-hidden="true"></canvas>
+        <div class="lp-sound-meta">
+          <span class="lp-code">{{ c.code }}</span>
+          <span class="lp-sev lp-sev-{{ sev_code.get(c.severity, 'low') }}">{{ c.severity }}</span>
+        </div>
+        <h3>{{ c.display_name or c.name }}</h3>
+        <p>{{ c.description }}</p>
+        <span class="lp-sound-foot">{{ "Raises an alert" if c.alerts else "Logged, no alert" }}</span>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ============ MODELS ============ -->
+  <section class="lp-models" id="models">
+    <div class="lp-wrap">
+      <div class="lp-sec-head">
+        <p class="lp-index"><span>04</span>Two models, one verdict</p>
+        <h2 class="lp-h2" data-reveal-title>Two models listen.<br>Then they compare notes.</h2>
+      </div>
+      <div class="lp-duel">
+        <article class="lp-model lp-model-py" data-reveal-card>
+          <p class="lp-model-where">On the server</p>
+          <h3>Python ensemble</h3>
+          <p>193 acoustic features per segment &mdash; MFCCs, mel bands, spectral contrast, pitch, onsets and the energy envelope &mdash; classified by XGBoost, a neural network and gradient boosting voting together.</p>
+          <div class="lp-bars" data-bars="py">
+            <div><span>Gunshot</span><i><b style="--v:.91"></b></i><em>91%</em></div>
+            <div><span>Glass breaking</span><i><b style="--v:.05"></b></i><em>5%</em></div>
+            <div><span>Machinery fault</span><i><b style="--v:.02"></b></i><em>2%</em></div>
+          </div>
+          {% if facts.python %}<p class="lp-model-stat"><b data-count="{{ '%.1f'|format(facts.python.accuracy * 100) }}">{{ '%.1f'|format(facts.python.accuracy * 100) }}</b>% test accuracy</p>{% endif %}
+        </article>
+        <div class="lp-verdict" data-reveal-card>
+          <span class="lp-verdict-label">Verdict</span>
+          <span class="lp-verdict-sym" data-verdict-sym>=</span>
+          <b data-verdict-name>Acceptable match</b>
+          <p data-verdict-text>Same class, similar confidence. The alert rule decides what happens next.</p>
+        </div>
+        <article class="lp-model lp-model-gtm" data-reveal-card>
+          <p class="lp-model-where">In your browser</p>
+          <h3>Teachable Machine network</h3>
+          <p>A convolutional network in the Teachable Machine audio format reads a 43&nbsp;&times;&nbsp;232 spectrogram of the loudest second of each segment, running on TensorFlow.js.</p>
+          <div class="lp-bars" data-bars="gtm">
+            <div><span>Gunshot</span><i><b style="--v:.87"></b></i><em>87%</em></div>
+            <div><span>Glass breaking</span><i><b style="--v:.08"></b></i><em>8%</em></div>
+            <div><span>Machinery fault</span><i><b style="--v:.03"></b></i><em>3%</em></div>
+          </div>
+          {% if facts.gtm %}<p class="lp-model-stat"><b data-count="{{ '%.1f'|format(facts.gtm.accuracy * 100) }}">{{ '%.1f'|format(facts.gtm.accuracy * 100) }}</b>% test accuracy</p>{% endif %}
+        </article>
+      </div>
+      <ol class="lp-agree">
+        <li data-sym="="><b>Acceptable match</b>Same class, confidences close together.</li>
+        <li data-sym="&asymp;"><b>Weak match</b>Same class, but one model is much less sure.</li>
+        <li data-sym="&ne;"><b>Disagreement</b>Different classes. A reviewer listens.</li>
+        <li data-sym="?"><b>Uncertain</b>Both unsure. Logged as unknown and reviewed.</li>
+      </ol>
+      <p class="lp-note">Bars above are an example segment. Accuracy is measured per recording on {{ facts.python.test_n if facts.python and facts.python.test_n else "the" }} unseen test recordings.</p>
+    </div>
+  </section>
+
+  <!-- ============ NUMBERS ============ -->
+  <section class="lp-numbers lp-wrap" aria-label="Project in numbers">
+    <div class="lp-num"><b data-count="{{ classes|length }}">{{ classes|length }}</b><span>sound classes</span></div>
+    {% if facts.recordings %}<div class="lp-num"><b data-count="{{ facts.recordings }}">{{ "{:,}".format(facts.recordings) }}</b><span>recordings in the dataset</span></div>{% endif %}
+    <div class="lp-num"><b data-count="193">193</b><span>acoustic features</span></div>
+    <div class="lp-num"><b>43&times;232</b><span>spectrogram input</span></div>
+    <div class="lp-num"><b data-count="2">2</b><span>second analysis window</span></div>
+  </section>
+
+  <!-- ============ ALERTS ============ -->
+  <section class="lp-alerts lp-wrap" id="alerts">
+    <div class="lp-alerts-side">
+      <p class="lp-index"><span>05</span>From detection to decision</p>
+      <h2 class="lp-h2" data-reveal-title>An alert has<br>to be earned.</h2>
+      <p class="lp-sec-lede">Every class has its own rule. Here is the gunshot rule, step by step.</p>
+    </div>
+    <ol class="lp-flow" data-flow>
+      <li><span class="lp-flow-t">00:00.0</span><b>Heard twice</b>A gunshot is detected in two consecutive segments.</li>
+      <li><span class="lp-flow-t">00:01.2</span><b>Checked against the rule</b>Both models agree, confidence at least 70&nbsp;%, a clear margin over the next class, audio quality at least acceptable.</li>
+      <li class="is-hot"><span class="lp-flow-t">00:01.3</span><b>Critical alert</b>Security is notified with the recommended action: check nearby cameras, keep people away.</li>
+      <li><span class="lp-flow-t">00:30.0</span><b>Escalation</b>Three shots within 30 seconds escalate to the security lead and emergency services.</li>
+      <li><span class="lp-flow-t">later</span><b>Acknowledged, reviewed, closed</b>An operator acknowledges it, a reviewer confirms the category, and the audit trail keeps every step.</li>
+    </ol>
+  </section>
+
+  <!-- ============ CONSOLE PREVIEW ============ -->
+  <section class="lp-console-sec lp-wrap" aria-label="Live monitor preview">
+    <div class="lp-console" data-console>
+      <div class="lp-console-bar">
+        <span class="lp-console-state"><span class="lp-rec"></span>Monitoring</span>
+        <span>Window <b data-console-win>0001</b></span>
+        <span>Level <b data-console-db>-32</b> dBFS</span>
+        <span class="lp-console-tag">Preview</span>
+      </div>
+      <canvas class="lp-scope" data-scope aria-hidden="true"></canvas>
+      <div class="lp-console-foot">
+        <div class="lp-console-read"><span>Python</span><b data-console-py>Background noise</b></div>
+        <div class="lp-console-read"><span>Teachable Machine</span><b data-console-gtm>Background noise</b></div>
+        <div class="lp-console-read"><span>Decision</span><b data-console-final>No event</b></div>
+      </div>
+    </div>
+    <div class="lp-console-copy">
+      <p class="lp-index"><span>06</span>Live monitor</p>
+      <h2 class="lp-h2" data-reveal-title>Open a microphone.<br>Watch it think.</h2>
+      <p class="lp-sec-lede">The live monitor analyses a two-second window every second: waveform, spectrum, both models and the rule decision, with an alert toast and sound when something critical happens.</p>
+      <a class="lp-btn lp-btn-line" href="{{ console_url }}"><span>Try the live monitor</span>{{ icon("arrow-right") }}</a>
+    </div>
+  </section>
+
+  <!-- ============ ETHICS ============ -->
+  <section class="lp-ethics lp-wrap" aria-label="Privacy and responsible use">
+    <div class="lp-sec-head">
+      <p class="lp-index"><span>07</span>Responsible by design</p>
+      <h2 class="lp-h2" data-reveal-title>Built for controlled,<br>ethical testing.</h2>
+    </div>
+    <ul class="lp-ethics-grid">
+      <li data-reveal-card>{{ icon("shield") }}<b>A prototype, said plainly</b>Not a certified emergency-response or law-enforcement system.</li>
+      <li data-reveal-card>{{ icon("mic") }}<b>Events, not eavesdropping</b>Live monitoring stores audio only for windows with an event, unless an administrator changes it.</li>
+      <li data-reveal-card>{{ icon("clock") }}<b>Retention limits</b>Audio is deleted after 30 days, live audio after 7, records after a year. All configurable.</li>
+      <li data-reveal-card>{{ icon("users") }}<b>Roles</b>Operators, reviewers, maintenance and administrators each see only what their job needs.</li>
+      <li data-reveal-card>{{ icon("list") }}<b>Audit trail</b>Uploads, predictions, reviews and rule changes are all written down.</li>
+    </ul>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="lp-faq lp-wrap" id="faq">
+    <div class="lp-sec-head">
+      <p class="lp-index"><span>08</span>Questions</p>
+      <h2 class="lp-h2" data-reveal-title>Asked often.</h2>
+    </div>
+    <div class="lp-faq-list">
+      <details class="lp-q"><summary><span>Which sounds can it recognise?</span><i></i></summary>
+        <div class="lp-a"><p>{% for c in classes %}{{ c.name }}{{ ", " if not loop.last else "." }}{% endfor %} Anything that fits none of them is reported as an unknown sound.</p></div></details>
+      <details class="lp-q"><summary><span>Which files can I analyse?</span><i></i></summary>
+        <div class="lp-a"><p>WAV, MP3, FLAC, OGG and M4A, from half a second up to ten minutes and 25&nbsp;MB. Batches of up to 50 files are accepted.</p></div></details>
+      <details class="lp-q"><summary><span>Where does my audio go?</span><i></i></summary>
+        <div class="lp-a"><p>Uploads are stored on this server so they can be analysed, played back and reviewed. The Teachable Machine model runs in your own browser. No third-party cloud service classifies the audio.</p></div></details>
+      <details class="lp-q"><summary><span>What happens when the two models disagree?</span><i></i></summary>
+        <div class="lp-a"><p>The event is marked as a disagreement and goes to the review queue, where a reviewer listens to the segment and confirms or corrects the category.</p></div></details>
+      <details class="lp-q"><summary><span>Can the models be retrained?</span><i></i></summary>
+        <div class="lp-a"><p>Yes. Both are trained on the same dataset and splits: <code>python -m python_models.train</code> for the Python model and <code>python -m scripts.train_gtm_model</code> for the Teachable Machine network. The app picks up new model files without a restart.</p></div></details>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section class="lp-final">
+    <div class="lp-marquee" aria-hidden="true"><div class="lp-marquee-track" data-marquee>
+      {% for i in range(2) %}<span>Listen</span><span>Classify</span><span>Compare</span><span>Alert</span><span>Review</span>{% endfor %}
+    </div></div>
+    <div class="lp-wrap lp-final-inner">
+      <h2 class="lp-final-title" data-reveal-title>Put a microphone on it.</h2>
+      <a class="lp-btn lp-btn-signal lp-btn-xl" href="{{ console_url }}" data-magnetic><span>Open the console</span>{{ icon("arrow-right") }}</a>
+      {% if not current_user.is_authenticated %}<p class="lp-demo">Demo accounts are listed on the <a href="{{ url_for('auth.login') }}">sign-in page</a> &mdash; for example <code>admin</code> / <code>Admin@2026</code>.</p>{% endif %}
+    </div>
+  </section>
+</main>
+
+<footer class="lp-footer">
+  <div class="lp-wrap lp-footer-grid">
+    <div>
+      <a class="lp-brand" href="{{ url_for('main.index') }}">{{ brand_mark("lp-mark") }}<span>SonicSentinel</span></a>
+      <p class="lp-fine">Competition prototype for controlled and ethical testing &mdash; not a certified emergency-response or law-enforcement system.</p>
+    </div>
+    <nav aria-label="Console">
+      <b>Console</b>
+      <a href="{{ url_for('live.monitor') }}">Live monitor</a>
+      <a href="{{ url_for('analysis.analyze') }}">Analyze audio</a>
+      <a href="{{ url_for('alerts.list_alerts') }}">Alerts</a>
+      <a href="{{ url_for('history.history') }}">Event history</a>
+    </nav>
+    <nav aria-label="Account">
+      <b>Account</b>
+      <a href="{{ url_for('auth.login') }}">Sign in</a>
+      <a href="{{ url_for('auth.register') }}">Create account</a>
+      <a href="{{ url_for('auth.privacy') }}">Privacy notice</a>
+    </nav>
+  </div>
+  <div class="lp-wrap lp-footer-bottom"><span>&copy; 2026 SonicSentinel AI</span><span>Python ensemble + Teachable Machine network</span></div>
+</footer>
+
+<script src="{{ url_for('static', filename='vendor/gsap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/ScrollTrigger.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/SplitText.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/lenis.min.js') }}"></script>
+<script type="application/json" id="lp-classes">{{ classes|tojson }}</script>
+<script type="module" src="{{ url_for('static', filename='js/landing.js') }}?v={{ app_version }}"></script>
+</body>
+</html>
